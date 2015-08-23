@@ -1,0 +1,9 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block content %}
+<p>{{ object.profile|display_profile }}</p>
+<p>Total tid: {{ object.duration|display_duration }}</p>
+{% for d in object.leg_set.all %}
+<p>{{ d.order }}: {{ d.duration|display_duration }}</p>
+{% endfor %}
+{% endblock %}

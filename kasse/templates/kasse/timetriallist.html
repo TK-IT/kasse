@@ -1,0 +1,23 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block content %}
+<table>
+<tbody>
+{% for object in object_list %}
+<tr>
+<td>{{ object.profile|display_profile }}</td>
+<td>{{ object.start_time|date:"D j F Y H:i" }}</td>
+<td><a href="{% url "timetrial_detail" pk=object.pk %}">
+{{ object.leg_count }} øl på {{ object.duration|display_duration }}</a></td>
+<td>
+{% if object.result == "f" %}
+✓
+{% else %}
+{{ object.get_result_display }}
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

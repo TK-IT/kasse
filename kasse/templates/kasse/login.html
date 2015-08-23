@@ -1,0 +1,28 @@
+{% extends "kasse/base.html" %}
+{% block content %}
+<form method="post">{% csrf_token %}
+{{ form.next }}
+{% if user.is_authenticated %}
+Logget ind som: {{ user }}
+{% else %}
+<p>
+{{ form.username.label_tag }}
+{{ form.username }}
+{{ form.username.errors }}
+</p>
+<p>
+{{ form.password.label_tag }}
+{{ form.password }}
+{{ form.password.errors }}
+</p>
+<p>
+<input type="submit" value="Log ind" />
+</p>
+{% endif %}
+</form>
+{% if user.is_authenticated %}
+<form method="post" action="{% url "logout" %}">{% csrf_token %}
+<p><input type="submit" value="Log ud" /></p>
+</form>
+{% endif %}
+{% endblock %}
