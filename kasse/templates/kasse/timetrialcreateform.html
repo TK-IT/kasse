@@ -2,10 +2,12 @@
 {% block content %}
 <h1>Indsend tid</h1>
 <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
     <p>
     {{ form.profile.label_tag }}
     {{ form.profile }}
     </p>
+    {{ form.profile.errors }}
     <p>
     {{ form.start_time.label_tag }}
     {{ form.start_time }}
@@ -14,6 +16,7 @@
     <br />
     <span class="hint">Efterlad blank for "nu".</span>
     </p>
+    {{ form.start_time.errors }}
     <p>
     Tider på de enkelte øl.
     <br />
@@ -22,12 +25,14 @@
     <p>
     {{ form.durations }}
     </p>
+    {{ form.durations.errors }}
     <p>
     <label for="{{ form.dnf.id_for_label }}" title="Did not finish">
         {{ form.dnf.label }}:
     </label>
     {{ form.dnf }}
     </p>
+    {{ form.dnf.errors }}
     <input type="submit" value="Indsend tid" />
 </form>
 {% endblock %}
