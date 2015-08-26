@@ -12,7 +12,7 @@
 på
 <a href="{% url "timetrial_detail" pk=object.pk %}">{{ object.duration|display_duration }}</a></td>
 <td class="ttl_profile">{{ object.profile|display_profile }}</td>
-<td class="ttl_start_time">{{ object.start_time }}</td>
+<td class="ttl_start_time">{{ object.start_time|default_if_none:"(dato ukendt)" }}</td>
 <td class="ttl_result ttl_result_{{ object.result }}">
 {{ object.get_result_display }}
 </td>
