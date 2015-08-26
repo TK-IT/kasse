@@ -93,5 +93,6 @@ class TimeTrialList(ListView):
     queryset = (
         TimeTrial.objects.exclude(result='')
         .annotate(leg_count=Count('leg'))
+        .order_by('-start_time')
     )
     template_name = 'kasse/timetriallist.html'
