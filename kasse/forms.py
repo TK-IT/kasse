@@ -16,10 +16,20 @@ class LoginForm(forms.Form):
     next = forms.CharField(widget=forms.HiddenInput)
 
 
+class ProfileModelChoiceField(forms.ModelChoiceField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('queryset', Profile.objects.all())
+        super(ProfileModelChoiceField, self).__init__(**kwargs)
+
+    def label_from_instance(self, obj):
+        if obj.association:
+            return '%s (%s)' % (obj, obj.association)
+        else:
+            return '%s (independent)' % (obj,)
+
+
 class TimeTrialCreateForm(forms.Form):
-    profile = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
-        label='Person')
+    profile = ProfileModelChoiceField(label='Person')
     dnf = forms.BooleanField(required=False, label='DNF')
     durations = forms.CharField(
         widget=forms.Textarea)
