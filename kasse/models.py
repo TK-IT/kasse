@@ -36,7 +36,7 @@ class Profile(models.Model):
 @python_2_unicode_compatible
 class TimeTrial(models.Model):
     RESULTS = (
-        ('f', 'Finished'),
+        ('f', '✓'),
         ('dnf', 'DNF'),
     )
     profile = models.ForeignKey(

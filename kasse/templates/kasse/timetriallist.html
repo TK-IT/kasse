@@ -10,11 +10,7 @@
 <td><a href="{% url "timetrial_detail" pk=object.pk %}">
 {{ object.leg_count }} øl på {{ object.duration|display_duration }}</a></td>
 <td>
-{% if object.result == "f" %}
-✓
-{% else %}
 {{ object.get_result_display }}
-{% endif %}
 </td>
 </tr>
 {% endfor %}
