@@ -1,13 +1,13 @@
 {% load kasse_extras %}
-<table>
+<table cellspacing="0">
 <tbody>
 {% for object in timetrial_list %}
 <tr>
-<td>{{ object.profile|display_profile }}</td>
-<td>{{ object.start_time }}</td>
-<td><a href="{% url "timetrial_detail" pk=object.pk %}">
+<td class="ttl_profile">{{ object.profile|display_profile }}</td>
+<td class="ttl_start_time">{{ object.start_time }}</td>
+<td class="ttl_duration"><a href="{% url "timetrial_detail" pk=object.pk %}">
 {{ object.leg_count }} øl på {{ object.duration|display_duration }}</a></td>
-<td>
+<td class="ttl_result ttl_result_{{ object.result }}">
 {{ object.get_result_display }}
 </td>
 </tr>
