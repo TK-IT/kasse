@@ -87,9 +87,11 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'da'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'CET'
+
+FORMAT_MODULE_PATH = 'kasse.formats'
 
 USE_I18N = True
 
