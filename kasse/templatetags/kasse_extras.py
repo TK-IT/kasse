@@ -12,11 +12,16 @@ register = template.Library()
 @register.filter(is_safe=True, needs_autoescape=True)
 def display_profile(profile, autoescape=True):
     association = profile.get_association_display()
+    # profile_id = profile.pk
     if autoescape:
         profile = conditional_escape(profile)
+    # return mark_safe(
+    #     '<a href="%s" title="%s">%s</a>' % (
+    #         reverse('profile', kwargs={'pk': profile_id}),
+    #         association,
+    #         profile))
     return mark_safe(
-        '<a href="%s" title="%s">%s</a>' % (
-            reverse('home'),
+        '<span title="%s">%s</a>' % (
             association,
             profile))
 
