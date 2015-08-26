@@ -6,7 +6,7 @@
 {% for object in object_list %}
 <tr>
 <td>{{ object.profile|display_profile }}</td>
-<td>{{ object.start_time|date:"D j F Y H:i" }}</td>
+<td>{{ object.start_time }}</td>
 <td><a href="{% url "timetrial_detail" pk=object.pk %}">
 {{ object.leg_count }} øl på {{ object.duration|display_duration }}</a></td>
 <td>
