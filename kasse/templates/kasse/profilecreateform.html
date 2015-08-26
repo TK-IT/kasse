@@ -1,0 +1,35 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block content %}
+<h1>Ny profil</h1>
+<form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <p>
+    {{ form.name.label_tag }}
+    {{ form.name }}
+    <br />
+    <span class="hint">
+        Påkrævet medmindre titel udfyldes.
+    </span>
+    </p>
+    {{ form.name.errors }}
+    <p>
+    {{ form.association.label_tag }}
+    {{ form.association }}
+    </p>
+    {{ form.association.errors }}
+    <p>
+    {{ form.title.label_tag }}
+    {{ form.title }}
+    {{ form.period.label_tag }}
+    {{ form.period }}
+    <br />
+    <span class="hint">
+        Hvis titlen blot er et kaldenavn, kan periode efterlades tom.
+    </span>
+    </p>
+    {{ form.title.errors }}
+    {{ form.period.errors }}
+    <input type="submit" value="Opret" />
+</form>
+{% endblock %}

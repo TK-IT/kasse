@@ -9,7 +9,11 @@ Hvor hurtigt kan én person drikke 5 øl?
 Seks personer en kasse?
 </p>
 <h2><a href="{% url 'timetrial_list' %}">Seneste tider</a></h2>
-<p><a href="{% url 'timetrial_create' %}">Indsend ny tid</a></p>
+<p>
+<a href="{% url 'timetrial_create' %}">Indsend ny tid</a>
+·
+<a href="{% url 'profile_create' %}">Opret profil</a>
+</p>
 {% include "kasse/timetrialtable.html" with timetrial_list=latest only %}
 
 <h2><a href="{% url 'timetrial_best' %}">Bedste tider (5 øl)</a></h2>

@@ -13,8 +13,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.db.models import Count
 
-from kasse.forms import TimeTrialCreateForm, LoginForm
-from kasse.models import TimeTrial, Leg
+from kasse.forms import TimeTrialCreateForm, LoginForm, ProfileCreateForm
+from kasse.models import TimeTrial, Leg, Title, Profile
 
 
 class Home(TemplateView):
@@ -177,3 +177,23 @@ class TimeTrialBest(TemplateView):
             for tt in qs:
                 res.setdefault(tt.profile_id, tt)
             return sorted(res.values(), key=lambda tt: tt.duration)
+
+
+class ProfileCreate(FormView):
+    form_class = ProfileCreateForm
+    template_name = 'kasse/profilecreateform.html'
+
+    def form_valid(self, form):
+        name = form.cleaned_data['name']
+        title = form.cleaned_data['title']
+        period = form.cleaned_data['period']
+        association = form.cleaned_data['association']
+        if title:
+            t = Title(
+                association=association, period=period, title=title)
+            t.save()
+        else:
+            t = None
+        p = Profile(name=name, title=t, association=association)
+        p.save()
+        return HttpResponseRedirect(reverse('home'))
