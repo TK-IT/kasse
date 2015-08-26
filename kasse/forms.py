@@ -35,6 +35,7 @@ class TimeTrialCreateForm(forms.Form):
         widget=forms.Textarea)
     start_time = DateTimeDefaultTodayField(
         required=False, label='Starttidspunkt')
+    start_time_unknown = forms.BooleanField(required=False, label='Ukendt')
 
     def clean_durations(self):
         data = self.cleaned_data['durations']
@@ -55,7 +56,12 @@ class TimeTrialCreateForm(forms.Form):
         cleaned_data = super(TimeTrialCreateForm, self).clean()
         dnf = cleaned_data.pop('dnf')
         cleaned_data['result'] = 'dnf' if dnf else 'f'
-        if not cleaned_data.get('start_time'):
+        unknown = cleaned_data['start_time_unknown']
+        if cleaned_data.get('start_time') and unknown:
+            self.add_error(
+                'start_time',
+                'Man kan ikke angive både starttidspunkt og ukendt.')
+        elif not cleaned_data.get('start_time') and not unknown:
             cleaned_data['start_time'] = datetime.datetime.now()
         return cleaned_data
 
