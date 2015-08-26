@@ -114,8 +114,12 @@ class TimeTrial(models.Model):
         self.duration = sum(l.duration for l in self.leg_set.all())
 
     def __str__(self):
-        return '[TimeTrial: %s s on %s by %s]' % (
-            self.duration, self.start_time, self.profile)
+        if self.result == 'dnf':
+            dnf = 'DNF '
+        else:
+            dnf = ''
+        return '[TimeTrial: %s s %son %s by %s]' % (
+            self.duration, dnf, self.start_time, self.profile)
 
     class Meta:
         ordering = ['-created_time']
