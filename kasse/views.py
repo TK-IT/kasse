@@ -19,6 +19,19 @@ from kasse.models import TimeTrial, Leg
 class Home(TemplateView):
     template_name = 'kasse/home.html'
 
+    @staticmethod
+    def get_latest():
+        latest = TimeTrial.objects.all()
+        latest = latest.exclude(result='')
+        latest = latest.order_by('-start_time')
+        latest = latest.annotate(leg_count=Count('leg'))
+        return list(latest[:5])
+
+    def get_context_data(self, **kwargs):
+        context_data = super(Home, self).get_context_data(**kwargs)
+        context_data['latest'] = self.get_latest()
+        return context_data
+
 
 class Login(FormView):
     form_class = LoginForm
