@@ -1,19 +1,5 @@
 {% extends "kasse/base.html" %}
 {% load kasse_extras %}
 {% block content %}
-<table>
-<tbody>
-{% for object in timetrial_list %}
-<tr>
-<td>{{ object.profile|display_profile }}</td>
-<td>{{ object.start_time }}</td>
-<td><a href="{% url "timetrial_detail" pk=object.pk %}">
-{{ object.leg_count }} øl på {{ object.duration|display_duration }}</a></td>
-<td>
-{{ object.get_result_display }}
-</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+{% include "kasse/timetrialtable.html" with timetrial_list=timetrial_list only %}
 {% endblock %}
