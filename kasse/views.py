@@ -21,15 +21,34 @@ class Home(TemplateView):
 
     @staticmethod
     def get_latest():
-        latest = TimeTrial.objects.all()
-        latest = latest.exclude(result='')
-        latest = latest.order_by('-start_time')
-        latest = latest.annotate(leg_count=Count('leg'))
-        return list(latest[:5])
+        qs = TimeTrial.objects.all()
+        qs = qs.exclude(result='')
+        qs = qs.order_by('-start_time')
+        qs = qs.annotate(leg_count=Count('leg'))
+        return list(qs[:5])
+
+    @staticmethod
+    def get_best():
+        qs = TimeTrial.objects.all()
+        qs = qs.exclude(result='')
+        qs = qs.annotate(leg_count=Count('leg'))
+        qs = qs.filter(leg_count=5)
+        qs = qs.order_by('duration')
+        try:
+            qs_distinct = qs.distinct('profile')
+            return list(qs_distinct[:5])
+        except NotImplementedError:
+            res = {}
+            for tt in qs:
+                res.setdefault(tt.profile_id, tt)
+                if len(res) >= 5:
+                    break
+            return sorted(res.values(), key=lambda tt: tt.duration)
 
     def get_context_data(self, **kwargs):
         context_data = super(Home, self).get_context_data(**kwargs)
         context_data['latest'] = self.get_latest()
+        context_data['best'] = self.get_best()
         return context_data
 
 
