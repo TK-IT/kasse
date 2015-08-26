@@ -17,9 +17,9 @@ class LoginForm(forms.Form):
 
 class TimeTrialCreateForm(forms.Form):
     profile = forms.ModelChoiceField(
-        queryset=Profile.objects.all())
-    result = forms.ChoiceField(
-        choices=TimeTrial.RESULTS)
+        queryset=Profile.objects.all(),
+        label='Person')
+    dnf = forms.BooleanField(required=False, label='DNF')
     durations = forms.CharField(
         widget=forms.Textarea)
     start_time = DateTimeDefaultTodayField(
@@ -42,6 +42,8 @@ class TimeTrialCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TimeTrialCreateForm, self).clean()
+        dnf = cleaned_data.pop('dnf')
+        cleaned_data['result'] = 'dnf' if dnf else 'f'
         if not cleaned_data.get('start_time'):
             cleaned_data['start_time'] = datetime.datetime.now()
         return cleaned_data
