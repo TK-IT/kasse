@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals, division
 
 import datetime
 
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, FieldError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import (
@@ -128,3 +128,51 @@ class TimeTrialList(ListView):
         .order_by('-start_time')
     )
     template_name = 'kasse/timetriallist.html'
+
+
+class TimeTrialAllBest(TemplateView):
+    template_name = 'kasse/timetrialallbest.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(TimeTrialAllBest, self).get_context_data(**kwargs)
+        context_data['timetrial_list'] = self.get_timetrial_list()
+        return context_data
+
+    def get_timetrial_list(self):
+        qs = TimeTrial.objects.filter(result='f')
+        qs = qs.annotate(leg_count=Count('leg'))
+        qs = qs.order_by('leg_count', 'duration')
+        try:
+            qs_distinct = qs.distinct('leg_count')
+            return list(qs_distinct)
+        except (NotImplementedError, FieldError):
+            res = {}
+            for tt in qs:
+                res.setdefault(tt.leg_count, tt)
+            return sorted(res.values(), key=lambda tt: tt.leg_count)
+
+
+class TimeTrialBest(TemplateView):
+    template_name = 'kasse/timetriallist.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(TimeTrialBest, self).get_context_data(**kwargs)
+        context_data['timetrial_list'] = self.get_timetrial_list()
+        context_data['list_legs'] = self.kwargs['legs']
+        return context_data
+
+    def get_timetrial_list(self):
+        qs = (
+            TimeTrial.objects.filter(result='f')
+            .annotate(leg_count=Count('leg'))
+            .filter(leg_count=int(self.kwargs['legs']))
+            .order_by('duration')
+        )
+        try:
+            qs_distinct = qs.distinct('profile')
+            return list(qs_distinct)
+        except NotImplementedError:
+            res = {}
+            for tt in qs:
+                res.setdefault(tt.profile_id, tt)
+            return sorted(res.values(), key=lambda tt: tt.duration)

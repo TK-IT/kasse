@@ -10,7 +10,8 @@ from django.contrib import admin
 
 from kasse.views import (
     Home, Login, Logout,
-    TimeTrialCreate, TimeTrialDetail, TimeTrialList
+    TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
+    TimeTrialAllBest,
 )
 
 urlpatterns = [
@@ -23,6 +24,10 @@ urlpatterns = [
 
     url(r'^timetrial/$', TimeTrialList.as_view(),
         name='timetrial_list'),
+    url(r'^timetrial/best/$', TimeTrialAllBest.as_view(),
+        name='timetrial_best'),
+    url(r'^timetrial/best/(?P<legs>\d+)/$', TimeTrialBest.as_view(),
+        name='timetrial_best_legs'),
     url(r'^timetrial/create/$', TimeTrialCreate.as_view(),
         name='timetrial_create'),
     url(r'^timetrial/(?P<pk>\d+)/$', TimeTrialDetail.as_view(),

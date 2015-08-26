@@ -1,5 +1,10 @@
 {% extends "kasse/base.html" %}
 {% load kasse_extras %}
 {% block content %}
+{% if list_legs %}
+<h1>Bedste tider ({{ list_legs }} øl)</h1>
+{% else %}
+<h1>Seneste tider</h1>
+{% endif %}
 {% include "kasse/timetrialtable.html" with timetrial_list=timetrial_list only %}
 {% endblock %}
