@@ -1,5 +1,6 @@
 {% extends "kasse/base.html" %}
 {% block content %}
+<h1>Indsend tid</h1>
 <form method="post">{% csrf_token %}
     <p>
     {{ form.profile.label_tag }}
@@ -25,6 +26,6 @@
     </label>
     {{ form.dnf }}
     </p>
-    <input type="submit" />
+    <input type="submit" value="Indsend tid" />
 </form>
 {% endblock %}
