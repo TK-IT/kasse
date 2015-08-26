@@ -1,3 +1,4 @@
 *.sqlite3
 *.swp
 *.pyc
+/kasse/settings/__init__.py
