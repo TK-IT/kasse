@@ -118,7 +118,7 @@ class TimeTrial(models.Model):
             self.duration, self.start_time, self.profile)
 
     class Meta:
-        ordering = ['start_time', 'created_time']
+        ordering = ['-created_time']
 
 
 @python_2_unicode_compatible
