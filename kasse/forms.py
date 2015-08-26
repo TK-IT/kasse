@@ -5,7 +5,8 @@ import datetime
 
 from django import forms
 
-from kasse.models import Profile, TimeTrial
+from kasse.models import Profile
+from kasse.fields import DateTimeDefaultTodayField
 
 
 class LoginForm(forms.Form):
@@ -21,7 +22,8 @@ class TimeTrialCreateForm(forms.Form):
         choices=TimeTrial.RESULTS)
     durations = forms.CharField(
         widget=forms.Textarea)
-    start_time = forms.DateTimeField(required=False)
+    start_time = DateTimeDefaultTodayField(
+        required=False, label='Starttidspunkt')
 
     def clean_durations(self):
         data = self.cleaned_data['durations']
@@ -37,3 +39,9 @@ class TimeTrialCreateForm(forms.Form):
             d = datetime.timedelta(minutes=int(m), seconds=float(s))
             durations.append(d)
         return durations
+
+    def clean(self):
+        cleaned_data = super(TimeTrialCreateForm, self).clean()
+        if not cleaned_data.get('start_time'):
+            cleaned_data['start_time'] = datetime.datetime.now()
+        return cleaned_data
