@@ -1,7 +1,30 @@
 {% extends "kasse/base.html" %}
 {% block content %}
 <form method="post">{% csrf_token %}
-    {{ form.as_p }}
+    <p>
+    {{ form.profile.label_tag }}
+    {{ form.profile }}
+    </p>
+    <p>
+    {{ form.start_time.label_tag }}
+    {{ form.start_time }}
+    <br />
+    <span class="hint">Efterlad blank for "nu".</span>
+    </p>
+    <p>
+    Tider på de enkelte øl.
+    <br />
+    <span class="hint">Indtast m:ss.ss, hver øl på en linje for sig.</span>
+    </p>
+    <p>
+    {{ form.durations }}
+    </p>
+    <p>
+    <label for="{{ form.dnf.id_for_label }}" title="Did not finish">
+        {{ form.dnf.label }}:
+    </label>
+    {{ form.dnf }}
+    </p>
     <input type="submit" />
 </form>
 {% endblock %}
