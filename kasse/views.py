@@ -104,6 +104,8 @@ class TimeTrialCreate(FormView):
         elif data['individual_times'] == 'total':
             zero = datetime.timedelta(seconds=0)
             durations = [zero] * (data['legs'] - 1) + [data['total_time']]
+        else:
+            raise ValueError(data['individual_times'])
         duration_sum = sum(
             duration.total_seconds()
             for duration in durations
