@@ -94,8 +94,10 @@ class Profile(models.Model):
             return '%s %s' % (self.title, self.name)
         elif self.title:
             return '%s' % (self.title,)
-        else:
+        elif self.name:
             return '%s' % (self.name,)
+        else:
+            return '(anonymous)'
 
 
 @python_2_unicode_compatible

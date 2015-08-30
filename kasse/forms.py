@@ -22,7 +22,9 @@ class ProfileModelChoiceField(forms.ModelChoiceField):
         super(ProfileModelChoiceField, self).__init__(**kwargs)
 
     def label_from_instance(self, obj):
-        if obj.association:
+        if obj.is_anonymous:
+            return '%s' % (obj,)
+        elif obj.association:
             return '%s (%s)' % (obj, obj.association)
         else:
             return '%s (independent)' % (obj,)
