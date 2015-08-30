@@ -26,6 +26,13 @@ def display_profile(profile, autoescape=True):
             profile))
 
 
+@register.filter(is_safe=True, needs_autoescape=True)
+def display_profile_plain(profile, autoescape=True):
+    if autoescape:
+        profile = conditional_escape(profile)
+    return mark_safe('%s' % (profile,))
+
+
 @register.filter
 def display_duration(duration):
     minutes, seconds = divmod(duration, 60)

@@ -2,7 +2,9 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>En kasse i en festforening</title>
+<title>
+{% block fulltitle %}{% block title %}{% endblock %} - En kasse i en festforening{% endblock %}
+</title>
 <style>
 body {
 font-family: sans-serif;
