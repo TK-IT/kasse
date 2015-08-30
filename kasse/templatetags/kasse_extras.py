@@ -21,7 +21,7 @@ def display_profile(profile, autoescape=True):
     #         association,
     #         profile))
     return mark_safe(
-        '<span title="%s">%s</a>' % (
+        '<span title="%s">%s</span>' % (
             association,
             profile))
 
