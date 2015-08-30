@@ -31,10 +31,26 @@ class ProfileModelChoiceField(forms.ModelChoiceField):
 
 
 class TimeTrialCreateForm(forms.Form):
+    CHOICES = (
+        ('individual', 'Tider på de enkelte øl'),
+        ('total', 'Samlet tid'),
+    )
+
     profile = ProfileModelChoiceField(label='Person')
     dnf = forms.BooleanField(required=False, label='DNF')
+    individual_times = forms.ChoiceField(
+        required=False,
+        choices=CHOICES, widget=forms.RadioSelect, initial='individual')
+
     durations = forms.CharField(
-        widget=forms.Textarea)
+        required=False,
+        widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
+
+    legs = forms.IntegerField(
+        initial=5,
+        required=False, label="Antal øl", min_value=1, max_value=100)
+    total_time = forms.DurationField(required=False, label="Samlet tid")
+
     start_time = DateTimeDefaultTodayField(
         required=False, label='Starttidspunkt')
     start_time_unknown = forms.BooleanField(required=False, label='Ukendt')
@@ -65,7 +81,20 @@ class TimeTrialCreateForm(forms.Form):
                 'Man kan ikke angive både starttidspunkt og ukendt.')
         elif not cleaned_data.get('start_time') and not unknown:
             cleaned_data['start_time'] = datetime.datetime.now()
+
+        individual_times = cleaned_data['individual_times']
+        if individual_times == 'individual':
+            self.check_required(cleaned_data, 'durations')
+        elif individual_times == 'total':
+            self.check_required(cleaned_data, 'legs')
+            self.check_required(cleaned_data, 'total_time')
         return cleaned_data
+
+    def check_required(self, cleaned_data, field_name):
+        v = cleaned_data.get(field_name)
+        if not v:
+            field = self.fields[field_name]
+            self.add_error(field_name, field.error_messages[field_name])
 
 
 class ProfileCreateForm(forms.Form):

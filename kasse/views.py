@@ -102,9 +102,14 @@ class TimeTrialCreate(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         now = datetime.datetime.now()
+        if data['individual_times'] == 'individual':
+            durations = data['durations']
+        elif data['individual_times'] == 'total':
+            zero = datetime.timedelta(seconds=0)
+            durations = [zero] * (data['legs'] - 1) + [data['total_time']]
         duration_sum = sum(
             duration.total_seconds()
-            for duration in data['durations']
+            for duration in durations
         )
 
         tt = TimeTrial(profile=data['profile'],
@@ -114,7 +119,7 @@ class TimeTrialCreate(FormView):
                        created_time=now,
                        duration=duration_sum)
         tt.save()
-        for i, duration in enumerate(data['durations']):
+        for i, duration in enumerate(durations):
             leg = Leg(timetrial=tt,
                       duration=duration.total_seconds(),
                       order=i + 1)
