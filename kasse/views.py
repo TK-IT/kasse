@@ -128,11 +128,6 @@ class TimeTrialCreate(FormView):
             durations = [zero] * (data['legs'] - 1) + [data['total_time']]
         else:
             raise ValueError(data['individual_times'])
-        duration_sum = sum(
-            duration.total_seconds()
-            for duration in durations
-        )
-
         tt = TimeTrial(profile=data['profile'],
                        result=data['result'],
                        start_time=data['start_time'],
