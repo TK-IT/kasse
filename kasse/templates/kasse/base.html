@@ -16,6 +16,24 @@ font-size: 80%;
 border-top: 1px solid #999;
 padding-top: 10px;
 }
+a {
+    text-decoration: none;
+}
+a:link {
+    color: #00c;
+}
+a:visited {
+    color: #808;
+}
+a:hover {
+    text-decoration: underline;
+}
+.timetrial_link:visited {
+    color: #00c;
+}
+a.nav:visited {
+    color: #00c;
+}
 .hint {
     font-size: 14px;
     font-style: italic;
@@ -39,6 +57,8 @@ padding-top: 10px;
     width: 220px;
 }
 </style>
+{% block head %}
+{% endblock %}
 </head>
 <body>
 {% block content %}
