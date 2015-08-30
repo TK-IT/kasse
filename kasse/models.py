@@ -74,6 +74,10 @@ class Profile(models.Model):
 
     created_time = models.DateTimeField(auto_now_add=True)
 
+    @classmethod
+    def all_named(cls):
+        return cls.objects.exclude(name='', title__isnull=True)
+
     def clean(self):
         if self.user and not (self.name or self.title):
             raise ValidationError(

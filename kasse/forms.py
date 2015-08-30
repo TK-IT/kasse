@@ -18,7 +18,7 @@ class LoginForm(forms.Form):
 
 class ProfileModelChoiceField(forms.ModelChoiceField):
     def __init__(self, **kwargs):
-        kwargs.setdefault('queryset', Profile.objects.all())
+        kwargs.setdefault('queryset', Profile.all_named())
         super(ProfileModelChoiceField, self).__init__(**kwargs)
 
     def label_from_instance(self, obj):
