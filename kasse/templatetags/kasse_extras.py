@@ -37,3 +37,18 @@ def display_profile_plain(profile, autoescape=True):
 def display_duration(duration):
     minutes, seconds = divmod(duration, 60)
     return '%d:%05.2f' % (minutes, seconds)
+
+
+@register.filter
+def display_duration_plain(duration):
+    minutes, seconds = divmod(duration, 60)
+    return '%d:%05.2f' % (minutes, seconds)
+
+
+@register.filter(is_safe=True, needs_autoescape=True)
+def strip_space_after_tag(o, autoescape=True):
+    if autoescape:
+        s = conditional_escape(o)
+    else:
+        s = '%s' % (o,)
+    return mark_safe(s.replace("> ", ">", 1))
