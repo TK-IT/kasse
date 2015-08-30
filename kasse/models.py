@@ -78,6 +78,10 @@ class Profile(models.Model):
     def all_named(cls):
         return cls.objects.exclude(name='', title__isnull=True)
 
+    @property
+    def is_anonymous(self):
+        return not self.name and not self.title
+
     def clean(self):
         if self.user and not (self.name or self.title):
             raise ValidationError(
