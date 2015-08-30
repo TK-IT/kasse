@@ -1,4 +1,5 @@
 {% extends "kasse/base.html" %}
+{% load kasse_extras %}
 {% block content %}
 <h1>En kasse i en festforening</h1>
 <p>
@@ -8,6 +9,20 @@ og <a href="http://www.alkymia.dk/">@lkymia</a>.
 Hvor hurtigt kan én person drikke 5 øl?
 Seks personer en kasse?
 </p>
+{% if user.is_authenticated %}
+<form method="post" action="{% url "logout" %}" style="margin: 1em 0">{% csrf_token %}
+    Logget ind som {{ user.profile|display_profile }}.
+    <input type="submit" value="Log ud" />
+</form>
+{% else %}
+<form method="post" action="{% url "login" %}" style="margin: 1em 0">{% csrf_token %}
+    Du er ikke logget ind.
+    <input name="next" type="hidden" value="{% url 'home' %}" />
+    <input name="username" placeholder="Brugernavn" size="15" />
+    <input name="password" type="password" placeholder="Kodeord" size="15" />
+    <input type="submit" value="Log ind" />
+</form>
+{% endif %}
 <h2><a href="{% url 'timetrial_list' %}">Seneste tider</a></h2>
 <p>
 <a href="{% url 'timetrial_create' %}">Indsend ny tid</a>
