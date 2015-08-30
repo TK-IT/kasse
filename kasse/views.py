@@ -11,7 +11,6 @@ from django.views.generic import (
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.db.models import Count
 
 from kasse.forms import TimeTrialCreateForm, LoginForm, ProfileCreateForm
 from kasse.models import TimeTrial, Leg, Title, Profile
@@ -25,7 +24,6 @@ class Home(TemplateView):
         qs = TimeTrial.objects.all()
         qs = qs.exclude(result='')
         qs = qs.order_by('-start_time')
-        qs = qs.annotate(leg_count=Count('leg'))
         return list(qs[:5])
 
     @staticmethod
@@ -34,7 +32,6 @@ class Home(TemplateView):
         if kwargs:
             qs = qs.filter(**kwargs)
         qs = qs.exclude(result='')
-        qs = qs.annotate(leg_count=Count('leg'))
         qs = qs.filter(leg_count=5)
         qs = qs.order_by('duration')
         try:
@@ -137,7 +134,6 @@ class TimeTrialDetail(DetailView):
 class TimeTrialList(ListView):
     queryset = (
         TimeTrial.objects.exclude(result='')
-        .annotate(leg_count=Count('leg'))
         .order_by('-start_time')
     )
     template_name = 'kasse/timetriallist.html'
@@ -153,7 +149,6 @@ class TimeTrialAllBest(TemplateView):
 
     def get_timetrial_list(self):
         qs = TimeTrial.objects.filter(result='f')
-        qs = qs.annotate(leg_count=Count('leg'))
         qs = qs.order_by('leg_count', 'duration')
         try:
             qs_distinct = qs.distinct('leg_count')
@@ -177,7 +172,6 @@ class TimeTrialBest(TemplateView):
     def get_timetrial_list(self):
         qs = (
             TimeTrial.objects.filter(result='f')
-            .annotate(leg_count=Count('leg'))
             .filter(leg_count=int(self.kwargs['legs']))
             .order_by('duration')
         )

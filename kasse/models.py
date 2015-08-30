@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.contrib.auth.models import User
 
-from kasse.managers import ProfileManager
+from kasse.managers import ProfileManager, TimeTrialManager
 
 
 @python_2_unicode_compatible
@@ -102,13 +102,14 @@ class Profile(models.Model):
 
 @python_2_unicode_compatible
 class TimeTrial(models.Model):
+    objects = TimeTrialManager()
+
     RESULTS = (
         ('f', '✓'),
         ('dnf', 'DNF'),
     )
     profile = models.ForeignKey(
         Profile, related_name='timetrial_profile_set')
-    duration = models.FloatField()
     result = models.CharField(max_length=10, choices=RESULTS, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
 
@@ -117,7 +118,7 @@ class TimeTrial(models.Model):
     created_time = models.DateTimeField()
 
     def clean(self):
-        self.duration = sum(l.duration for l in self.leg_set.all())
+        pass
 
     def __str__(self):
         if self.result == 'dnf':
