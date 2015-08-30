@@ -113,8 +113,7 @@ class TimeTrialCreate(FormView):
                        result=data['result'],
                        start_time=data['start_time'],
                        creator=self.request.get_or_create_profile(),
-                       created_time=now,
-                       duration=duration_sum)
+                       created_time=now)
         tt.save()
         for i, duration in enumerate(durations):
             leg = Leg(timetrial=tt,
