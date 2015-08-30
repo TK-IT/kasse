@@ -13,7 +13,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
-from kasse.forms import TimeTrialCreateForm, LoginForm, ProfileCreateForm
+from kasse.forms import (
+    TimeTrialCreateForm, LoginForm, ProfileCreateForm,
+)
 from kasse.models import TimeTrial, Leg, Title, Profile
 
 
