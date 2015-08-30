@@ -29,8 +29,10 @@ class Home(TemplateView):
         return list(qs[:5])
 
     @staticmethod
-    def get_best():
+    def get_best(**kwargs):
         qs = TimeTrial.objects.all()
+        if kwargs:
+            qs = qs.filter(**kwargs)
         qs = qs.exclude(result='')
         qs = qs.annotate(leg_count=Count('leg'))
         qs = qs.filter(leg_count=5)
@@ -50,6 +52,11 @@ class Home(TemplateView):
         context_data = super(Home, self).get_context_data(**kwargs)
         context_data['latest'] = self.get_latest()
         context_data['best'] = self.get_best()
+        season_start = datetime.date(2015, 8, 1)
+        context_data['current_season'] = '%d/%d' % (
+            season_start.year, season_start.year - 2000 + 1)
+        current_season_best = self.get_best(start_time__gt=season_start)
+        context_data['current_season_best'] = current_season_best
         return context_data
 
 
