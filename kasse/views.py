@@ -11,6 +11,7 @@ from django.views.generic import (
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
 
 from kasse.forms import TimeTrialCreateForm, LoginForm, ProfileCreateForm
 from kasse.models import TimeTrial, Leg, Title, Profile
@@ -86,6 +87,27 @@ class Login(FormView):
 class Logout(View):
     def post(self, request):
         logout(request)
+        return HttpResponseRedirect(reverse('home'))
+
+
+class ChangePassword(FormView):
+    form_class = PasswordChangeForm
+    template_name = 'kasse/changepassword.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated():
+            return HttpResponseRedirect(reverse('home'))
+        else:
+            return super(ChangePassword, self).dispatch(
+                request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(ChangePassword, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
         return HttpResponseRedirect(reverse('home'))
 
 

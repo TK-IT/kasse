@@ -13,6 +13,7 @@ Seks personer en kasse?
 {% if user.is_authenticated %}
 <form method="post" action="{% url "logout" %}" style="margin: 1em 0">{% csrf_token %}
     Logget ind som {{ user.profile|display_profile }}.
+    <a href="{% url 'password' %}" class="nav">Skift kodeord</a>
     <input type="submit" value="Log ud" />
 </form>
 {% else %}
