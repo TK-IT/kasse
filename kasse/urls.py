@@ -9,7 +9,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 from kasse.views import (
-    Home, Login, Logout, ProfileCreate, ChangePassword,
+    Home, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
+    ProfileEdit, ProfileEditAdmin,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
     TimeTrialAllBest, TimeTrialStopwatch, TimeTrialStopwatchOffline,
 )
@@ -23,6 +24,12 @@ urlpatterns = [
     url(r'^logout/$', Logout.as_view(), name='logout'),
     url(r'^password/$', ChangePassword.as_view(), name='password'),
 
+    url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(),
+        name='profile'),
+    url(r'^profile/edit/$', ProfileEdit.as_view(),
+        name='profile_edit'),
+    url(r'^profile/edit/(?P<pk>\d+)/$', ProfileEditAdmin.as_view(),
+        name='profile_edit_admin'),
     url(r'^profile/create/$', ProfileCreate.as_view(),
         name='profile_create'),
     url(r'^timetrial/$', TimeTrialList.as_view(),

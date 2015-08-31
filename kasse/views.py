@@ -10,12 +10,14 @@ from django.http import HttpResponseRedirect
 from django.views.generic import (
     View, TemplateView, FormView, DetailView, ListView, UpdateView,
 )
+from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
+    ProfileEditForm,
     StopwatchForm,
 )
 from kasse.models import TimeTrial, Leg, Title, Profile
@@ -277,3 +279,34 @@ class ProfileCreate(FormView):
         p = Profile(name=name, title=t, association=association)
         p.save()
         return HttpResponseRedirect(reverse('home'))
+
+
+class ProfileView(DetailView):
+    template_name = 'kasse/profile.html'
+    model = Profile
+
+    def get_context_data(self, **kwargs):
+        context_data = super(ProfileView, self).get_context_data(**kwargs)
+        context_data['is_self'] = self.request.profile == self.object
+        return context_data
+
+
+class ProfileEditBase(UpdateView):
+    template_name = 'kasse/profile_edit.html'
+    model = Profile
+    form_class = ProfileEditForm
+
+    def get_success_url(self):
+        return reverse('profile', kwargs={'pk': self.object.pk})
+
+
+class ProfileEdit(ProfileEditBase):
+    def get_object(self):
+        return self.request.profile
+
+
+class ProfileEditAdmin(ProfileEditBase):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super(ProfileEditAdmin, self).dispatch(request, *args, **kwargs)
