@@ -4,6 +4,7 @@
 {{ object.profile|display_profile_plain }}:
 {{ object.leg_count }} øl på
 {{ object.duration|display_duration_plain }}
+{% if object.result == "dnf" %}(DNF){% endif %}
 {% endblock %}
 {% block content %}
 <p>{{ object.profile|display_profile }}</p>
