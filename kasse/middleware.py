@@ -1,6 +1,5 @@
 from __future__ import absolute_import, unicode_literals, division
 
-import types
 import functools
 
 from django.utils.functional import SimpleLazyObject
