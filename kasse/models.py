@@ -31,7 +31,7 @@ class Title(models.Model):
     @staticmethod
     def sup(n):
         digits = '⁰¹²³⁴⁵⁶⁷⁸⁹'
-        return ''.join(digits[int(i)] for i in str(n).split(''))
+        return ''.join(digits[int(i)] for i in str(n))
 
     @staticmethod
     def tk_prefix(age):
