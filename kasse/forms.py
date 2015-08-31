@@ -79,7 +79,7 @@ class TimeTrialCreateForm(forms.Form):
         v = cleaned_data.get(field_name)
         if not v:
             field = self.fields[field_name]
-            self.add_error(field_name, field.error_messages[field_name])
+            self.add_error(field_name, field.error_messages['required'])
 
 
 class ProfileCreateForm(forms.Form):
