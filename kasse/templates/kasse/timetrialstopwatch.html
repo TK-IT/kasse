@@ -2,6 +2,7 @@
 {% load kasse_extras %}
 {% block title %}Stopur{% endblock %}
 {% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
 <style>
 #stopwatch {
     width: 480px;
@@ -22,7 +23,6 @@
     flex-direction: row;
     order: 2;
     justify-content: space-between;
-    margin: -2px;
 }
 #stopwatch button {
     margin: 2px;
@@ -99,8 +99,18 @@
     border: 0 none;
     flex-basis: 0;
     flex-grow: 1;
-    height: 40px;
-    font-size: 20px;
+    height: 50px;
+    font-size: 16px;
+}
+
+@media screen and (max-width: 504px) {
+    body {
+        margin: 0;
+    }
+
+    #stopwatch {
+        width: 100%;
+    }
 }
 </style>
 <script>
