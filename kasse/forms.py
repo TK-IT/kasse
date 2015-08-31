@@ -6,7 +6,7 @@ import datetime
 from django import forms
 from django.forms.utils import to_current_timezone
 
-from kasse.models import Profile, Association
+from kasse.models import Profile, Association, Title
 from kasse.fields import DateTimeDefaultTodayField, DurationListField
 
 
@@ -103,6 +103,59 @@ class ProfileCreateForm(forms.Form):
             self.add_error('name', 'Navn er påkrævet.')
         if title and not association:
             self.add_error('association', 'Titel kræver en tilknytning.')
+
+
+class ProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['name', 'favorite_drink', 'association']
+
+    title = forms.CharField(required=False, label='Titel')
+    period = forms.IntegerField(required=False, label='Periode')
+    association = forms.ModelChoiceField(
+        Association.objects.all(), required=False,
+        empty_label=Association.none_string(), label='Tilknytning')
+
+    def clean(self):
+        cleaned_data = super(ProfileEditForm, self).clean()
+        if cleaned_data['title']:
+            if not cleaned_data['association']:
+                self.add_error(
+                    'association',
+                    'Tilknytning er påkrævet når titel er oplyst')
+        elif cleaned_data['period']:
+            self.add_error('title', 'Titel er påkrævet når periode er oplyst')
+        return cleaned_data
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs['instance']
+        if instance.title:
+            kwargs['initial']['title'] = instance.title.title
+            kwargs['initial']['period'] = instance.title.period
+        super(ProfileEditForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        instance = super(ProfileEditForm, self).save(commit=False)
+        title = self.cleaned_data['title'] or ''
+        period = self.cleaned_data['period'] or None
+        association = self.cleaned_data['association'] or None
+        new_title = (title, period, association)
+        if instance.title:
+            current_title = (
+                instance.title.title,
+                instance.title.period,
+                instance.title.association,
+            )
+        else:
+            current_title = '', None, None
+        if new_title != current_title:
+            if instance.title:
+                instance.title.delete()
+            t = Title(title=title, period=period, association=association)
+            t.save()
+            instance.title = t
+        instance.save()
+        return instance
 
 
 class StopwatchForm(forms.Form):
