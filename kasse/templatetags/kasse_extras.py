@@ -45,6 +45,12 @@ def display_duration_plain(duration):
     return '%d:%05.2f' % (minutes, seconds)
 
 
+@register.filter
+def display_association(association):
+    association = conditional_escape(association)
+    return mark_safe('<span>%s</span>' % (association,))
+
+
 @register.filter(is_safe=True, needs_autoescape=True)
 def strip_space_after_tag(o, autoescape=True):
     if autoescape:
