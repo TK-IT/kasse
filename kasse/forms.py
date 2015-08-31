@@ -7,7 +7,7 @@ import datetime
 from django import forms
 
 from kasse.models import Profile, Association
-from kasse.fields import DateTimeDefaultTodayField
+from kasse.fields import DateTimeDefaultTodayField, DurationListField
 
 
 class LoginForm(forms.Form):
@@ -42,7 +42,7 @@ class TimeTrialCreateForm(forms.Form):
         required=False,
         choices=CHOICES, widget=forms.RadioSelect, initial='individual')
 
-    durations = forms.CharField(
+    durations = DurationListField(
         required=False,
         widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
 
@@ -54,21 +54,6 @@ class TimeTrialCreateForm(forms.Form):
     start_time = DateTimeDefaultTodayField(
         required=False, label='Starttidspunkt')
     start_time_unknown = forms.BooleanField(required=False, label='Ukendt')
-
-    def clean_durations(self):
-        data = self.cleaned_data['durations']
-        pattern = r'(?:(?P<minutes>[0-9]+):)?(?P<seconds>[0-9]+\.?[0-9]*)$'
-        durations = []
-        for e in data.split():
-            mo = re.match(pattern, e)
-            if not mo:
-                raise forms.ValidationError(
-                    '%r er ugyldig' % e)
-            m = mo.group('minutes') or '0'
-            s = mo.group('seconds')
-            d = datetime.timedelta(minutes=int(m), seconds=float(s))
-            durations.append(d)
-        return durations
 
     def clean(self):
         cleaned_data = super(TimeTrialCreateForm, self).clean()
