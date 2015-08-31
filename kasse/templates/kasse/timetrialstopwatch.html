@@ -193,6 +193,14 @@ function lap(ev) {
     update_laps();
 }
 
+function lap_touchstart(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    var n = new Date().getTime()|0;
+    laps.push((n - start_time)|0);
+    update_laps();
+}
+
 function stop(ev) {
     ev.preventDefault();
     ev.stopPropagation();
@@ -227,8 +235,11 @@ function init() {
     div_laps = document.getElementById('laps');
     form = document.getElementById('stopwatch_form');
     btn_lap = document.getElementById('lap');
-    document.getElementById('start').addEventListener('click', start, false);
+    var btn_start = document.getElementById('start');
+    btn_start.addEventListener('click', start, false);
+    btn_start.addEventListener('touchstart', start, false);
     btn_lap.addEventListener('click', lap, false);
+    btn_lap.addEventListener('touchstart', lap_touchstart, false);
     document.getElementById('stop').addEventListener('click', stop, false);
     document.getElementById('reset').addEventListener('click', reset, false);
     document.getElementById('continue').addEventListener('click', continue_, false);
