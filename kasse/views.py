@@ -120,7 +120,19 @@ class TimeTrialCreate(FormView):
     template_name = 'kasse/timetrialcreateform.html'
 
     def get_initial(self):
-        return {'profile': self.request.profile}
+        initial = {'profile': self.request.profile}
+        for k, v in self.request.GET.items():
+            initial[k] = v
+        try:
+            initial['start_time'] = datetime.datetime.fromtimestamp(
+                float(initial['start_time']))
+        except KeyError:
+            pass
+        try:
+            initial['durations'] = '\n'.join(initial['durations'].split())
+        except KeyError:
+            pass
+        return initial
 
     def form_valid(self, form):
         data = form.cleaned_data
