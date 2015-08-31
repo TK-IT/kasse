@@ -66,13 +66,14 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, null=True, blank=True,
                                 on_delete=models.SET_NULL)
-    name = models.CharField(max_length=200, blank=True)
+    name = models.CharField(max_length=200, blank=True, verbose_name='Navn')
     title = models.OneToOneField(Title, null=True, blank=True,
                                  on_delete=models.SET_NULL)
     association = models.ForeignKey(Association, null=True, blank=True,
                                     on_delete=models.SET_NULL)
 
-    favorite_drink = models.CharField(max_length=200, blank=True)
+    favorite_drink = models.CharField(max_length=200, blank=True,
+                                      verbose_name='Yndlingsøl')
 
     created_time = models.DateTimeField(auto_now_add=True)
 
