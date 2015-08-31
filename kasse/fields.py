@@ -3,7 +3,6 @@ import datetime
 from django.core.exceptions import ValidationError
 from django.utils.encoding import force_str, force_text
 from django.utils.translation import ugettext_lazy as _
-from django.utils.duration import duration_string
 from django.utils.dateparse import parse_duration
 from django.forms.utils import from_current_timezone, to_current_timezone
 from django.forms.fields import BaseTemporalField, Field
@@ -52,6 +51,30 @@ class DateTimeDefaultTodayField(BaseTemporalField):
         if '%Y' not in format:
             dt = datetime.datetime.combine(datetime.date.today(), dt.time())
         return dt
+
+
+def duration_string(duration):
+    try:
+        duration = datetime.timedelta(seconds=duration.duration)
+    except AttributeError:
+        pass
+
+    seconds = int(duration.total_seconds())
+    microseconds = duration.microseconds
+
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    if minutes or hours:
+        string = '{:02d}:{:02d}' % (minutes, seconds)
+    else:
+        string = '{}'.format(seconds)
+    if hours:
+        string = '{:02d}:{}' % (hours, string)
+    if microseconds:
+        string += '.{:06d}'.format(microseconds).rstrip('0')
+
+    return string
 
 
 class DurationListField(Field):
