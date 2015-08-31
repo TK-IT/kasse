@@ -1,10 +1,10 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
-import re
 import datetime
 
 from django import forms
+from django.forms.utils import to_current_timezone
 
 from kasse.models import Profile, Association
 from kasse.fields import DateTimeDefaultTodayField, DurationListField
@@ -34,6 +34,7 @@ class TimeTrialCreateForm(forms.Form):
     CHOICES = (
         ('individual', 'Tider på de enkelte øl'),
         ('total', 'Samlet tid'),
+        ('stopwatch', 'Stopur'),
     )
 
     profile = ProfileModelChoiceField(label='Person')
@@ -41,6 +42,7 @@ class TimeTrialCreateForm(forms.Form):
     individual_times = forms.ChoiceField(
         required=False,
         choices=CHOICES, widget=forms.RadioSelect, initial='individual')
+    stopwatch = forms.BooleanField(required=False, label='Stopur')
 
     durations = DurationListField(
         required=False,
@@ -68,7 +70,9 @@ class TimeTrialCreateForm(forms.Form):
             cleaned_data['start_time'] = datetime.datetime.now()
 
         individual_times = cleaned_data['individual_times']
-        if individual_times == 'individual':
+        if cleaned_data['stopwatch']:
+            cleaned_data['individual_times'] = 'stopwatch'
+        elif individual_times == 'individual':
             self.check_required(cleaned_data, 'durations')
         elif individual_times == 'total':
             self.check_required(cleaned_data, 'legs')
@@ -99,3 +103,29 @@ class ProfileCreateForm(forms.Form):
             self.add_error('name', 'Navn er påkrævet.')
         if title and not association:
             self.add_error('association', 'Titel kræver en tilknytning.')
+
+
+class StopwatchForm(forms.Form):
+    start_time = forms.FloatField()
+    dnf = forms.BooleanField(required=False, label='DNF')
+    durations = DurationListField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.pop('instance')
+        kwargs['initial']['durations'] = list(instance.leg_set.all())
+        super(StopwatchForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(StopwatchForm, self).clean()
+        if cleaned_data['dnf']:
+            cleaned_data['result'] = 'dnf'
+        else:
+            cleaned_data['result'] = 'f'
+        start_time = cleaned_data['start_time']
+        if start_time < 0:
+            start_time += 2 ** 32
+        cleaned_data['start_time'] = to_current_timezone(
+            datetime.datetime.fromtimestamp(start_time))
+        return cleaned_data

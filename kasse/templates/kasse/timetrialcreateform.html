@@ -39,11 +39,20 @@
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
     <p>
-    {{ form.profile.label_tag }}
+    1.
+    <label for="{{ form.profile.id_for_label }}">
+    Vælg person:
+    </label>
     {{ form.profile }}
     <a class="nav" href="{% url 'profile_create' %}">Opret profil</a>
     </p>
     {{ form.profile.errors }}
+    <p>
+    2a. <input type="submit" name="stopwatch" value="Åbn stopur nu!" />
+    </p>
+    <p>
+    2b. Eller fortsæt med at indtaste tiden...
+    </p>
     <p>
     {{ form.start_time.label_tag }}
     {{ form.start_time }}

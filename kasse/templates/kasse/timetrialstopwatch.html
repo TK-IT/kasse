@@ -1,0 +1,249 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block title %}Stopur{% endblock %}
+{% block head %}
+<style>
+#stopwatch {
+    width: 480px;
+    background-color: #218c00;
+    display: flex;
+    flex-direction: column;
+}
+#stopwatch #time {
+    order: 1;
+    font-size: 60px;
+    text-align: center;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+#stopwatch #buttons {
+    display: flex;
+    flex-direction: row;
+    order: 2;
+    justify-content: space-between;
+    margin: -2px;
+}
+#stopwatch button {
+    margin: 2px;
+}
+#stopwatch .lap {
+    height: 40px;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+#stopwatch .lapIndex {
+    flex-basis: 50px;
+    padding-left: 8px;
+}
+#stopwatch .lapDuration {
+    flex-basis: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+#stopwatch .lapTotal {
+    flex-basis: 50%;
+    flex-grow: 0;
+    text-align: center;
+}
+#stopwatch #laps {
+    order: 3;
+    min-height: 200px;
+}
+
+#stopwatch.initial #reset, #stopwatch.initial #start {
+    display: inline-block;
+}
+#stopwatch.initial #reset {
+    order: 1;
+}
+#stopwatch.initial #start {
+    order: 2;
+}
+#stopwatch.initial #stop, #stopwatch.initial #continue, #stopwatch.initial #lap {
+    display: none;
+}
+
+#stopwatch.running #stop, #stopwatch.running #lap {
+    display: inline-block;
+}
+#stopwatch.running #stop {
+    order: 1;
+}
+#stopwatch.running #lap {
+    order: 2;
+}
+#stopwatch.running #reset, #stopwatch.running #continue, #stopwatch.running #start {
+    display: none;
+}
+
+#stopwatch.stopped #reset, #stopwatch.stopped #continue {
+    display: inline-block;
+}
+#stopwatch.stopped #reset {
+    order: 1;
+}
+#stopwatch.stopped #continue {
+    order: 2;
+}
+#stopwatch.stopped #stop, #stopwatch.stopped #lap, #stopwatch.stopped #start {
+    display: none;
+}
+
+#stopwatch button {
+    background-color: #444;
+    color: white;
+    text-transform: uppercase;
+    border: 0 none;
+    flex-basis: 0;
+    flex-grow: 1;
+    height: 40px;
+    font-size: 20px;
+}
+</style>
+<script>
+var start_time = null;
+var stopped = true;
+var laps = [];
+var div_time = null;
+var div_stopwatch = null;
+var div_laps = null;
+var btn_lap = null;
+var form = null;
+
+function format_timestamp(total_milliseconds, n) {
+    var total_seconds = (total_milliseconds / 1000)|0;
+    var milliseconds = (total_milliseconds - 1000 * total_seconds)|0;
+    var total_minutes = (total_seconds / 60)|0;
+    var seconds = (total_seconds - 60 * total_minutes)|0;
+    var total_hours = (total_minutes / 60)|0;
+    var minutes = total_minutes - 60 * total_hours;
+    return (
+        total_hours + ':' +
+        ('00' + minutes).slice(-2) + ':' +
+        ('00' + seconds).slice(-2) + '.' +
+        ('000' + milliseconds).slice(-3, -3 + n)
+    );
+}
+
+function update_div_time(total_milliseconds, n) {
+    var time_string = format_timestamp(total_milliseconds, n);
+    div_time.textContent = time_string;
+    window.requestAnimationFrame(update_time);
+}
+
+function update_time() {
+    if (!stopped) {
+        var now = new Date().getTime()|0;
+        var total_milliseconds = (now - start_time)|0;
+        update_div_time(total_milliseconds, 1);
+    }
+}
+
+function update_laps() {
+    div_laps.innerHTML = '';
+    var prev = 0;
+    var v = [];
+    for (var i = 0; i < laps.length; ++i) {
+        var o = document.createElement('div');
+        o.className = 'lap';
+        o.textContent = laps[i];
+        var duration = (laps[i] - prev)|0;
+        prev = laps[i];
+        v.push(duration / 1000);
+        o.innerHTML = (
+            '<div class="lapIndex">Øl ' + (i + 1) + '</div>' +
+            '<div class="lapDuration">' + format_timestamp(duration, 2) + '</div>' +
+            '<div class="lapTotal">' + format_timestamp(laps[i], 2) + '</div>'
+        );
+        div_laps.appendChild(o);
+    }
+    btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
+    form.durations.value = v.join(' ');
+    form.start_time.value = start_time / 1000;
+}
+
+function start(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    start_time = new Date().getTime(); // note, too large for signed 32-bit int
+    stopped = false;
+    div_stopwatch.className = 'running';
+    window.requestAnimationFrame(update_time);
+    btn_lap.focus();
+}
+
+function lap(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    var n = new Date().getTime()|0;
+    laps.push((n - start_time)|0);
+    update_laps();
+}
+
+function stop(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    stopped = true;
+    if (laps.length > 0) {
+        update_div_time(laps[laps.length - 1], 2);
+    }
+    div_stopwatch.className = 'stopped';
+}
+
+function reset(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    start_time = null;
+    laps = [];
+    update_laps();
+    div_stopwatch.className = 'initial';
+}
+
+function continue_(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    stopped = false;
+    window.requestAnimationFrame(update_time);
+    div_stopwatch.className = 'running';
+}
+
+function init() {
+    div_stopwatch = document.getElementById('stopwatch');
+    div_time = document.getElementById('time');
+    div_laps = document.getElementById('laps');
+    form = document.getElementById('stopwatch_form');
+    btn_lap = document.getElementById('lap');
+    document.getElementById('start').addEventListener('click', start, false);
+    btn_lap.addEventListener('click', lap, false);
+    document.getElementById('stop').addEventListener('click', stop, false);
+    document.getElementById('reset').addEventListener('click', reset, false);
+    document.getElementById('continue').addEventListener('click', continue_, false);
+}
+
+window.addEventListener('load', init, false);
+</script>
+{% endblock %}
+{% block content %}
+<h1>Stopur</h1>
+<p>{{ object.profile|display_profile }}</p>
+<div id="stopwatch" class="initial">
+<div id="time">0:00.00</div>
+<div id="buttons">
+<button id="start" autofocus>Start</button>
+<button id="stop">Stop</button>
+<button id="continue">Fortsæt</button>
+<button id="reset">Nulstil</button>
+<button id="lap">Færdig med øl 1</button>
+</div>
+<div id="laps"></div>
+</div>
+<form method="post" id="stopwatch_form">{% csrf_token %}
+    <input type="hidden" name="durations" />
+    <input type="hidden" name="start_time" />
+    <p><label><input type="checkbox" name="dnf" /> DNF</label></p>
+    <p><input type="submit" value="Indsend tid" /></p>
+</form>
+{% endblock %}

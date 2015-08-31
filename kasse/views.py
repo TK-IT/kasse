@@ -3,11 +3,12 @@ from __future__ import absolute_import, unicode_literals, division
 
 import datetime
 
-from django.core.exceptions import ValidationError, FieldError
+from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
+from django.db import OperationalError
 from django.http import HttpResponseRedirect
 from django.views.generic import (
-    View, TemplateView, FormView, DetailView, ListView,
+    View, TemplateView, FormView, DetailView, ListView, UpdateView,
 )
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -15,6 +16,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
+    StopwatchForm,
 )
 from kasse.models import TimeTrial, Leg, Title, Profile
 
@@ -123,11 +125,15 @@ class TimeTrialCreate(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         now = datetime.datetime.now()
+        stopwatch = False
         if data['individual_times'] == 'individual':
             durations = data['durations']
         elif data['individual_times'] == 'total':
             zero = datetime.timedelta(seconds=0)
             durations = [zero] * (data['legs'] - 1) + [data['total_time']]
+        elif data['individual_times'] == 'stopwatch':
+            stopwatch = True
+            data['result'] = ''
         else:
             raise ValueError(data['individual_times'])
         tt = TimeTrial(profile=data['profile'],
@@ -136,6 +142,10 @@ class TimeTrialCreate(FormView):
                        creator=self.request.get_or_create_profile(),
                        created_time=now)
         tt.save()
+        if stopwatch:
+            return HttpResponseRedirect(
+                reverse('timetrial_stopwatch',
+                        kwargs={'pk': tt.pk}))
         for i, duration in enumerate(durations):
             leg = Leg(timetrial=tt,
                       duration=duration.total_seconds(),
@@ -144,6 +154,34 @@ class TimeTrialCreate(FormView):
         return HttpResponseRedirect(
             reverse('timetrial_detail',
                     kwargs={'pk': tt.pk}))
+
+
+class TimeTrialStopwatch(UpdateView):
+    model = TimeTrial
+    template_name = 'kasse/timetrialstopwatch.html'
+    form_class = StopwatchForm
+    queryset = TimeTrial.objects.filter(result='')
+
+    def form_valid(self, form):
+        self.object.result = form.cleaned_data['result']
+        self.object.start_time = form.cleaned_data['start_time']
+        try:
+            self.object.save()
+        except OperationalError:
+            # Work around bug in SQLite
+            # Related to: https://code.djangoproject.com/ticket/18580
+            TimeTrial.objects.filter(pk=self.object.pk).values('id').update(
+                result=form.cleaned_data['result'],
+                start_time=form.cleaned_data['start_time'],
+            )
+        self.object.leg_set.all().delete()
+        self.object.leg_set = [
+            Leg(duration=d.total_seconds(), order=i + 1)
+            for i, d in enumerate(form.cleaned_data['durations'])
+        ]
+        # self.object.durations.save()
+        return HttpResponseRedirect(
+            reverse('timetrial_detail', kwargs={'pk': self.object.pk}))
 
 
 class TimeTrialDetail(DetailView):
