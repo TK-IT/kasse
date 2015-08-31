@@ -141,7 +141,6 @@ function format_timestamp(total_milliseconds, n) {
 function update_div_time(total_milliseconds, n) {
     var time_string = format_timestamp(total_milliseconds, n);
     div_time.textContent = time_string;
-    window.requestAnimationFrame(update_time);
 }
 
 function update_time() {
@@ -149,6 +148,7 @@ function update_time() {
         var now = new Date().getTime()|0;
         var total_milliseconds = (now - start_time)|0;
         update_div_time(total_milliseconds, 1);
+        window.requestAnimationFrame(update_time);
     }
 }
 
