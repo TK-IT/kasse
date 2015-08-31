@@ -15,7 +15,6 @@ Seks personer en kasse?
     Logget ind som {{ user.profile|display_profile }}.
     <a href="{% url 'password' %}" class="nav">Skift kodeord</a>
     <input type="submit" value="Log ud" />
-</form>
 {% else %}
 <form method="post" action="{% url "login" %}" style="margin: 1em 0">{% csrf_token %}
     Du er ikke logget ind.
@@ -23,8 +22,9 @@ Seks personer en kasse?
     <input name="username" placeholder="Brugernavn" size="15" />
     <input name="password" type="password" placeholder="Kodeord" size="15" />
     <input type="submit" value="Log ind" />
-</form>
 {% endif %}
+    Ny bruger? Kontakt Mathias Rav.
+</form>
 <h2>Seneste tider</h2>
 <p>
 <a class="nav" href="{% url 'timetrial_create' %}">Stopur/Indsend ny tid</a>
