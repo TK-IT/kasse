@@ -72,6 +72,8 @@ class Profile(models.Model):
     association = models.ForeignKey(Association, null=True, blank=True,
                                     on_delete=models.SET_NULL)
 
+    favorite_drink = models.CharField(max_length=200, blank=True)
+
     created_time = models.DateTimeField(auto_now_add=True)
 
     @classmethod
