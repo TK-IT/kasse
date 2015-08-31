@@ -1,10 +1,13 @@
 import datetime
 
-from django.utils.encoding import force_str
+from django.core.exceptions import ValidationError
+from django.utils.encoding import force_str, force_text
 from django.utils.translation import ugettext_lazy as _
+from django.utils.duration import duration_string
+from django.utils.dateparse import parse_duration
 from django.forms.utils import from_current_timezone, to_current_timezone
-from django.forms.fields import BaseTemporalField
-from django.forms.widgets import DateTimeInput
+from django.forms.fields import BaseTemporalField, Field
+from django.forms.widgets import DateTimeInput, Textarea
 
 
 class DateTimeDefaultTodayField(BaseTemporalField):
@@ -49,3 +52,38 @@ class DateTimeDefaultTodayField(BaseTemporalField):
         if '%Y' not in format:
             dt = datetime.datetime.combine(datetime.date.today(), dt.time())
         return dt
+
+
+class DurationListField(Field):
+    widget = Textarea
+    default_error_messages = {
+        'invalid': _('Enter a valid duration.'),
+        'invalid_list': _('Enter a list of values.'),
+    }
+
+    def prepare_value(self, value):
+        """Used by BoundField to display the value in a form."""
+        if isinstance(value, (list, tuple)):
+            return '\n'.join(duration_string(v) for v in value)
+        else:
+            return value
+
+    def to_python(self, value):
+        if not value:
+            return []
+        elif not isinstance(value, (list, tuple)):
+            value = force_text(value).split()
+        r = []
+        for val in value:
+            d = parse_duration(val)
+            if d is None:
+                raise ValidationError(
+                    self.error_messages['invalid'], code='invalid')
+            r.append(d)
+        return r
+
+    def validate(self, value):
+        return value
+
+    def has_changed(self, initial, data):
+        return tuple(initial) != tuple(data)
