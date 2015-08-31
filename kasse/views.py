@@ -184,6 +184,10 @@ class TimeTrialStopwatch(UpdateView):
             reverse('timetrial_detail', kwargs={'pk': self.object.pk}))
 
 
+class TimeTrialStopwatchOffline(TemplateView):
+    template_name = 'kasse/timetrialstopwatch.html'
+
+
 class TimeTrialDetail(DetailView):
     model = TimeTrial
     template_name = 'kasse/timetrialdetail.html'

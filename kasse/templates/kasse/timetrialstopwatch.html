@@ -250,7 +250,9 @@ window.addEventListener('load', init, false);
 {% endblock %}
 {% block content %}
 <h1>Stopur</h1>
+{% if object %}
 <p>{{ object.profile|display_profile }}</p>
+{% endif %}
 <div id="stopwatch" class="initial">
 <div id="time">0:00:00.00</div>
 <div id="buttons">
@@ -262,7 +264,11 @@ window.addEventListener('load', init, false);
 </div>
 <div id="laps"></div>
 </div>
+{% if object %}
 <form method="post" id="stopwatch_form">{% csrf_token %}
+{% else %}
+<form method="get" id="stopwatch_form" action="{% url 'timetrial_create' %}">
+{% endif %}
     <input type="hidden" name="durations" />
     <input type="hidden" name="start_time" />
     <p><label><input type="checkbox" name="dnf" /> DNF</label></p>

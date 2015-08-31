@@ -11,7 +11,7 @@ from django.contrib import admin
 from kasse.views import (
     Home, Login, Logout, ProfileCreate, ChangePassword,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
-    TimeTrialAllBest, TimeTrialStopwatch,
+    TimeTrialAllBest, TimeTrialStopwatch, TimeTrialStopwatchOffline,
 )
 
 urlpatterns = [
@@ -35,6 +35,8 @@ urlpatterns = [
         name='timetrial_create'),
     url(r'^timetrial/(?P<pk>\d+)/$', TimeTrialDetail.as_view(),
         name='timetrial_detail'),
+    url(r'^stopwatch/$', TimeTrialStopwatchOffline.as_view(),
+        name='timetrial_stopwatch_offline'),
     url(r'^timetrial/(?P<pk>\d+)/stopwatch/$', TimeTrialStopwatch.as_view(),
         name='timetrial_stopwatch'),
 ]
