@@ -4,6 +4,7 @@ from __future__ import absolute_import, unicode_literals, division
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
+from django.db.models import Sum
 from django.contrib.auth.models import User
 
 from kasse.managers import ProfileManager, TimeTrialManager
@@ -147,6 +148,12 @@ class Leg(models.Model):
 
     def __str__(self):
         return str(self.duration)
+
+    @property
+    def duration_prefix_sum(self):
+        qs = Leg.objects.filter(timetrial=self.timetrial,
+                                order__lte=self.order)
+        return qs.aggregate(Sum('duration'))['duration__sum']
 
     class Meta:
         ordering = ['timetrial', 'order']
