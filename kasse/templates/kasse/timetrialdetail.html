@@ -11,6 +11,7 @@
 <p>Starttidspunkt: {{ object.start_time|default_if_none:"(dato ukendt)" }}</p>
 <p>Total tid: {{ object.duration|display_duration }} {{ object.get_result_display }}</p>
 {% for d in object.leg_set.all %}
-<p>{{ d.order }}: {{ d.duration|display_duration }}</p>
+<p>{{ d.order }}: {{ d.duration|display_duration }}
+{{ d.duration_prefix_sum|display_duration }}</p>
 {% endfor %}
 {% endblock %}
