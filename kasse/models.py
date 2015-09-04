@@ -132,23 +132,31 @@ class TimeTrial(models.Model):
     created_time = models.DateTimeField()
 
     def get_duration_display(self):
-        d = self.duration
+        try:
+            d = self.duration
+        except AttributeError:
+            d = self.compute_duration()
         if d is None:
             return 'None'
         else:
             minutes, seconds = divmod(d, 60)
             return '%d:%05.2f' % (minutes, seconds)
 
+    def compute_duration(self):
+        return self.leg_set.all().aggregate(d=Sum('duration'))['d']
+
     def clean(self):
         pass
 
     def __str__(self):
         if self.result == 'dnf':
-            dnf = 'DNF '
+            state = 'DNF '
+        elif self.result == '':
+            state = ('%s ' % self.state).upper()
         else:
-            dnf = ''
+            state = ''
         return '[TimeTrial: %s %son %s by %s]' % (
-            self.get_duration_display(), dnf, self.start_time, self.profile)
+            self.get_duration_display(), state, self.start_time, self.profile)
 
     class Meta:
         ordering = ['-created_time']
