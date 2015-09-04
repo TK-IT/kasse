@@ -6,10 +6,11 @@ import datetime
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
 from django.db import OperationalError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import (
     View, TemplateView, FormView, DetailView, ListView, UpdateView,
 )
+from django.views.generic.edit import BaseFormView
 from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -18,7 +19,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
     ProfileEditForm,
-    StopwatchForm,
+    StopwatchForm, TimeTrialLiveForm,
 )
 from kasse.models import TimeTrial, Leg, Title, Profile
 
@@ -234,6 +235,28 @@ class TimeTrialStopwatch(UpdateView):
         # self.object.durations.save()
         return HttpResponseRedirect(
             reverse('timetrial_detail', kwargs={'pk': self.object.pk}))
+
+
+class TimeTrialLive(BaseFormView):
+    form_class = TimeTrialLiveForm
+
+    def form_valid(self, form):
+        timetrial = form.cleaned_data['timetrial']
+        timetrial.result = ''
+        timetrial.state = form.cleaned_data['state']
+
+        rt = form.cleaned_data['roundtrip_estimate']
+        latency = datetime.timedelta(seconds=rt / 2)
+        timetrial.start_time = datetime.datetime.now() - latency
+
+        timetrial.save()
+
+        timetrial.leg_set.all().delete()
+        timetrial.leg_set = [
+            Leg(duration=d.total_seconds(), order=i + 1)
+            for i, d in enumerate(form.cleaned_data['durations'])
+        ]
+        return HttpResponse('OK')
 
 
 class TimeTrialStopwatchOffline(TemplateView):

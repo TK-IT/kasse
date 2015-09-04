@@ -2,6 +2,7 @@
 {% load kasse_extras %}
 {% block title %}Stopur{% endblock %}
 {% block head %}
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <style>
 #stopwatch {
     width: 480px;
@@ -135,6 +136,15 @@
 }
 </style>
 <script>
+function reverse(name, pk) {
+    if (name == "timetrial_live") {
+        var url = "{% url "timetrial_live" pk=12345 %}";
+        return url.replace('12345', pk);
+    }
+    return null;
+}
+</script>
+<script>
 var start_time = null;
 var stopped = true;
 var laps = [];
@@ -143,6 +153,7 @@ var div_stopwatch = null;
 var div_laps = null;
 var btn_lap = null;
 var form = null;
+var roundtrip_estimate = 0;
 
 function format_timestamp(total_milliseconds, n) {
     var total_seconds = (total_milliseconds / 1000)|0;
@@ -204,22 +215,25 @@ function start(ev) {
     div_stopwatch.className = 'running';
     window.requestAnimationFrame(update_time);
     btn_lap.focus();
+    post_live_update();
 }
 
 function lap(ev) {
     ev.preventDefault();
     ev.stopPropagation();
-    var n = new Date().getTime()|0;
+    var n = new Date().getTime();
     laps.push((n - start_time)|0);
     update_laps();
+    post_live_update();
 }
 
 function lap_touchstart(ev) {
     ev.preventDefault();
     ev.stopPropagation();
-    var n = new Date().getTime()|0;
+    var n = new Date().getTime();
     laps.push((n - start_time)|0);
     update_laps();
+    post_live_update();
 }
 
 function stop(ev) {
@@ -230,6 +244,7 @@ function stop(ev) {
         update_div_time(laps[laps.length - 1], 2);
     }
     div_stopwatch.className = 'stopped';
+    post_live_update();
 }
 
 function reset(ev) {
@@ -240,6 +255,7 @@ function reset(ev) {
     update_laps();
     div_stopwatch.className = 'initial';
     update_div_time(0, 2);
+    post_live_update();
 }
 
 function continue_(ev) {
@@ -248,6 +264,55 @@ function continue_(ev) {
     stopped = false;
     window.requestAnimationFrame(update_time);
     div_stopwatch.className = 'running';
+    post_live_update();
+}
+
+// getCookie from https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');
+
+function post_live_update() {
+    {% if object %}
+    var pk = {{ object.pk }};
+    {% else %}
+    var pk = null;
+    {% endif %}
+    if (pk === null) return;
+    var url = reverse('timetrial_live', pk);
+    var now = new Date().getTime();
+    var n;
+    if (start_time === null) {
+        n = 0;
+    } else {
+        n = (now - start_time)|0;
+    }
+    var data = {
+        'csrfmiddlewaretoken': csrftoken,
+        'timetrial': pk,
+        'durations': form.durations.value,
+        'elapsed_time': n / 1000,
+        'roundtrip_estimate': roundtrip_estimate / 1000,
+        'state': div_stopwatch.className
+    };
+    function measure_roundtrip() {
+        roundtrip_estimate = (new Date().getTime() - now)|0;
+        console.log("roundtrip_estimate: "+roundtrip_estimate+" ms");
+    };
+    $.post(url, data).always(measure_roundtrip);
 }
 
 function init() {

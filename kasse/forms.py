@@ -6,7 +6,7 @@ import datetime
 from django import forms
 from django.forms.utils import to_current_timezone
 
-from kasse.models import Profile, Association, Title
+from kasse.models import Profile, Association, Title, TimeTrial
 from kasse.fields import DateTimeDefaultTodayField, DurationListField
 
 
@@ -83,6 +83,16 @@ class TimeTrialCreateForm(forms.Form):
         if not v:
             field = self.fields[field_name]
             self.add_error(field_name, field.error_messages['required'])
+
+
+class TimeTrialLiveForm(forms.Form):
+    STATES = TimeTrial.STATES
+    timetrial = forms.ModelChoiceField(TimeTrial.objects.all())
+
+    durations = DurationListField(required=False)
+    elapsed_time = forms.DurationField()
+    roundtrip_estimate = forms.FloatField(initial=0)
+    state = forms.ChoiceField(choices=STATES)
 
 
 class ProfileCreateForm(forms.Form):

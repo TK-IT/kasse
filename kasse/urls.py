@@ -13,7 +13,7 @@ from kasse.views import (
     ProfileEdit, ProfileEditAdmin,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
     TimeTrialAllBest, TimeTrialStopwatch, TimeTrialStopwatchOffline,
-    TimeTrialStopwatchCreate,
+    TimeTrialStopwatchCreate, TimeTrialLive,
 )
 
 urlpatterns = [
@@ -47,6 +47,8 @@ urlpatterns = [
         name='timetrial_create'),
     url(r'^timetrial/(?P<pk>\d+)/$', TimeTrialDetail.as_view(),
         name='timetrial_detail'),
+    url(r'^timetrial/(?P<pk>\d+)/liveupdate/$', TimeTrialLive.as_view(),
+        name='timetrial_live'),
     url(r'^stopwatch/$', TimeTrialStopwatchOffline.as_view(),
         name='timetrial_stopwatch_offline'),
     url(r'^timetrial/stopwatch/$', TimeTrialStopwatchCreate.as_view(),

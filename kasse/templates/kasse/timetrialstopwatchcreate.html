@@ -5,6 +5,7 @@
 <h1>{% kasse_home %}Stopur</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
+    <input type="hidden" name="individual_times" value="individual" />
     <p>
     <label for="{{ form.profile.id_for_label }}">
     Vælg person:
