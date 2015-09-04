@@ -35,32 +35,42 @@ class Home(TemplateView):
 
     @staticmethod
     def get_best(**kwargs):
+        limit = kwargs.pop('limit', None)
+        leg_count = kwargs.pop('leg_count', 5)
         qs = TimeTrial.objects.all()
         if kwargs:
             qs = qs.filter(**kwargs)
         qs = qs.exclude(result='')
-        qs = qs.filter(leg_count=5)
+        qs = qs.filter(leg_count=leg_count)
         qs = qs.order_by('duration')
         try:
             qs_distinct = qs.distinct('profile')
-            return list(qs_distinct[:5])
+            return list(qs_distinct[:limit])
         except NotImplementedError:
             res = {}
             for tt in qs:
                 res.setdefault(tt.profile_id, tt)
-                if len(res) >= 5:
+                if limit is not None and len(res) >= limit:
                     break
             return sorted(res.values(), key=lambda tt: tt.duration)
+
+    @staticmethod
+    def get_season_start():
+        return datetime.date(2015, 8, 1)
+
+    @staticmethod
+    def get_current_best(**kwargs):
+        season_start = Home.get_season_start()
+        return Home.get_best(start_time__gt=season_start, **kwargs)
 
     def get_context_data(self, **kwargs):
         context_data = super(Home, self).get_context_data(**kwargs)
         context_data['latest'] = self.get_latest()
-        context_data['best'] = self.get_best()
-        season_start = datetime.date(2015, 8, 1)
+        context_data['best'] = self.get_best(limit=5)
+        season_start = self.get_season_start()
         context_data['current_season'] = '%d/%d' % (
             season_start.year, season_start.year - 2000 + 1)
-        current_season_best = self.get_best(start_time__gt=season_start)
-        context_data['current_season_best'] = current_season_best
+        context_data['current_season_best'] = self.get_current_best(limit=5)
         return context_data
 
 
@@ -135,6 +145,12 @@ class TimeTrialCreate(FormView):
         except KeyError:
             pass
         return initial
+
+    def get_context_data(self, **kwargs):
+        context_data = super(TimeTrialCreate, self).get_context_data(**kwargs)
+        if 'durations' in self.request.GET:
+            context_data['has_initial'] = True
+        return context_data
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -242,11 +258,16 @@ class TimeTrialAllBest(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(TimeTrialAllBest, self).get_context_data(**kwargs)
-        context_data['timetrial_list'] = self.get_timetrial_list()
+        if self.kwargs['season'] == 'current':
+            season_start = Home.get_season_start()
+            context_data['timetrial_list'] = self.get_timetrial_list(
+                start_time__gt=season_start)
+        else:
+            context_data['timetrial_list'] = self.get_timetrial_list()
         return context_data
 
-    def get_timetrial_list(self):
-        qs = TimeTrial.objects.filter(result='f')
+    def get_timetrial_list(self, **kwargs):
+        qs = TimeTrial.objects.filter(result='f', **kwargs)
         qs = qs.order_by('leg_count', 'duration')
         try:
             qs_distinct = qs.distinct('leg_count')
@@ -263,14 +284,19 @@ class TimeTrialBest(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(TimeTrialBest, self).get_context_data(**kwargs)
-        context_data['timetrial_list'] = self.get_timetrial_list()
+        if self.kwargs['season'] == 'current':
+            season_start = Home.get_season_start()
+            context_data['timetrial_list'] = self.get_timetrial_list(
+                start_time__gt=season_start)
+        else:
+            context_data['timetrial_list'] = self.get_timetrial_list()
         context_data['list_legs'] = self.kwargs['legs']
         return context_data
 
-    def get_timetrial_list(self):
+    def get_timetrial_list(self, **kwargs):
         qs = (
             TimeTrial.objects.filter(result='f')
-            .filter(leg_count=int(self.kwargs['legs']))
+            .filter(leg_count=int(self.kwargs['legs']), **kwargs)
             .order_by('duration')
         )
         try:

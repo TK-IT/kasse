@@ -5,7 +5,7 @@
 <tr>
 <td class="ttl_duration">
 {% if bestlinks %}
-<a href="{% url "timetrial_best_legs" legs=object.leg_count %}">{{ object.leg_count }} øl</a>
+<a href="{{ object.leg_count }}/">{{ object.leg_count }} øl</a>
 {% else %}
 {{ object.leg_count }} øl
 {% endif %}

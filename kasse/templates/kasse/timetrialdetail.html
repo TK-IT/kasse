@@ -7,6 +7,7 @@
 {% if object.result == "dnf" %}(DNF){% endif %}
 {% endblock %}
 {% block content %}
+<h1>{% kasse_home %}{{ object.leg_count }} øl på tid</h1>
 <p>{{ object.profile|display_profile }}</p>
 <p>Starttidspunkt: {{ object.start_time|default_if_none:"(dato ukendt)" }}</p>
 <p>Total tid: {{ object.duration|display_duration }} {{ object.get_result_display }}</p>

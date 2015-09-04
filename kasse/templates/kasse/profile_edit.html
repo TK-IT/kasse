@@ -2,7 +2,7 @@
 {% load kasse_extras %}
 {% block title %}{{ object|display_profile_plain }}{% endblock %}
 {% block content %}
-<h1>{{ object|display_profile }}</h1>
+<h1>{% kasse_home %}{{ object|display_profile }}</h1>
 <form method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Gem profil" />

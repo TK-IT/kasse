@@ -1,50 +1,18 @@
 {% extends "kasse/base.html" %}
 {% block title %}Indsend tid{% endblock %}
 {% load kasse_extras %}
-{% block head %}
-<style>
-    #id_legs {
-        width: 3em;
-    }
-    .list-item-with-checkbox {
-        list-style-type: none;
-    }
-    .list-item-with-checkbox input[type=radio] {
-        box-sizing: border-box;
-        padding: 0px;
-        margin: 0px 6px 0.25em -20px;
-        width: 14px;
-        vertical-align: middle;
-    }
-</style>
-<script>
-    function add_handlers() {
-        function select(i) {
-            function cb() {
-                var e = document.getElementById('id_individual_times_' + i);
-                if (e) e.click();
-            }
-            return cb;
-        }
-        var e0 = document.getElementById('id_durations');
-        if (e0) e0.addEventListener('click', select(0), false);
-        var e1 = document.getElementById('id_total_time');
-        if (e1) e1.addEventListener('click', select(1), false);
-    }
-    window.addEventListener('load', add_handlers, false);
-</script>
-{% endblock %}
 {% block content %}
-<h1>Stopur</h1>
+<h1>{% kasse_home %}Stopur</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
     <p>
-    1.
     <label for="{{ form.profile.id_for_label }}">
     Vælg person:
     </label>
     {{ form.profile }}
-    <a class="nav" href="{% url 'profile_create' %}">Opret profil</a>
+    <span style="white-space: nowrap">
+        <a class="nav" href="{% url 'profile_create' %}">Opret profil</a>
+    </span>
     </p>
     {{ form.profile.errors }}
     <p>

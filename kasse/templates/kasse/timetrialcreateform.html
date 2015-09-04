@@ -35,34 +35,50 @@
 </script>
 {% endblock %}
 {% block content %}
-<h1>Indsend tid</h1>
+<h1>{% kasse_home %}Indsend tid</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
     <p>
+    {% if not has_initial %}
     1.
+    {% endif %}
     <label for="{{ form.profile.id_for_label }}">
     Vælg person:
     </label>
     {{ form.profile }}
-    <a class="nav" href="{% url 'profile_create' %}">Opret profil</a>
+    <span style="white-space: nowrap">
+        <a class="nav" href="{% url 'profile_create' %}">Opret profil</a>
+    </span>
     </p>
     {{ form.profile.errors }}
     <p>
-    2a. <input type="submit" name="stopwatch" value="Åbn stopur nu!" />
-    </p>
-    <p>
-    2b. Eller fortsæt med at indtaste tiden...
-    </p>
-    <p>
     {{ form.start_time.label_tag }}
     {{ form.start_time }}
+    {% if not has_initial %}
     {{ form.start_time_unknown.label_tag }}
     {{ form.start_time_unknown }}
     <br />
     <span class="hint">Efterlad blank for "nu".</span>
+    {% endif %}
     </p>
     {{ form.start_time.errors }}
     {{ form.individual_times.errors }}
+    {% if has_initial %}
+    <input type="hidden" name="individual_times" value="individual" />
+    <p>
+    <label for="{{ form.durations.id_for_label }}">
+        Tider på de enkelte øl:
+    </label>
+    {{ form.durations }}
+    <br />
+    <span class="hint">Indtast m:ss.ss, hver øl på en linje for sig.</span>
+    {{ form.durations.errors }}
+    {{ form.individual_times.0.errors }}
+    {{ form.individual_times.1.errors }}
+    {{ form.legs.errors }}
+    {{ form.total_time.errors }}
+    </p>
+    {% else %}
     <ul>
         <li class="list-item-with-checkbox">
         {{ form.individual_times.0|strip_space_after_tag }}
@@ -85,6 +101,8 @@
         {{ form.total_time.errors }}
         </li>
     </ul>
+    {% endif %}
+    {{ form.individual_times.errors }}
     <p>
     <label for="{{ form.dnf.id_for_label }}" title="Did not finish">
         {{ form.dnf.label }}:

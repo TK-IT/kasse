@@ -270,7 +270,7 @@ window.addEventListener('load', init, false);
 </script>
 {% endblock %}
 {% block content %}
-<h1>Stopur</h1>
+<h1>{% kasse_home %}Stopur</h1>
 {% if object %}
 <p>{{ object.profile|display_profile }}</p>
 {% endif %}

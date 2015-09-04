@@ -1,3 +1,4 @@
+# vim:set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
 from django import template
@@ -54,3 +55,9 @@ def strip_space_after_tag(o, autoescape=True):
     else:
         s = '%s' % (o,)
     return mark_safe(s.replace("> ", ">", 1))
+
+
+@register.simple_tag
+def kasse_home():
+    return mark_safe(
+        '<a href="%s" class="nav">‹</a>\n' % reverse('home'))
