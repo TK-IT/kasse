@@ -116,8 +116,14 @@ class TimeTrial(models.Model):
         ('f', '✓'),
         ('dnf', 'DNF'),
     )
+    STATES = (
+        ('running', 'I gang'),
+        ('stopped', 'Stoppet'),
+        ('initial', 'Parat'),
+    )
     profile = models.ForeignKey(
         Profile, related_name='timetrial_profile_set')
+    state = models.CharField(max_length=10, choices=STATES, default='initial')
     result = models.CharField(max_length=10, choices=RESULTS, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
 
