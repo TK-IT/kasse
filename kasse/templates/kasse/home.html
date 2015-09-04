@@ -35,6 +35,10 @@ Seks personer en kasse?
     </span>
 {% endif %}
 </form>
+{% if live %}
+<h2>Live</h2>
+{% include "kasse/timetrialtable.html" with timetrial_list=live only %}
+{% endif %}
 <h2>Seneste tider</h2>
 <p>
 <a class="nav" href="{% url 'timetrial_stopwatch_create' %}">Stopur</a>

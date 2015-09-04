@@ -137,8 +137,8 @@
 </style>
 <script>
 function reverse(name, pk) {
-    if (name == "timetrial_live") {
-        var url = "{% url "timetrial_live" pk=12345 %}";
+    if (name == "timetrial_liveupdate") {
+        var url = "{% url "timetrial_liveupdate" pk=12345 %}";
         return url.replace('12345', pk);
     }
     return null;
@@ -154,6 +154,7 @@ var div_laps = null;
 var btn_lap = null;
 var form = null;
 var roundtrip_estimate = 0;
+var fetch_interval = null;
 
 function format_timestamp(total_milliseconds, n) {
     var total_seconds = (total_milliseconds / 1000)|0;
@@ -177,7 +178,7 @@ function update_div_time(total_milliseconds, n) {
 
 function update_time() {
     if (!stopped) {
-        var now = new Date().getTime()|0;
+        var now = new Date().getTime();
         var total_milliseconds = (now - start_time)|0;
         update_div_time(total_milliseconds, 1);
         window.requestAnimationFrame(update_time);
@@ -202,9 +203,11 @@ function update_laps() {
         );
         div_laps.appendChild(o);
     }
-    btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
-    form.durations.value = v.join(' ');
-    form.start_time.value = start_time / 1000;
+    if (btn_lap) btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
+    if (form) {
+        form.durations.value = v.join(' ');
+        form.start_time.value = start_time / 1000;
+    }
 }
 
 function start(ev) {
@@ -214,7 +217,7 @@ function start(ev) {
     stopped = false;
     div_stopwatch.className = 'running';
     window.requestAnimationFrame(update_time);
-    btn_lap.focus();
+    if (btn_lap) btn_lap.focus();
     post_live_update();
 }
 
@@ -286,13 +289,13 @@ function getCookie(name) {
 var csrftoken = getCookie('csrftoken');
 
 function post_live_update() {
-    {% if object %}
+    {% if do_post %}
     var pk = {{ object.pk }};
     {% else %}
     var pk = null;
     {% endif %}
     if (pk === null) return;
-    var url = reverse('timetrial_live', pk);
+    var url = reverse('timetrial_liveupdate', pk);
     var now = new Date().getTime();
     var n;
     if (start_time === null) {
@@ -315,6 +318,79 @@ function post_live_update() {
     $.post(url, data).always(measure_roundtrip);
 }
 
+function fetch_state() {
+    var now = new Date().getTime();
+    function success(data) {
+        roundtrip_estimate = (new Date().getTime() - now)|0;
+        console.log("roundtrip_estimate: "+roundtrip_estimate+" ms");
+        data['elapsed_time'] = (
+            data['elapsed_time'] + roundtrip_estimate / 2000);
+        console.log(data);
+        update_state(data);
+    }
+    function fail() {
+	var btn = document.getElementById('live');
+	if (btn) btn.textContent = 'Fejl';
+    }
+    $.getJSON('.', success).fail(fail);
+}
+
+function update_state(state) {
+    var elapsed = (state['elapsed_time'] * 1000)|0;
+    start_time = new Date().getTime() - elapsed;
+
+    laps = [];
+    var p = 0;
+    for (var i = 0; i < state['durations'].length; ++i) {
+        var l = (1000 * state['durations'][i])|0;
+        p += l;
+        laps.push(p);
+    }
+    update_laps();
+
+    div_stopwatch.className = state['state'];
+    if (state['state'] === 'initial') {
+	stopped = true;
+	update_div_time(0, 2);
+    } else if (state['state'] === 'running') {
+        stopped = false;
+        update_time();
+    } else if (state['state'] === 'stopped') {
+        stopped = true;
+	if (laps.length > 0) {
+	    update_div_time(laps[laps.length - 1], 2);
+	} else {
+	    update_div_time(elapsed, 2);
+	}
+    } else if (state['state'] === 'f') {
+        stopped = true;
+	if (laps.length > 0) {
+	    update_div_time(laps[laps.length - 1], 2);
+	} else {
+	    update_div_time(elapsed, 2);
+	}
+	if (fetch_interval !== null) {
+	    clearInterval(fetch_interval);
+	    fetch_interval = null;
+	}
+	var btn = document.getElementById('live');
+	if (btn) btn.textContent = 'Færdig';
+    } else if (state['state'] === 'dnf') {
+        stopped = true;
+	if (laps.length > 0) {
+	    update_div_time(laps[laps.length - 1], 2);
+	} else {
+	    update_div_time(elapsed, 2);
+	}
+	if (fetch_interval !== null) {
+	    clearInterval(fetch_interval);
+	    fetch_interval = null;
+	}
+	var btn = document.getElementById('live');
+	if (btn) btn.textContent = 'DNF';
+    }
+}
+
 function init() {
     div_stopwatch = document.getElementById('stopwatch');
     div_time = document.getElementById('time');
@@ -322,13 +398,41 @@ function init() {
     form = document.getElementById('stopwatch_form');
     btn_lap = document.getElementById('lap');
     var btn_start = document.getElementById('start');
-    btn_start.addEventListener('click', start, false);
-    btn_start.addEventListener('touchstart', start, false);
-    btn_lap.addEventListener('click', lap, false);
-    btn_lap.addEventListener('touchstart', lap_touchstart, false);
-    document.getElementById('stop').addEventListener('click', stop, false);
-    document.getElementById('reset').addEventListener('click', reset, false);
-    document.getElementById('continue').addEventListener('click', continue_, false);
+    if (btn_start) {
+        btn_start.addEventListener('click', start, false);
+        btn_start.addEventListener('touchstart', start, false);
+    }
+    if (btn_lap) {
+        btn_lap.addEventListener('click', lap, false);
+        btn_lap.addEventListener('touchstart', lap_touchstart, false);
+    }
+    var btn_stop = document.getElementById('stop');
+    if (btn_stop) {
+        btn_stop.addEventListener('click', stop, false);
+    }
+    var btn_reset = document.getElementById('reset');
+    if (btn_reset) {
+        btn_reset.addEventListener('click', reset, false);
+    }
+    var btn_continue = document.getElementById('continue');
+    if (btn_continue) {
+        btn_continue.addEventListener('click', continue_, false);
+    }
+    {% if state %}
+    var state = ({{ state }});
+    {% else %}
+    var state = null;
+    {% endif %}
+    if (state !== null) update_state(state);
+
+    {% if do_fetch %}
+    var fetch_pk = {{ object.pk }};
+    {% else %}
+    var fetch_pk = null;
+    {% endif %}
+    if (fetch_pk !== null) {
+	fetch_interval = setInterval(fetch_state, 2000);
+    }
 }
 
 window.addEventListener('load', init, false);
@@ -341,6 +445,7 @@ window.addEventListener('load', init, false);
 {% endif %}
 <div id="stopwatch" class="initial">
 <div id="time">0:00:00.00</div>
+{% if not do_fetch %}
 <div id="buttons">
 <button id="start" autofocus>Start</button>
 <button id="stop">Stop</button>
@@ -348,6 +453,11 @@ window.addEventListener('load', init, false);
 <button id="reset">Nulstil</button>
 <button id="lap">Færdig med øl 1</button>
 </div>
+{% else %}
+<div id="buttons">
+<button id="live">Live</button>
+</div>
+{% endif %}
 <div id="laps"></div>
 </div>
 {% if object %}
@@ -357,7 +467,9 @@ window.addEventListener('load', init, false);
 {% endif %}
     <input type="hidden" name="durations" />
     <input type="hidden" name="start_time" />
+    {% if not do_fetch %}
     <p><label><input type="checkbox" name="dnf" /> DNF</label></p>
     <p><input type="submit" value="Indsend tid" /></p>
+    {% endif %}
 </form>
 {% endblock %}

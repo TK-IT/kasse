@@ -4,6 +4,7 @@
 {% for object in timetrial_list %}
 <tr>
 <td class="ttl_duration">
+{% if object.result %}
 {% if bestlinks %}
 <a href="{{ object.leg_count }}/">{{ object.leg_count }} øl</a>
 {% else %}
@@ -11,12 +12,24 @@
 {% endif %}
 på
 <a href="{% url "timetrial_detail" pk=object.pk %}" class="timetrial_link">
-{{ object.duration|display_duration }}</a></td>
+{{ object.duration|display_duration }}</a>
+{% else %}
+<a href="{% url "timetrial_live" pk=object.pk %}" class="timetrial_link">
+{{ object.get_state_display }}
+</a>
+{% endif %}
+</td>
 <td class="ttl_profile">{{ object.profile|display_profile }}</td>
 <td class="ttl_start_time">{{ object.start_time|default_if_none:"(dato ukendt)" }}</td>
+{% if object.result %}
 <td class="ttl_result ttl_result_{{ object.result }}">
 {{ object.get_result_display }}
 </td>
+{% else %}
+<td class="ttl_result ttl_result_live">
+LIVE
+</td>
+{% endif %}
 </tr>
 {% endfor %}
 </tbody>

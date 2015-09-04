@@ -1,12 +1,17 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
+import json
 import datetime
 
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
 from django.db import OperationalError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.safestring import mark_safe
+from django.http import (
+    HttpResponse, JsonResponse, HttpResponseRedirect,
+    HttpResponseForbidden,
+)
 from django.views.generic import (
     View, TemplateView, FormView, DetailView, ListView, UpdateView,
 )
@@ -15,6 +20,7 @@ from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
+from django.forms.utils import to_current_timezone
 
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
@@ -64,8 +70,18 @@ class Home(TemplateView):
         season_start = Home.get_season_start()
         return Home.get_best(start_time__gt=season_start, **kwargs)
 
+    @staticmethod
+    def get_live():
+        qs = TimeTrial.objects.all()
+        qs = qs.filter(result='')
+        now = datetime.datetime.now()
+        threshold = now - datetime.timedelta(hours=1)
+        qs = qs.filter(start_time__gt=threshold)
+        return list(qs)
+
     def get_context_data(self, **kwargs):
         context_data = super(Home, self).get_context_data(**kwargs)
+        context_data['live'] = self.get_live()
         context_data['latest'] = self.get_latest()
         context_data['best'] = self.get_best(limit=5)
         season_start = self.get_season_start()
@@ -209,11 +225,35 @@ class TimeTrialStopwatchCreate(FormView):
                     kwargs={'pk': tt.pk}))
 
 
-class TimeTrialStopwatch(UpdateView):
+class TimeTrialStateMixin(object):
+    def get_state(self):
+        o = self.object
+        if o.start_time:
+            now = datetime.datetime.now()
+            start_time = to_current_timezone(o.start_time)
+            elapsed = (now - start_time).total_seconds()
+        else:
+            elapsed = 0
+        durations = [l.duration for l in o.leg_set.all()]
+        return {
+            'elapsed_time': elapsed,
+            'durations': durations,
+            'state': o.result or o.state,
+        }
+
+
+class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
     model = TimeTrial
     template_name = 'kasse/timetrialstopwatch.html'
     form_class = StopwatchForm
     queryset = TimeTrial.objects.filter(result='')
+
+    def get_context_data(self, **kwargs):
+        kwargs['do_post'] = True
+        kwargs['do_fetch'] = False
+        state = self.get_state()
+        kwargs['state'] = mark_safe(json.dumps(state))
+        return super(TimeTrialStopwatch, self).get_context_data(**kwargs)
 
     def form_valid(self, form):
         self.object.result = form.cleaned_data['result']
@@ -237,17 +277,21 @@ class TimeTrialStopwatch(UpdateView):
             reverse('timetrial_detail', kwargs={'pk': self.object.pk}))
 
 
-class TimeTrialLive(BaseFormView):
+class TimeTrialLiveUpdate(BaseFormView):
     form_class = TimeTrialLiveForm
 
     def form_valid(self, form):
         timetrial = form.cleaned_data['timetrial']
+        if timetrial.creator != self.request.profile:
+            return HttpResponseForbidden(
+                'Access denied (only creator can update)')
         timetrial.result = ''
         timetrial.state = form.cleaned_data['state']
 
+        elapsed_time = form.cleaned_data['elapsed_time']
         rt = form.cleaned_data['roundtrip_estimate']
         latency = datetime.timedelta(seconds=rt / 2)
-        timetrial.start_time = datetime.datetime.now() - latency
+        timetrial.start_time = datetime.datetime.now() - latency - elapsed_time
 
         timetrial.save()
 
@@ -261,6 +305,34 @@ class TimeTrialLive(BaseFormView):
 
 class TimeTrialStopwatchOffline(TemplateView):
     template_name = 'kasse/timetrialstopwatch.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['do_post'] = False
+        kwargs['do_fetch'] = False
+        return super(TimeTrialStopwatchOffline, self).get_context_data(
+            **kwargs)
+
+
+class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
+    model = TimeTrial
+    template_name = 'kasse/timetrialstopwatch.html'
+    queryset = TimeTrial.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context_data = super(TimeTrialStopwatchLive, self).get_context_data(
+            **kwargs)
+        context_data['do_post'] = False
+        context_data['do_fetch'] = True
+        state = self.get_state()
+        context_data['state'] = mark_safe(json.dumps(state))
+        return context_data
+
+    def render_to_response(self, context, **kwargs):
+        if self.request.is_ajax():
+            return JsonResponse(self.get_state())
+        else:
+            return super(TimeTrialStopwatchLive, self).render_to_response(
+                context, **kwargs)
 
 
 class TimeTrialDetail(DetailView):
