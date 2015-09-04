@@ -170,6 +170,28 @@ class TimeTrialCreate(FormView):
                     kwargs={'pk': tt.pk}))
 
 
+class TimeTrialStopwatchCreate(FormView):
+    form_class = TimeTrialCreateForm
+    template_name = 'kasse/timetrialstopwatchcreate.html'
+
+    def get_initial(self):
+        initial = {'profile': self.request.profile}
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        now = datetime.datetime.now()
+        tt = TimeTrial(profile=data['profile'],
+                       result='',
+                       start_time=data['start_time'],
+                       creator=self.request.get_or_create_profile(),
+                       created_time=now)
+        tt.save()
+        return HttpResponseRedirect(
+            reverse('timetrial_stopwatch',
+                    kwargs={'pk': tt.pk}))
+
+
 class TimeTrialStopwatch(UpdateView):
     model = TimeTrial
     template_name = 'kasse/timetrialstopwatch.html'
