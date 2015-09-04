@@ -32,13 +32,13 @@ def display_profile_plain(profile, autoescape=True):
 
 @register.filter
 def display_duration(duration):
-    minutes, seconds = divmod(duration, 60)
+    minutes, seconds = divmod(duration or 0, 60)
     return '%d:%05.2f' % (minutes, seconds)
 
 
 @register.filter
 def display_duration_plain(duration):
-    minutes, seconds = divmod(duration, 60)
+    minutes, seconds = divmod(duration or 0, 60)
     return '%d:%05.2f' % (minutes, seconds)
 
 
