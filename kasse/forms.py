@@ -40,7 +40,6 @@ class TimeTrialCreateForm(forms.Form):
     profile = ProfileModelChoiceField(label='Person')
     dnf = forms.BooleanField(required=False, label='DNF')
     individual_times = forms.ChoiceField(
-        required=False,
         choices=CHOICES, widget=forms.RadioSelect, initial='individual')
     stopwatch = forms.BooleanField(required=False, label='Stopur')
 
