@@ -12,18 +12,28 @@ Seks personer en kasse?
 </p>
 {% if user.is_authenticated %}
 <form method="post" action="{% url "logout" %}" style="margin: 1em 0">{% csrf_token %}
-    Logget ind som {{ user.profile|display_profile }}.
-    <a href="{% url 'password' %}" class="nav">Skift kodeord</a>
+    <span style="white-space: nowrap">
+        Logget ind som {{ user.profile|display_profile }}.
+    </span>
+    <span style="white-space: nowrap">
+        <a href="{% url 'password' %}" class="nav">Skift kodeord</a>
+    </span>
     <input type="submit" value="Log ud" />
 {% else %}
 <form method="post" action="{% url "login" %}" style="margin: 1em 0">{% csrf_token %}
-    Du er ikke logget ind.
     <input name="next" type="hidden" value="{% url 'home' %}" />
-    <input name="username" placeholder="Brugernavn" size="15" />
-    <input name="password" type="password" placeholder="Kodeord" size="15" />
+    <span style="white-space: nowrap">
+        Du er ikke logget ind.
+    </span>
+    <span style="white-space: nowrap">
+        <input name="username" placeholder="Brugernavn" size="15" />
+        <input name="password" type="password" placeholder="Kodeord" size="15" />
+    </span>
     <input type="submit" value="Log ind" />
+    <span style="white-space: nowrap">
+        Nyt kodeord? Kontakt Mathias Rav.
+    </span>
 {% endif %}
-    Ny bruger? Kontakt Mathias Rav.
 </form>
 <h2>Seneste tider</h2>
 <p>
