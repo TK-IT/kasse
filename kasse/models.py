@@ -125,6 +125,14 @@ class TimeTrial(models.Model):
         Profile, related_name='timetrial_creator_set')
     created_time = models.DateTimeField()
 
+    def get_duration_display(self):
+        d = self.duration
+        if d is None:
+            return 'None'
+        else:
+            minutes, seconds = divmod(d, 60)
+            return '%d:%05.2f' % (minutes, seconds)
+
     def clean(self):
         pass
 
@@ -133,8 +141,8 @@ class TimeTrial(models.Model):
             dnf = 'DNF '
         else:
             dnf = ''
-        return '[TimeTrial: %s s %son %s by %s]' % (
-            self.duration, dnf, self.start_time, self.profile)
+        return '[TimeTrial: %s %son %s by %s]' % (
+            self.get_duration_display(), dnf, self.start_time, self.profile)
 
     class Meta:
         ordering = ['-created_time']
