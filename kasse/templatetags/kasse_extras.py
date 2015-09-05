@@ -31,15 +31,18 @@ def display_profile_plain(profile, autoescape=True):
 
 
 @register.filter
-def display_duration(duration):
+def display_duration_plain(duration):
     minutes, seconds = divmod(duration or 0, 60)
-    return '%d:%05.2f' % (minutes, seconds)
+    hours, minutes = divmod(minutes, 60)
+    if hours > 0:
+        return '%d:%02d:%05.2f' % (hours, minutes, seconds)
+    else:
+        return '%d:%05.2f' % (minutes, seconds)
 
 
 @register.filter
-def display_duration_plain(duration):
-    minutes, seconds = divmod(duration or 0, 60)
-    return '%d:%05.2f' % (minutes, seconds)
+def display_duration(duration):
+    return display_duration_plain(duration)
 
 
 @register.filter
