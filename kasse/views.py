@@ -2,15 +2,17 @@
 from __future__ import absolute_import, unicode_literals, division
 
 import json
+import logging
 import datetime
 
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
 from django.db import OperationalError
 from django.utils.safestring import mark_safe
+from django.utils.six.moves import urllib_parse
 from django.http import (
     HttpResponse, JsonResponse, HttpResponseRedirect,
-    HttpResponseForbidden,
+    HttpResponseForbidden, Http404,
 )
 from django.views.generic import (
     View, TemplateView, FormView, DetailView, ListView, UpdateView,
@@ -19,7 +21,7 @@ from django.views.generic.edit import BaseFormView
 from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.forms.utils import to_current_timezone
 
 from kasse.forms import (
@@ -28,6 +30,8 @@ from kasse.forms import (
     StopwatchForm, TimeTrialLiveForm,
 )
 from kasse.models import TimeTrial, Leg, Title, Profile
+
+logger = logging.getLogger('kasse')
 
 
 class Home(TemplateView):
@@ -81,6 +85,7 @@ class Home(TemplateView):
 
     def get_context_data(self, **kwargs):
         context_data = super(Home, self).get_context_data(**kwargs)
+        context_data['login_form'] = LoginForm()
         context_data['live'] = self.get_live()
         context_data['latest'] = self.get_latest()
         context_data['best'] = self.get_best(limit=5)
@@ -99,26 +104,33 @@ class Login(FormView):
         return {'next': reverse('home')}
 
     def form_valid(self, form):
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
-        user = User.objects.get(username=username)
-
+        profile = form.cleaned_data['profile']
+        user = profile.user
         if user is None:
-            form.add_error('username', 'Ugyldigt brugernavn')
-            return self.form_invalid(form)
+            url = '%s?next=%s' % (
+                reverse('newuser', kwargs={'pk': profile.pk}),
+                urllib_parse.quote(form.cleaned_data['next']))
+            return HttpResponseRedirect(url)
 
-        user = authenticate(username=username, password=password)
+        password = form.cleaned_data['password']
+
+        user = authenticate(username=user.username, password=password)
         if user is None:
             form.add_error('password', 'Forkert kodeord')
             return self.form_invalid(form)
 
         login(self.request, user)
+        logger.info("Login %s", profile,
+                    extra=self.request.log_data)
 
         return HttpResponseRedirect(form.cleaned_data['next'])
 
 
 class Logout(View):
     def post(self, request):
+        if request.profile:
+            logger.info("Logout %s", request.profile,
+                        extra=self.request.log_data)
         logout(request)
         return HttpResponseRedirect(reverse('home'))
 
@@ -141,6 +153,8 @@ class ChangePassword(FormView):
 
     def form_valid(self, form):
         form.save()
+        logger.info("Change password for %s", self.request.profile,
+                    extra=self.request.log_data)
         return HttpResponseRedirect(reverse('home'))
 
 
@@ -198,6 +212,11 @@ class TimeTrialCreate(FormView):
                       duration=duration.total_seconds(),
                       order=i + 1)
             leg.save()
+        logger.info("%s %s created by %s",
+                    TimeTrial.objects.get(pk=tt.pk),
+                    ' '.join(map(str, durations)),
+                    self.request.profile,
+                    extra=self.request.log_data)
         return HttpResponseRedirect(
             reverse('timetrial_detail',
                     kwargs={'pk': tt.pk}))
@@ -273,6 +292,14 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
             for i, d in enumerate(form.cleaned_data['durations'])
         ]
         # self.object.durations.save()
+
+        timetrial = TimeTrial.objects.get(pk=self.object.pk)
+        durations = [l.duration for l in timetrial.leg_set.all()]
+        logger.info("%s %s created with stopwatch by %s",
+                    timetrial,
+                    ' '.join(map(str, durations)),
+                    self.request.profile,
+                    extra=self.request.log_data)
         return HttpResponseRedirect(
             reverse('timetrial_detail', kwargs={'pk': self.object.pk}))
 
@@ -409,18 +436,12 @@ class ProfileCreate(FormView):
     template_name = 'kasse/profilecreateform.html'
 
     def form_valid(self, form):
-        name = form.cleaned_data['name']
-        title = form.cleaned_data['title']
-        period = form.cleaned_data['period']
-        association = form.cleaned_data['association']
-        if title:
-            t = Title(
-                association=association, period=period, title=title)
-            t.save()
-        else:
-            t = None
-        p = Profile(name=name, title=t, association=association)
+        p = Profile()
+        form.save(p)
         p.save()
+        logger.info("Profile %s created by %s",
+                    p, self.request.profile,
+                    extra=self.request.log_data)
         return HttpResponseRedirect(reverse('home'))
 
 
@@ -447,9 +468,89 @@ class ProfileEdit(ProfileEditBase):
     def get_object(self):
         return self.request.profile
 
+    def form_valid(self, form):
+        response = super(ProfileEdit, self).form_valid(form)
+        logger.info("%s edited own profile",
+                    self.request.profile,
+                    extra=self.request.log_data)
+        return response
+
 
 class ProfileEditAdmin(ProfileEditBase):
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:
             return permission_denied(request)
         return super(ProfileEditAdmin, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super(ProfileEditAdmin, self).form_valid(form)
+        logger.info("Admin %s edited profile of %s",
+                    self.request.profile,
+                    self.object,
+                    extra=self.request.log_data)
+        return response
+
+
+class UserCreate(TemplateView):
+    template_name = 'kasse/usercreateform.html'
+
+    def get_profile(self):
+        try:
+            return Profile.objects.get(pk=self.kwargs['pk'])
+        except Profile.DoesNotExist:
+            raise Http404()
+
+    def get_initial(self):
+        profile = self.get_profile()
+        initial = {
+            'username': 'profile%d' % profile.pk,
+            'name': profile.name,
+            'association': profile.association,
+        }
+        if profile.title:
+            initial.update({
+                'title': profile.title.title,
+                'period': profile.title.period,
+            })
+        return initial
+
+    def get_forms(self):
+        kwargs = {
+            'initial': self.get_initial(),
+        }
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST.copy()
+            kwargs['data']['username'] = kwargs['initial']['username']
+        user_form = UserCreationForm(**kwargs)
+        profile_form = ProfileCreateForm(**kwargs)
+        return user_form, profile_form
+
+    def get(self, request, *args, **kwargs):
+        user_form, profile_form = self.get_forms()
+        context_data = self.get_context_data(
+            user_form=user_form, profile_form=profile_form)
+        return self.render_to_response(context_data)
+
+    def post(self, request, *args, **kwargs):
+        user_form, profile_form = self.get_forms()
+        if user_form.is_valid() and profile_form.is_valid():
+            return self.form_valid(user_form, profile_form)
+        else:
+            return self.form_invalid(user_form, profile_form)
+
+    def form_valid(self, user_form, profile_form):
+        user = user_form.save()
+        profile = self.get_profile()
+        profile.user = user
+        profile_form.save(profile)
+        profile.save()
+        logger.info("Create user %s from profile %s",
+                    user.username, profile,
+                    extra=self.request.log_data)
+        return HttpResponseRedirect(
+            reverse('home'))
+
+    def form_invalid(self, user_form, profile_form):
+        context_data = self.get_context_data(
+            user_form=user_form, profile_form=profile_form)
+        return self.render_to_response(context_data)

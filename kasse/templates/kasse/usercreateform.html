@@ -1,0 +1,22 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block content %}
+<h1>{% kasse_home %}Opret kodeord</h1>
+<form method="post">{% csrf_token %}
+{{ user_form.username.errors }}
+{{ user_form.non_field_errors }}
+{{ profile_form.non_field_errors }}
+<p>
+{{ user_form.password1.label_tag }}
+{{ user_form.password1 }}
+</p>
+{{ user_form.password1.errors }}
+<p>
+{{ user_form.password2.label_tag }}
+{{ user_form.password2 }}
+</p>
+{{ user_form.password2.errors }}
+{% include "kasse/profilecreateformfields.html" with form=profile_form only %}
+<input type="submit" value="Opret" />
+</form>
+{% endblock %}

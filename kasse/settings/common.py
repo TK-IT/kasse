@@ -105,3 +105,30 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': ('[%(asctime)s %(name)s %(levelname)s %(ip)s] ' +
+                       '%(message)s'),
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/rav/enkasseienfestforening.dk/django.log',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'kasse': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

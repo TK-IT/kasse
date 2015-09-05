@@ -11,8 +11,12 @@ from kasse.fields import DateTimeDefaultTodayField, DurationListField
 
 
 class LoginForm(forms.Form):
-    username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
+    profile = forms.ModelChoiceField(
+        Profile.all_named(),
+        empty_label="Brugernavn")
+    password = forms.CharField(
+        widget=forms.PasswordInput,
+        required=False)
     next = forms.CharField(widget=forms.HiddenInput)
 
 
@@ -113,6 +117,13 @@ class ProfileCreateForm(forms.Form):
         if title and not association:
             self.add_error('association', 'Titel kræver en tilknytning.')
 
+    def save(self, instance):
+        instance.name = self.cleaned_data['name']
+        instance.association = self.cleaned_data['association'] or None
+        title = self.cleaned_data['title'] or ''
+        period = self.cleaned_data['period'] or None
+        instance.set_title(title, period)
+
 
 class ProfileEditForm(forms.ModelForm):
     class Meta:
@@ -145,24 +156,10 @@ class ProfileEditForm(forms.ModelForm):
 
     def save(self):
         instance = super(ProfileEditForm, self).save(commit=False)
+        instance.association = self.cleaned_data['association'] or None
         title = self.cleaned_data['title'] or ''
         period = self.cleaned_data['period'] or None
-        association = self.cleaned_data['association'] or None
-        new_title = (title, period, association)
-        if instance.title:
-            current_title = (
-                instance.title.title,
-                instance.title.period,
-                instance.title.association,
-            )
-        else:
-            current_title = '', None, None
-        if new_title != current_title:
-            if instance.title:
-                instance.title.delete()
-            t = Title(title=title, period=period, association=association)
-            t.save()
-            instance.title = t
+        instance.set_title(title, period)
         instance.save()
         return instance
 

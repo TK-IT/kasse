@@ -22,17 +22,22 @@ Seks personer en kasse?
 {% else %}
 <form method="post" action="{% url "login" %}" style="margin: 1em 0">{% csrf_token %}
     <input name="next" type="hidden" value="{% url 'home' %}" />
+    <div>
     <span style="white-space: nowrap">
         Du er ikke logget ind.
     </span>
     <span style="white-space: nowrap">
-        <input name="username" placeholder="Brugernavn" size="15" />
+        {{ login_form.profile }}
         <input name="password" type="password" placeholder="Kodeord" size="15" />
     </span>
     <input type="submit" value="Log ind" />
+    </div>
+    <div>
+    Hvis du endnu ikke har oprettet et kodeord, så efterlad feltet blankt.
     <span style="white-space: nowrap">
-        Nyt kodeord? Kontakt Mathias Rav.
+        Glemt kodeord? Kontakt <a href="#contact">Mathias Rav</a>.
     </span>
+    </div>
 {% endif %}
 </form>
 {% if live %}
@@ -82,7 +87,7 @@ Seks personer en kasse?
 <p>@lkymia: DNF</p>
 <p>Tillykke til <strong>TÅGEKAMMERET!</strong></p>
 
-<footer>
+<footer id="contact">
 Lavet af Mathias Rav, FORM13 (snabel-a) TAAGEKAMMERET.dk
 </footer>
 {% endblock %}

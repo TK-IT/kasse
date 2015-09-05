@@ -99,6 +99,24 @@ class Profile(models.Model):
         else:
             return Association.none_string()
 
+    def set_title(self, title, period):
+        association = self.association
+        new_title = (title, period, association)
+        if self.title:
+            current_title = (
+                self.title.title,
+                self.title.period,
+                self.title.association,
+            )
+        else:
+            current_title = '', None, None
+        if new_title != current_title:
+            if self.title:
+                self.title.delete()
+            t = Title(title=title, period=period, association=association)
+            t.save()
+            self.title = t
+
     def __str__(self):
         if self.title and self.name:
             return '%s %s' % (self.title, self.name)

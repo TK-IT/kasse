@@ -5,36 +5,7 @@
 <h1>{% kasse_home %}Ny profil</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
-    <p>
-    {{ form.name.label_tag }}
-    {{ form.name }}
-    <br />
-    <span class="hint">
-        Påkrævet medmindre titel udfyldes.
-    </span>
-    </p>
-    {{ form.name.errors }}
-    <p>
-    {{ form.association.label_tag }}
-    {{ form.association }}
-    </p>
-    {{ form.association.errors }}
-    <p>
-    <span style="white-space: nowrap">
-        {{ form.title.label_tag }}
-        {{ form.title }}
-    </span>
-    <span style="white-space: nowrap">
-        {{ form.period.label_tag }}
-        {{ form.period }}
-    </span>
-    <br />
-    <span class="hint">
-        Hvis titlen blot er et kaldenavn, kan periode efterlades tom.
-    </span>
-    </p>
-    {{ form.title.errors }}
-    {{ form.period.errors }}
+    {% include "kasse/profilecreateformfields.html" with form=form only %}
     <input type="submit" value="Opret" />
 </form>
 {% endblock %}

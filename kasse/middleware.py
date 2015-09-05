@@ -4,6 +4,8 @@ import functools
 
 from django.utils.functional import SimpleLazyObject
 
+from ipware.ip import get_real_ip
+
 from kasse.models import Profile
 
 
@@ -42,3 +44,4 @@ class Middleware(object):
             get_profile, request))
         request.get_or_create_profile = functools.partial(
             get_or_create_profile, request)
+        request.log_data = {'ip': get_real_ip(request)}

@@ -1,4 +1,5 @@
 {% extends "kasse/base.html" %}
+{% load kasse_extras %}
 {% block title %}Log ind{% endblock %}
 {% block content %}
 <h1>{% kasse_home %}Log ind</h1>
@@ -8,9 +9,9 @@
 Logget ind som: {{ user }}
 {% else %}
 <p>
-{{ form.username.label_tag }}
-{{ form.username }}
-{{ form.username.errors }}
+{{ form.profile.label_tag }}
+{{ form.profile }}
+{{ form.profile.errors }}
 </p>
 <p>
 {{ form.password.label_tag }}

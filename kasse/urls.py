@@ -10,7 +10,7 @@ from django.contrib import admin
 
 from kasse.views import (
     Home, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
-    ProfileEdit, ProfileEditAdmin,
+    ProfileEdit, ProfileEditAdmin, UserCreate,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
     TimeTrialAllBest, TimeTrialStopwatch, TimeTrialStopwatchOffline,
     TimeTrialStopwatchCreate, TimeTrialStopwatchLive, TimeTrialLiveUpdate,
@@ -25,6 +25,8 @@ urlpatterns = [
     url(r'^logout/$', Logout.as_view(), name='logout'),
     url(r'^password/$', ChangePassword.as_view(), name='password'),
 
+    url(r'^newuser/(?P<pk>\d+)/$', UserCreate.as_view(),
+        name='newuser'),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(),
         name='profile'),
     url(r'^profile/edit/$', ProfileEdit.as_view(),
