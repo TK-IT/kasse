@@ -2,8 +2,9 @@
 from __future__ import absolute_import, unicode_literals, division
 
 from django.db import models
-from django.db.models import Count, Sum
-from django.db.models.expressions import RawSQL
+from django.db.models import Count, Sum, F
+from django.db.models.sql.where import AND
+from django.db.models.lookups import LessThanOrEqual
 
 
 class ProfileManager(models.Manager):
@@ -24,14 +25,26 @@ class TimeTrialManager(models.Manager):
         return qs.select_related('profile', 'creator')
 
 
-class LegManagerPrototype(models.Manager):
+class LegManager(models.Manager):
     use_for_related_fields = True
 
     def get_queryset(self):
-        qs = super(LegManagerPrototype, self).get_queryset()
-        sql = '''
-            SELECT SUM(duration) FROM kasse_leg `a`
-            WHERE a.timetrial_id = kasse_leg.timetrial_id
-            AND a.order <= kasse_leg.order'''
-        qs = qs.annotate(p=RawSQL(sql, ()))
+        qs = super(LegManager, self).get_queryset()
+
+        # Add the annotation `duration_prefix_sum`
+        # which is the sum of Leg.duration for the other Legs
+        # of the TimeTrial which has order <= this Leg's order.
+
+        # First, add a Sum-annotation that sums all durations.
+        qs = qs.annotate(duration_prefix_sum=Sum('timetrial__leg__duration'))
+
+        # Add a condition to the query WHERE-clause
+        # to ensure that other_order is less or equal to my_order.
+        my_order = F('order').resolve_expression(query=qs.query)
+        other_order = F('timetrial__leg__order')
+        other_order = other_order.resolve_expression(query=qs.query)
+        lte_cond = LessThanOrEqual(other_order, my_order)
+
+        qs.query.where.add(lte_cond, AND)
+
         return qs

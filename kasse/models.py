@@ -7,7 +7,9 @@ from django.db import models
 from django.db.models import Sum
 from django.contrib.auth.models import User
 
-from kasse.managers import ProfileManager, TimeTrialManager
+from kasse.managers import (
+    ProfileManager, TimeTrialManager, LegManager,
+)
 
 
 @python_2_unicode_compatible
@@ -164,18 +166,14 @@ class TimeTrial(models.Model):
 
 @python_2_unicode_compatible
 class Leg(models.Model):
+    objects = LegManager()
+
     timetrial = models.ForeignKey(TimeTrial)
     duration = models.FloatField()
     order = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return str(self.duration)
-
-    @property
-    def duration_prefix_sum(self):
-        qs = Leg.objects.filter(timetrial=self.timetrial,
-                                order__lte=self.order)
-        return qs.aggregate(Sum('duration'))['duration__sum']
 
     class Meta:
         ordering = ['timetrial', 'order']
