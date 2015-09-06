@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,67 +8,7 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" 
 <title>
 {% block fulltitle %}{% block title %}{% endblock %} - En kasse i en festforening{% endblock %}
 </title>
-<style>
-body {
-font-family: sans-serif;
-margin: 24px;
-}
-footer {
-display: block;
-font-size: 80%;
-border-top: 1px solid #999;
-padding-top: 10px;
-}
-a {
-    text-decoration: none;
-}
-a:link {
-    color: #00c;
-}
-a:visited {
-    color: #808;
-}
-a:hover {
-    text-decoration: underline;
-}
-.timetrial_link:visited {
-    color: #00c;
-}
-a.nav:visited {
-    color: #00c;
-}
-a.profile_link {
-    color: inherit;
-}
-.hint {
-    font-size: 14px;
-    font-style: italic;
-}
-.ttl_result {
-    width: 24px;
-    text-align: center;
-}
-.ttl_duration {
-    width: 140px;
-}
-.ttl_profile {
-    width: 200px;
-}
-.ttl_result_dnf {
-    color: #900;
-    font-size: 12px;
-    letter-spacing: -1px;
-}
-.ttl_start_time {
-    width: 220px;
-}
-
-@media screen and (max-width: 480px) {
-    body {
-        margin: 8px;
-    }
-}
-</style>
+<link rel="stylesheet" href="{% static "kasse/style.css" %}" />
 {% block head %}
 {% endblock %}
 </head>

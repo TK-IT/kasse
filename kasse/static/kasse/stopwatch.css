@@ -1,0 +1,131 @@
+<style>
+#stopwatch {
+    width: 480px;
+    background-color: #218c00;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+}
+#stopwatch #time {
+    order: 1;
+    font-size: 60px;
+    text-align: center;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+}
+#stopwatch #buttons {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    order: 2;
+    -webkit-order: 2;
+    justify-content: space-between;
+}
+#stopwatch button {
+    margin: 2px;
+}
+#stopwatch .lap {
+    height: 40px;
+    color: white;
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    align-items: center;
+    -webkit-align-items: center;
+}
+#stopwatch .lapIndex {
+    flex-basis: 50px;
+    -webkit-flex-basis: 50px;
+    padding-left: 8px;
+}
+#stopwatch .lapDuration {
+    flex-basis: 0;
+    -webkit-flex-basis: 0;
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+    text-align: center;
+}
+#stopwatch .lapTotal {
+    flex-basis: 50%;
+    -webkit-flex-basis: 50%;
+    flex-grow: 0;
+    -webkit-flex-grow: 0;
+    text-align: center;
+}
+#stopwatch #laps {
+    order: 3;
+    -webkit-order: 3;
+    min-height: 200px;
+}
+
+#stopwatch.initial #reset, #stopwatch.initial #start {
+    display: inline-block;
+}
+#stopwatch.initial #reset {
+    order: 1;
+    -webkit-order: 1;
+}
+#stopwatch.initial #start {
+    order: 2;
+    -webkit-order: 2;
+}
+#stopwatch.initial #stop, #stopwatch.initial #continue, #stopwatch.initial #lap {
+    display: none;
+}
+
+#stopwatch.running #stop, #stopwatch.running #lap {
+    display: inline-block;
+}
+#stopwatch.running #stop {
+    order: 1;
+    -webkit-order: 1;
+}
+#stopwatch.running #lap {
+    order: 2;
+    -webkit-order: 2;
+}
+#stopwatch.running #reset, #stopwatch.running #continue, #stopwatch.running #start {
+    display: none;
+}
+
+#stopwatch.stopped #reset, #stopwatch.stopped #continue {
+    display: inline-block;
+}
+#stopwatch.stopped #reset {
+    order: 1;
+    -webkit-order: 1;
+}
+#stopwatch.stopped #continue {
+    order: 2;
+    -webkit-order: 2;
+}
+#stopwatch.stopped #stop, #stopwatch.stopped #lap, #stopwatch.stopped #start {
+    display: none;
+}
+
+#stopwatch button {
+    background-color: #444;
+    color: white;
+    text-transform: uppercase;
+    border: 0 none;
+    flex-basis: 0;
+    -webkit-flex-basis: 0;
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+    height: 50px;
+    font-size: 16px;
+}
+
+@media screen and (max-width: 504px) {
+    body {
+        margin: 0;
+    }
+
+    #stopwatch {
+        width: 100%;
+    }
+}
