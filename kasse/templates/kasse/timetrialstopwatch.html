@@ -338,6 +338,8 @@ window.addEventListener('load', init, false);
     <input type="hidden" name="durations" />
     <input type="hidden" name="start_time" />
     {% if not do_fetch %}
+    <p>Total rest (cL): {{ form.residue }}</p>
+    <p>Kommentar: {{ form.comment }}</p>
     <p><label><input type="checkbox" name="dnf" /> DNF</label></p>
     <p><input type="submit" value="Indsend tid" /></p>
     {% endif %}

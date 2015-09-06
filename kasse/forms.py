@@ -187,6 +187,9 @@ class StopwatchForm(forms.Form):
         required=False,
         widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
 
+    residue = forms.CharField(required=False)
+    comment = forms.CharField(required=False)
+
     def __init__(self, *args, **kwargs):
         instance = kwargs.pop('instance')
         kwargs['initial']['durations'] = list(instance.leg_set.all())
