@@ -120,11 +120,9 @@
 }
 
 @media screen and (max-width: 504px) {
-    body {
-        margin: 0;
-    }
-
     #stopwatch {
-        width: 100%;
+        width: auto;
+        margin-left: -8px;
+        margin-right: -8px;
     }
 }

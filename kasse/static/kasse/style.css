@@ -52,7 +52,7 @@ a.profile_link {
     width: 220px;
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 504px) {
     body {
         margin: 8px;
     }
