@@ -23,6 +23,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
 from django.forms.utils import to_current_timezone
+from django.conf import settings
 
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
@@ -554,3 +555,16 @@ class UserCreate(TemplateView):
         context_data = self.get_context_data(
             user_form=user_form, profile_form=profile_form)
         return self.render_to_response(context_data)
+
+
+class Log(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super(Log, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        filename = settings.LOGGING['handlers']['file']['filename']
+        with open(filename) as fp:
+            s = fp.read()
+        return HttpResponse(s, content_type='text/plain')
