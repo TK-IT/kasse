@@ -21,13 +21,13 @@ from django.views.generic.edit import BaseFormView
 from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.forms.utils import to_current_timezone
 from django.conf import settings
 
 from kasse.forms import (
     TimeTrialCreateForm, LoginForm, ProfileCreateForm,
-    ProfileEditForm,
+    ProfileEditForm, UserCreationForm,
     StopwatchForm, TimeTrialLiveForm,
 )
 from kasse.models import TimeTrial, Leg, Title, Profile
