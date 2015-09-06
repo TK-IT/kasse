@@ -11,8 +11,15 @@
 <p>{{ object.profile|display_profile }}</p>
 <p>Starttidspunkt: {{ object.start_time|default_if_none:"(dato ukendt)" }}</p>
 <p>Total tid: {{ object.duration|display_duration }} {{ object.get_result_display }}</p>
+<ol>
 {% for d in object.leg_set.all %}
-<p>{{ d.order }}: {{ d.duration|display_duration }}
-{{ d.duration_prefix_sum|display_duration }}</p>
+<li>
+{{ d.duration|display_duration }}
+{{ d.duration_prefix_sum|display_duration }}
+</li>
 {% endfor %}
+</ol>
+{% if object.comment %}
+<p>&ldquo;{{ object.comment }}&rdquo;</p>
+{% endif %}
 {% endblock %}
