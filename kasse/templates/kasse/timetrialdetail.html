@@ -1,5 +1,9 @@
 {% extends "kasse/base.html" %}
+{% load staticfiles %}
 {% load kasse_extras %}
+{% block head %}
+<link rel="stylesheet" href="{% static "kasse/stopwatch.css" %}" />
+{% endblock %}
 {% block title %}
 {{ object.profile|display_profile_plain }}:
 {{ object.leg_count }} øl på
@@ -10,15 +14,21 @@
 <h1>{% kasse_home %}{{ object.leg_count }} øl på tid</h1>
 <p>{{ object.profile|display_profile }}</p>
 <p>Starttidspunkt: {{ object.start_time|default_if_none:"(dato ukendt)" }}</p>
-<p>Total tid: {{ object.duration|display_duration }} {{ object.get_result_display }}</p>
-<ol>
-{% for d in object.leg_set.all %}
-<li>
-{{ d.duration|display_duration }}
-{{ d.duration_prefix_sum|display_duration }}
-</li>
-{% endfor %}
-</ol>
+<div id="stopwatch" class="initial">
+    <div id="time">{{ object.duration|display_duration }}</div>
+    <div id="buttons">
+        <button>{{ object.get_result_display }}</button>
+    </div>
+    <div id="laps">
+        {% for d in object.leg_set.all %}
+        <div class="lap">
+            <div class="lapIndex">Øl {{ d.order }}</div>
+            <div class="lapDuration">{{ d.duration|display_duration }}</div>
+            <div class="lapTotal">{{ d.duration_prefix_sum|display_duration }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% if object.comment %}
 <p>&ldquo;{{ object.comment }}&rdquo;</p>
 {% endif %}
