@@ -39,6 +39,9 @@ a.profile_link {
 }
 .ttl_duration {
     width: 140px;
+    max-width: 140px;
+    overflow: hidden;
+    white-space: nowrap;
 }
 .ttl_profile {
     width: 200px;
