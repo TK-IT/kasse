@@ -4,12 +4,21 @@ from __future__ import absolute_import, unicode_literals, division
 import datetime
 
 from django import forms
+from django.utils import six
 from django.forms.utils import to_current_timezone
+from django.contrib.auth.forms import UserCreationForm as AdminUserCreationForm
 
 from kasse.models import Profile, Association, Title, TimeTrial
 from kasse.fields import DateTimeDefaultTodayField, DurationListField
 
 
+def label_placeholder(cls):
+    for f in cls.base_fields.values():
+        f.widget.attrs.setdefault('placeholder', f.label)
+    return cls
+
+
+@label_placeholder
 class LoginForm(forms.Form):
     profile = forms.ModelChoiceField(
         Profile.all_named(),
@@ -99,6 +108,7 @@ class TimeTrialLiveForm(forms.Form):
     state = forms.ChoiceField(choices=STATES)
 
 
+@label_placeholder
 class ProfileCreateForm(forms.Form):
     name = forms.CharField(required=False, label='Navn')
     title = forms.CharField(required=False, label='Titel')
@@ -125,6 +135,12 @@ class ProfileCreateForm(forms.Form):
         instance.set_title(title, period)
 
 
+@label_placeholder
+class UserCreationForm(AdminUserCreationForm):
+    pass
+
+
+@label_placeholder
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
