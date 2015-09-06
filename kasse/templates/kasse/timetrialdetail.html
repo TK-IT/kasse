@@ -32,4 +32,8 @@
 {% if object.comment %}
 <p>&ldquo;{{ object.comment }}&rdquo;</p>
 {% endif %}
+{% if object.residue == None %}
+{% else %}
+<p>Total rest: {{ object.residue }} cL</p>
+{% endif %}
 {% endblock %}
