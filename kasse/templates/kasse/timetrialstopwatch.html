@@ -13,6 +13,21 @@ function reverse(name, pk) {
     }
     return null;
 }
+{% if do_post %}
+var post_pk = {{ object.pk }};
+{% else %}
+var post_pk = null;
+{% endif %}
+{% if state %}
+var initial_state = ({{ state }});
+{% else %}
+var initial_state = null;
+{% endif %}
+{% if do_fetch %}
+var fetch_pk = {{ object.pk }};
+{% else %}
+var fetch_pk = null;
+{% endif %}
 </script>
 <script src="{% static "kasse/stopwatch.js" %}"></script>
 {% endblock %}

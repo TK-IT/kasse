@@ -1,4 +1,3 @@
-<script>
 var start_time = null;
 var stopped = true;
 var laps = [];
@@ -143,13 +142,8 @@ function getCookie(name) {
 var csrftoken = getCookie('csrftoken');
 
 function post_live_update() {
-    {% if do_post %}
-    var pk = {{ object.pk }};
-    {% else %}
-    var pk = null;
-    {% endif %}
-    if (pk === null) return;
-    var url = reverse('timetrial_liveupdate', pk);
+    if (post_pk === null) return;
+    var url = reverse('timetrial_liveupdate', post_pk);
     var now = new Date().getTime();
     var n;
     if (start_time === null) {
@@ -159,7 +153,7 @@ function post_live_update() {
     }
     var data = {
         'csrfmiddlewaretoken': csrftoken,
-        'timetrial': pk,
+        'timetrial': post_pk,
         'durations': form.durations.value,
         'elapsed_time': n / 1000,
         'roundtrip_estimate': roundtrip_estimate / 1000,
@@ -272,18 +266,8 @@ function init() {
     if (btn_continue) {
         btn_continue.addEventListener('click', continue_, false);
     }
-    {% if state %}
-    var state = ({{ state }});
-    {% else %}
-    var state = null;
-    {% endif %}
-    if (state !== null) update_state(state);
+    if (initial_state !== null) update_state(initial_state);
 
-    {% if do_fetch %}
-    var fetch_pk = {{ object.pk }};
-    {% else %}
-    var fetch_pk = null;
-    {% endif %}
     if (fetch_pk !== null) {
 	fetch_interval = setInterval(fetch_state, 2000);
     }
