@@ -3,8 +3,6 @@ from __future__ import absolute_import, unicode_literals, division
 
 from django.db import models
 from django.db.models import Count, Sum, F
-from django.db.models.sql.where import AND
-from django.db.models.lookups import LessThanOrEqual
 
 
 class ProfileManager(models.Manager):
@@ -34,17 +32,7 @@ class LegManager(models.Manager):
         # Add the annotation `duration_prefix_sum`
         # which is the sum of Leg.duration for the other Legs
         # of the TimeTrial which has order <= this Leg's order.
-
-        # First, add a Sum-annotation that sums all durations.
+        qs = qs.filter(timetrial__leg__order__lte=F('order'))
         qs = qs.annotate(duration_prefix_sum=Sum('timetrial__leg__duration'))
-
-        # Add a condition to the query WHERE-clause
-        # to ensure that other_order is less or equal to my_order.
-        my_order = F('order').resolve_expression(query=qs.query)
-        other_order = F('timetrial__leg__order')
-        other_order = other_order.resolve_expression(query=qs.query)
-        lte_cond = LessThanOrEqual(other_order, my_order)
-
-        qs.query.where.add(lte_cond, AND)
 
         return qs
