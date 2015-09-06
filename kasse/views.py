@@ -278,6 +278,8 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
     def form_valid(self, form):
         self.object.result = form.cleaned_data['result']
         self.object.start_time = form.cleaned_data['start_time']
+        self.object.residue = form.cleaned_data['residue']
+        self.object.comment = form.cleaned_data['comment']
         try:
             self.object.save()
         except OperationalError:
