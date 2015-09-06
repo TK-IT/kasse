@@ -266,7 +266,16 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
     model = TimeTrial
     template_name = 'kasse/timetrialstopwatch.html'
     form_class = StopwatchForm
-    queryset = TimeTrial.objects.filter(result='')
+    queryset = TimeTrial.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        object = self.get_object()
+        if object.result != '':
+            return HttpResponseRedirect(
+                reverse('timetrial_detail', kwargs={'pk': object.pk}))
+        else:
+            return super(TimeTrialStopwatch, self).dispatch(
+                request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         kwargs['do_post'] = True
@@ -347,6 +356,15 @@ class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
     model = TimeTrial
     template_name = 'kasse/timetrialstopwatch.html'
     queryset = TimeTrial.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        object = self.get_object()
+        if object.result != '':
+            return HttpResponseRedirect(
+                reverse('timetrial_detail', kwargs={'pk': object.pk}))
+        else:
+            return super(TimeTrialStopwatchLive, self).dispatch(
+                request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context_data = super(TimeTrialStopwatchLive, self).get_context_data(
