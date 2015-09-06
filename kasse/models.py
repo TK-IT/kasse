@@ -147,6 +147,9 @@ class TimeTrial(models.Model):
     result = models.CharField(max_length=10, choices=RESULTS, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
 
+    comment = models.TextField(blank=True)
+    residue = models.FloatField(null=True, blank=True)
+
     creator = models.ForeignKey(
         Profile, related_name='timetrial_creator_set')
     created_time = models.DateTimeField()
