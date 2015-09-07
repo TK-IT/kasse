@@ -31,7 +31,7 @@ logger = logging.getLogger('kasse')
 
 class TimeTrialCreate(FormView):
     form_class = TimeTrialCreateForm
-    template_name = 'kasse/timetrialcreateform.html'
+    template_name = 'stopwatch/timetrialcreateform.html'
 
     def get_initial(self):
         initial = {'profile': self.request.profile}
