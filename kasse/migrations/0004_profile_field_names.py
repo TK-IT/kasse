@@ -14,11 +14,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='favorite_drink',
-            field=models.CharField(max_length=200, verbose_name='Yndlings\xf8l', blank=True),
+            field=models.CharField(max_length=200, blank=True,
+                                   verbose_name='Yndlings\xf8l'),
         ),
         migrations.AlterField(
             model_name='profile',
             name='name',
-            field=models.CharField(max_length=200, verbose_name='Navn', blank=True),
+            field=models.CharField(max_length=200, blank=True,
+                                   verbose_name='Navn'),
         ),
     ]

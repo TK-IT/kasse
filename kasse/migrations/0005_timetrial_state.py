@@ -14,6 +14,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='timetrial',
             name='state',
-            field=models.CharField(default='initial', max_length=10, choices=[('running', 'I gang'), ('stopped', 'Stoppet'), ('initial', 'Parat')]),
+            field=models.CharField(default='initial', max_length=10,
+                                   choices=[('running', 'I gang'),
+                                            ('stopped', 'Stoppet'),
+                                            ('initial', 'Parat')]),
         ),
     ]
