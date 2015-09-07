@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'kasse',
+    'stopwatch',
 )
 
 MIDDLEWARE_CLASSES = (
