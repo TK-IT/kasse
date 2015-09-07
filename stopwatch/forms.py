@@ -7,7 +7,7 @@ from django import forms
 from django.forms.utils import to_current_timezone
 
 from stopwatch.models import TimeTrial
-from kasse.fields import DateTimeDefaultTodayField, DurationListField
+from stopwatch.fields import DateTimeDefaultTodayField, DurationListField
 from kasse.models import Profile
 
 
