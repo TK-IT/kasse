@@ -95,7 +95,7 @@ class TimeTrialCreate(FormView):
 
 class TimeTrialStopwatchCreate(FormView):
     form_class = TimeTrialCreateForm
-    template_name = 'kasse/timetrialstopwatchcreate.html'
+    template_name = 'stopwatch/timetrialstopwatchcreate.html'
 
     def get_initial(self):
         initial = {'profile': self.request.profile}
@@ -134,7 +134,7 @@ class TimeTrialStateMixin(object):
 
 class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
     model = TimeTrial
-    template_name = 'kasse/timetrialstopwatch.html'
+    template_name = 'stopwatch/timetrialstopwatch.html'
     form_class = StopwatchForm
     queryset = TimeTrial.objects.all()
 
@@ -213,7 +213,7 @@ class TimeTrialLiveUpdate(BaseFormView):
 
 
 class TimeTrialStopwatchOffline(TemplateView):
-    template_name = 'kasse/timetrialstopwatch.html'
+    template_name = 'stopwatch/timetrialstopwatch.html'
 
     def get_context_data(self, **kwargs):
         kwargs['do_post'] = False
@@ -224,7 +224,7 @@ class TimeTrialStopwatchOffline(TemplateView):
 
 class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
     model = TimeTrial
-    template_name = 'kasse/timetrialstopwatch.html'
+    template_name = 'stopwatch/timetrialstopwatch.html'
     queryset = TimeTrial.objects.all()
 
     def dispatch(self, request, *args, **kwargs):
@@ -255,7 +255,7 @@ class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
 
 class TimeTrialDetail(DetailView):
     model = TimeTrial
-    template_name = 'kasse/timetrialdetail.html'
+    template_name = 'stopwatch/timetrialdetail.html'
 
 
 class TimeTrialList(ListView):
@@ -263,11 +263,11 @@ class TimeTrialList(ListView):
         TimeTrial.objects.exclude(result='')
         .order_by('-start_time')
     )
-    template_name = 'kasse/timetriallist.html'
+    template_name = 'stopwatch/timetriallist.html'
 
 
 class TimeTrialAllBest(TemplateView):
-    template_name = 'kasse/timetrialallbest.html'
+    template_name = 'stopwatch/timetrialallbest.html'
 
     def get_context_data(self, **kwargs):
         context_data = super(TimeTrialAllBest, self).get_context_data(**kwargs)
@@ -293,7 +293,7 @@ class TimeTrialAllBest(TemplateView):
 
 
 class TimeTrialBest(TemplateView):
-    template_name = 'kasse/timetriallist.html'
+    template_name = 'stopwatch/timetriallist.html'
 
     def get_context_data(self, **kwargs):
         context_data = super(TimeTrialBest, self).get_context_data(**kwargs)
