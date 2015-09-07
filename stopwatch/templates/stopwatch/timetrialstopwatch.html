@@ -4,7 +4,7 @@
 {% block title %}Stopur{% endblock %}
 {% block head %}
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<link rel="stylesheet" href="{% static "kasse/stopwatch.css" %}" />
+<link rel="stylesheet" href="{% static "stopwatch/stopwatch.css" %}" />
 <script>
 function reverse(name, pk) {
     if (name == "timetrial_liveupdate") {
@@ -29,7 +29,7 @@ var fetch_pk = {{ object.pk }};
 var fetch_pk = null;
 {% endif %}
 </script>
-<script src="{% static "kasse/stopwatch.js" %}"></script>
+<script src="{% static "stopwatch/stopwatch.js" %}"></script>
 {% endblock %}
 {% block content %}
 <h1>{% kasse_home %}Stopur</h1>
