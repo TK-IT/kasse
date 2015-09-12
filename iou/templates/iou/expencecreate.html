@@ -1,0 +1,24 @@
+{% extends "kasse/base.html" %}
+{% block title %}Opret - IOU{% endblock %}
+{% load kasse_extras %}
+{% block content %}
+<h1>{% kasse_home %}Opret ny øludgift</h1>
+<form method="post">{% csrf_token %}
+    <p>{{ form.amount.label_tag}}
+    {{ form.amount }}
+    {{ form.amount.errors }}</p>
+    <p>{{ form.comment.label_tag}}
+    {{ form.comment }}
+    {{ form.comment.errors }}</p>
+    <ul>
+        {% for profile in form.profiles %}
+        <li>{{ profile.payer }} {{ profile.consumers }}
+            <label for="{{ profile.consumers.id_for_label }}">
+                {{ profile.profile|display_profile_plain }}</label></li>
+        {% endfor %}
+    </ul>
+    {{ form.consumers.errors }}
+    {{ form.payer.errors }}
+    <input type="submit" />
+</form>
+{% endblock %}

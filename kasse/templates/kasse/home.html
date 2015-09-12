@@ -49,6 +49,8 @@ Seks personer en kasse?
 <a class="nav" href="{% url 'timetrial_stopwatch_create' %}">Stopur</a>
 ·
 <a class="nav" href="{% url 'timetrial_create' %}">Indsend tid</a>
+·
+<a class="nav" href="{% url 'expence_list' %}">IOU</a>
 </p>
 {% include "stopwatch/timetrialtable.html" with timetrial_list=latest only %}
 <p><a class="nav" href="{% url 'timetrial_list' %}">Flere tider</a></p>

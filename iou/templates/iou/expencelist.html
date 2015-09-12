@@ -1,0 +1,26 @@
+{% extends "kasse/base.html" %}
+{% block title %}IOU{% endblock %}
+{% load kasse_extras %}
+{% block content %}
+<h1>{% kasse_home %}Øludgifter</h1>
+
+<p>
+<a class="nav" href="{% url "expence_create" %}">Opret ny</a>
+&middot;
+<a class="nav" href="{% url "balance_list" %}">Balance</a>
+</p>
+
+<ul>
+    {% for expence in object_list %}
+    <li>{{ expence.amount|floatformat:2 }} kr.
+        af {{ expence.payer|display_profile }} for:
+        {% for p in expence.consumers.all %}
+        {{ p|display_profile }},
+        {% endfor %}
+        {% if expence.comment %}
+        &ldquo;{{ expence.comment }}&rdquo;
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
