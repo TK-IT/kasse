@@ -1,5 +1,11 @@
 {% extends "kasse/base.html" %}
-{% block title %}Bedste tider ({{ list_legs }} øl){% endblock %}
+{% block title %}
+{% if list_legs %}
+Bedste tider ({{ list_legs }} øl)
+{% else %}
+Seneste tider
+{% endif %}
+{% endblock %}
 {% load kasse_extras %}
 {% block content %}
 {% if list_legs %}
