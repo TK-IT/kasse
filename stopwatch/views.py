@@ -4,9 +4,11 @@ from __future__ import absolute_import, unicode_literals, division
 import json
 import logging
 import datetime
+import functools
 
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import OperationalError
 from django.utils.safestring import mark_safe
 from django.http import (
@@ -14,7 +16,7 @@ from django.http import (
     HttpResponseForbidden,
 )
 from django.views.generic import (
-    TemplateView, FormView, DetailView, ListView, UpdateView,
+    TemplateView, FormView, DetailView, ListView, UpdateView, View,
 )
 from django.views.generic.edit import BaseFormView
 from django.forms.utils import to_current_timezone
@@ -320,3 +322,27 @@ class TimeTrialBest(TemplateView):
             for tt in qs:
                 res.setdefault(tt.profile_id, tt)
             return sorted(res.values(), key=lambda tt: tt.duration)
+
+
+class IndentJSONEncoder(DjangoJSONEncoder):
+    def __init__(self, *args, **kwargs):
+        kwargs['indent'] = 2
+        return super(IndentJSONEncoder, self).__init__(*args, **kwargs)
+
+
+class Json(View):
+    def get(self, request):
+        data = []
+        qs = TimeTrial.objects.exclude(result='')
+        for tt in qs:
+            tt_data = {
+                'start_time': str(tt.start_time),
+                'profile_id': tt.profile_id,
+                'profile': str(tt.profile),
+                'result': tt.result,
+                'comment': tt.comment,
+                'residue': tt.residue,
+                'durations': [l.duration for l in tt.leg_set.all()],
+            }
+            data.append(tt_data)
+        return JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
