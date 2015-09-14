@@ -2,7 +2,7 @@
 {% block title %}Opret - IOU{% endblock %}
 {% load kasse_extras %}
 {% block content %}
-<h1>{% kasse_home %}Opret ny øludgift</h1>
+<h1>Opret ny øludgift</h1>
 <form method="post">{% csrf_token %}
     <p>{{ form.amount.label_tag}}
     {{ form.amount }}

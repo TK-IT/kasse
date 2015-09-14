@@ -35,7 +35,7 @@
 </script>
 {% endblock %}
 {% block content %}
-<h1>{% kasse_home %}Indsend tid</h1>
+<h1>Indsend tid</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
     <p>

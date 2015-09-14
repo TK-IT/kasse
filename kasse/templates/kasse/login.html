@@ -2,7 +2,7 @@
 {% load kasse_extras %}
 {% block title %}Log ind{% endblock %}
 {% block content %}
-<h1>{% kasse_home %}Log ind</h1>
+<h1>Log ind</h1>
 <form method="post">{% csrf_token %}
 {{ form.next }}
 {% if user.is_authenticated %}

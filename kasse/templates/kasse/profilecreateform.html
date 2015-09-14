@@ -2,7 +2,7 @@
 {% block title %}Ny profil{% endblock %}
 {% load kasse_extras %}
 {% block content %}
-<h1>{% kasse_home %}Ny profil</h1>
+<h1>Ny profil</h1>
 <form method="post">{% csrf_token %}
     {{ form.non_field_errors }}
     {% include "kasse/profilecreateformfields.html" with form=form only %}

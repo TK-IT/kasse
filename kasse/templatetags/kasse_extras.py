@@ -58,9 +58,3 @@ def strip_space_after_tag(o, autoescape=True):
     else:
         s = '%s' % (o,)
     return mark_safe(s.replace("> ", ">", 1))
-
-
-@register.simple_tag
-def kasse_home():
-    return mark_safe(
-        '<a href="%s" class="nav">‹</a>\n' % reverse('home'))
