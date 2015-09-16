@@ -56,13 +56,13 @@
     text-align: center;
 }
 #stopwatch .lapDiff {
-    flex-basis: 0;
-    -webkit-flex-basis: 0;
     flex-grow: 0;
     -webkit-flex-grow: 0;
-    text-align: right;
+    text-align: center;
     padding: 0 8px;
     line-height: 40px;
+    box-sizing: border-box;
+    width: 80px;
 }
 #stopwatch .lapDiff.negdiff {
     background-color: #390;
@@ -131,6 +131,25 @@
     flex-grow: 1;
     -webkit-flex-grow: 1;
     height: 50px;
+    font-size: 16px;
+}
+
+.submit-stopwatch {
+    background-color: #444;
+    color: white;
+    text-transform: uppercase;
+    border: 0 none;
+    height: 50px;
+    font-size: 16px;
+    width: 200px;
+}
+
+.reset-stopwatch {
+    background-color: #e11;
+    color: white;
+    text-transform: uppercase;
+    border: 0 none;
+    height: 20px;
     font-size: 16px;
 }
 

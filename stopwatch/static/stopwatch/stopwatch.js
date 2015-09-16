@@ -5,6 +5,7 @@ var div_time = null;
 var div_stopwatch = null;
 var div_laps = null;
 var btn_lap = null;
+var btn_continue = null;
 var form = null;
 var roundtrip_estimate = 0;
 var fetch_interval = null;
@@ -56,34 +57,41 @@ function update_time() {
     }
 }
 
+function lap_element(index, duration, total, difference) {
+    var o = document.createElement('div');
+    o.className = 'lap';
+    var h = (
+        '<div class="lapIndex">Øl ' + index + '</div>' +
+        '<div class="lapDuration">' + format_timestamp(duration, 2) + '</div>' +
+        '<div class="lapTotal">' + format_timestamp(total, 2) + '</div>'
+    );
+    if (difference !== null) {
+        var c = (difference <= 0) ? "negdiff" : "posdiff";
+        h += ('<div class="lapDiff ' + c + '">' +
+              format_difference(difference, 2) + '</div>');
+    }
+    o.innerHTML = h;
+    return o;
+}
+
 function update_laps() {
     div_laps.innerHTML = '';
     var prev = 0;
     var ta_cumsum = 0;
     var v = [];
     for (var i = 0; i < laps.length; ++i) {
-        var o = document.createElement('div');
-        o.className = 'lap';
-        o.textContent = laps[i];
         var duration = (laps[i] - prev)|0;
         prev = laps[i];
+        v.push(duration / 1000);
         if (time_attack) {
             ta_cumsum += time_attack.durations[i] | 0;
         }
-        v.push(duration / 1000);
-        var h = (
-            '<div class="lapIndex">Øl ' + (i + 1) + '</div>' +
-            '<div class="lapDuration">' + format_timestamp(duration, 2) + '</div>' +
-            '<div class="lapTotal">' + format_timestamp(laps[i], 2) + '</div>'
-        );
+        var difference = null;
         if (time_attack) {
-            var d = (laps[i] - ta_cumsum) | 0;
-            var c = (d <= 0) ? "negdiff" : "posdiff";
-            h += ('<div class="lapDiff ' + c + '">' +
-                  format_difference(d, 2) + '</div>');
+            difference = (laps[i] - ta_cumsum) | 0;
         }
-        o.innerHTML = h;
-        div_laps.appendChild(o);
+        div_laps.appendChild(
+            lap_element(i + 1, duration, laps[i], difference));
     }
 
     ta_current = null;
@@ -101,7 +109,12 @@ function update_laps() {
         ta_current = document.getElementById('ta_current');
     }
 
-    if (btn_lap) btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
+    if (btn_lap !== null) {
+        btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
+    }
+    if (btn_continue !== null) {
+        btn_continue.textContent = 'Fortsæt med øl ' + (1 + laps.length);
+    }
     if (form) {
         form.durations.value = v.join(' ');
         form.start_time.value = start_time / 1000;
@@ -163,6 +176,7 @@ function stop(ev) {
 function reset(ev) {
     ev.preventDefault();
     ev.stopPropagation();
+    stopped = true;
     start_time = null;
     laps = [];
     update_laps();
@@ -319,7 +333,7 @@ function init() {
     if (btn_reset) {
         btn_reset.addEventListener('click', reset, false);
     }
-    var btn_continue = document.getElementById('continue');
+    btn_continue = document.getElementById('continue');
     if (btn_continue) {
         btn_continue.addEventListener('click', continue_, false);
     }

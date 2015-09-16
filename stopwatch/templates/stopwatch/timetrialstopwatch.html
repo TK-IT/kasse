@@ -41,9 +41,7 @@ var fetch_pk = null;
 {% if not do_fetch %}
 <div id="buttons">
 <button id="start" autofocus>Start</button>
-<button id="stop">Stop</button>
 <button id="continue">Fortsæt</button>
-<button id="reset">Nulstil</button>
 <button id="lap">Færdig med øl 1</button>
 </div>
 {% else %}
@@ -60,11 +58,20 @@ var fetch_pk = null;
 {% endif %}
     <input type="hidden" name="durations" />
     <input type="hidden" name="start_time" />
+    <p>
+    <button id="stop">Stop</button>
+    </p>
     {% if not do_fetch %}
     <p>Total rest (cL): {{ form.residue }}</p>
     <p>Kommentar: {{ form.comment }}</p>
     <p><label><input type="checkbox" name="dnf" /> DNF</label></p>
-    <p><input type="submit" value="Indsend tid" /></p>
+    <p>
+    <input type="submit" value="Indsend tid" class="submit-stopwatch" />
+    </p>
+    <p>
+    <input type="button" value="Nulstil" class="reset-stopwatch"
+    id="reset" />
+    </p>
     {% endif %}
 </form>
 {% endblock %}
