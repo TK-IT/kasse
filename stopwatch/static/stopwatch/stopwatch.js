@@ -9,6 +9,23 @@ var form = null;
 var roundtrip_estimate = 0;
 var fetch_interval = null;
 
+var time_attack = {
+    person: 'Demo',
+    durations: [2300, 2400, 500, 3400]
+};
+var ta_current = null;
+
+function format_difference(total_milliseconds, n) {
+    var s = (total_milliseconds > 0) ? '+' : '&minus;';
+    if (total_milliseconds < 0) total_milliseconds = -total_milliseconds;
+    var seconds = (total_milliseconds / 1000)|0;
+    var milliseconds = (total_milliseconds - 1000 * seconds)|0;
+    return (
+        s + seconds + '.' +
+        ('000' + milliseconds).slice(-3, -3 + n)
+    );
+}
+
 function format_timestamp(total_milliseconds, n) {
     var total_seconds = (total_milliseconds / 1000)|0;
     var milliseconds = (total_milliseconds - 1000 * total_seconds)|0;
@@ -27,6 +44,7 @@ function format_timestamp(total_milliseconds, n) {
 function update_div_time(total_milliseconds, n) {
     var time_string = format_timestamp(total_milliseconds, n);
     div_time.textContent = time_string;
+    update_ta_current(total_milliseconds, n);
 }
 
 function update_time() {
@@ -41,6 +59,7 @@ function update_time() {
 function update_laps() {
     div_laps.innerHTML = '';
     var prev = 0;
+    var ta_cumsum = 0;
     var v = [];
     for (var i = 0; i < laps.length; ++i) {
         var o = document.createElement('div');
@@ -48,19 +67,56 @@ function update_laps() {
         o.textContent = laps[i];
         var duration = (laps[i] - prev)|0;
         prev = laps[i];
+        if (time_attack) {
+            ta_cumsum += time_attack.durations[i] | 0;
+        }
         v.push(duration / 1000);
-        o.innerHTML = (
+        var h = (
             '<div class="lapIndex">Øl ' + (i + 1) + '</div>' +
             '<div class="lapDuration">' + format_timestamp(duration, 2) + '</div>' +
             '<div class="lapTotal">' + format_timestamp(laps[i], 2) + '</div>'
         );
+        if (time_attack) {
+            var d = (laps[i] - ta_cumsum) | 0;
+            var c = (d <= 0) ? "negdiff" : "posdiff";
+            h += ('<div class="lapDiff ' + c + '">' +
+                  format_difference(d, 2) + '</div>');
+        }
+        o.innerHTML = h;
         div_laps.appendChild(o);
     }
+
+    ta_current = null;
+    var ta_len = time_attack ? time_attack.durations.length : 0;
+    if (time_attack && ta_len > laps.length) {
+        ta_cumsum += time_attack.durations[laps.length];
+        var h = (
+            '<div class="lapIndex"></div><div class="lapDuration"></div>' +
+            '<div class="lapTotal"></div><div class="lapDiff" ' +
+            ' id="ta_current"></div>');
+        var o = document.createElement('div');
+        o.className = 'lap';
+        o.innerHTML = h;
+        div_laps.appendChild(o);
+        ta_current = document.getElementById('ta_current');
+    }
+
     if (btn_lap) btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
     if (form) {
         form.durations.value = v.join(' ');
         form.start_time.value = start_time / 1000;
     }
+}
+
+function update_ta_current(now, n) {
+    if (!ta_current) return;
+    var ta_cumsum = 0;
+    var l = laps.length + 1;
+    for (var i = 0; i < l; ++i) ta_cumsum += time_attack.durations[i]|0;
+    var d = now - ta_cumsum;
+    var c = (d <= 0) ? "negdiff" : "posdiff";
+    ta_current.className = 'lapDiff ' + c;
+    ta_current.innerHTML = format_difference(d, n);
 }
 
 function start(ev) {
@@ -71,6 +127,7 @@ function start(ev) {
     div_stopwatch.className = 'running';
     window.requestAnimationFrame(update_time);
     if (btn_lap) btn_lap.focus();
+    update_laps();
     post_live_update();
 }
 

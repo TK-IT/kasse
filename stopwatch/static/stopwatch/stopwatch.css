@@ -55,6 +55,21 @@
     -webkit-flex-grow: 0;
     text-align: center;
 }
+#stopwatch .lapDiff {
+    flex-basis: 0;
+    -webkit-flex-basis: 0;
+    flex-grow: 0;
+    -webkit-flex-grow: 0;
+    text-align: right;
+    padding: 0 8px;
+    line-height: 40px;
+}
+#stopwatch .lapDiff.negdiff {
+    background-color: #390;
+}
+#stopwatch .lapDiff.posdiff {
+    background-color: #B00000;
+}
 #stopwatch #laps {
     order: 3;
     -webkit-order: 3;
