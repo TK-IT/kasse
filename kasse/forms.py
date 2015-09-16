@@ -70,13 +70,17 @@ class ProfileEditForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(ProfileEditForm, self).clean()
+        association = cleaned_data['association']
+        period = cleaned_data['period']
         if cleaned_data['title']:
-            if not cleaned_data['association']:
+            if not association:
                 self.add_error(
                     'association',
                     'Tilknytning er påkrævet når titel er oplyst')
-        elif cleaned_data['period']:
+        elif period is not None:
             self.add_error('title', 'Titel er påkrævet når periode er oplyst')
+        if period < 1956 and association.title == 'TÅGEKAMMERET':
+            self.add_error('peroid', 'Periode skal være et 4-cifret årstal')
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
