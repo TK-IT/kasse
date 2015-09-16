@@ -220,6 +220,7 @@ class TimeTrialStopwatchOffline(TemplateView):
     def get_context_data(self, **kwargs):
         kwargs['do_post'] = False
         kwargs['do_fetch'] = False
+        kwargs['form'] = StopwatchForm(instance=TimeTrial(), initial={})
         return super(TimeTrialStopwatchOffline, self).get_context_data(
             **kwargs)
 
