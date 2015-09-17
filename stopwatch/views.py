@@ -120,6 +120,26 @@ class TimeTrialStopwatchCreate(FormView):
 class TimeTrialStateMixin(object):
     def get_state(self):
         o = self.object
+
+        qs = TimeTrial.objects.filter(
+            profile=o.profile,
+            result='f',
+            leg_count=5).exclude(pk=o.pk)
+        qs = qs.order_by('duration')
+        try:
+            prev = qs[0]
+        except IndexError:
+            prev = None
+
+        if prev:
+            durations = [int(1000 * l.duration) for l in prev.leg_set.all()]
+            time_attack = {
+                'person': 'Personlig rekord',
+                'durations': durations,
+            }
+        else:
+            time_attack = None
+
         if o.start_time:
             now = datetime.datetime.now()
             start_time = to_current_timezone(o.start_time)
@@ -131,6 +151,7 @@ class TimeTrialStateMixin(object):
             'elapsed_time': elapsed,
             'durations': durations,
             'state': o.result or o.state,
+            'time_attack': time_attack,
         }
 
 

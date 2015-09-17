@@ -41,18 +41,11 @@
     -webkit-flex-basis: 50px;
     padding-left: 8px;
 }
-#stopwatch .lapDuration {
+#stopwatch .lapDuration, #stopwatch .lapTotal {
     flex-basis: 0;
     -webkit-flex-basis: 0;
     flex-grow: 1;
     -webkit-flex-grow: 1;
-    text-align: center;
-}
-#stopwatch .lapTotal {
-    flex-basis: 50%;
-    -webkit-flex-basis: 50%;
-    flex-grow: 0;
-    -webkit-flex-grow: 0;
     text-align: center;
 }
 #stopwatch .lapDiff {

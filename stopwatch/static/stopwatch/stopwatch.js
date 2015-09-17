@@ -10,10 +10,6 @@ var form = null;
 var roundtrip_estimate = 0;
 var fetch_interval = null;
 
-var time_attack = {
-    person: 'Demo',
-    durations: [2300, 2400, 500, 3400]
-};
 var ta_current = null;
 
 function format_difference(total_milliseconds, n) {
@@ -69,6 +65,8 @@ function lap_element(index, duration, total, difference) {
         var c = (difference <= 0) ? "negdiff" : "posdiff";
         h += ('<div class="lapDiff ' + c + '">' +
               format_difference(difference, 2) + '</div>');
+    } else {
+        h += ('<div class="lapDiff"></div>');
     }
     o.innerHTML = h;
     return o;
@@ -88,7 +86,11 @@ function update_laps() {
         }
         var difference = null;
         if (time_attack) {
-            difference = (laps[i] - ta_cumsum) | 0;
+            if (time_attack.durations.length > i) {
+                difference = (laps[i] - ta_cumsum) | 0;
+            } else {
+                difference = null;
+            }
         }
         div_laps.appendChild(
             lap_element(i + 1, duration, laps[i], difference));
@@ -123,6 +125,7 @@ function update_laps() {
 
 function update_ta_current(now, n) {
     if (!ta_current) return;
+    ta_current.style.display = stopped ? 'none' : '';
     var ta_cumsum = 0;
     var l = laps.length + 1;
     for (var i = 0; i < l; ++i) ta_cumsum += time_attack.durations[i]|0;
