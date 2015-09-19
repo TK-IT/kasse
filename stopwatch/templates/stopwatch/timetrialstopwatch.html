@@ -78,13 +78,18 @@ document.createElement( "picture" );
     <input type="button" value="Nulstil" class="reset-stopwatch"
     id="reset" />
     </p>
-    <img sizes="480px" srcset="
-    {% static "stopwatch/vaeske480.jpg" %} 480w,
-    {% static "stopwatch/vaeske960.jpg" %} 960w,
+    {% endif %}
+</form>
+<div id="residual-guide">
+    <img sizes="(min-width: 640px) 640px, 100vw" srcset="
+    {% static "stopwatch/vaeske360.jpg" %} 360w,
+    {% static "stopwatch/vaeske720.jpg" %} 720w,
+    {% static "stopwatch/vaeske1080.jpg" %} 1080w,
     {% static "stopwatch/vaeske1440.jpg" %} 1440w,
+    {% static "stopwatch/vaeske640.jpg" %} 640w,
+    {% static "stopwatch/vaeske1280.jpg" %} 1280w,
     {% static "stopwatch/vaeske1920.jpg" %} 1920w,
     {% static "stopwatch/vaeske3256.jpg" %} 3256w"
     />
-    {% endif %}
-</form>
+</div>
 {% endblock %}

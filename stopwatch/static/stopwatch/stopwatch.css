@@ -1,5 +1,5 @@
 #stopwatch {
-    width: 480px;
+    width: 624px;
     background-color: #218c00;
     display: flex;
     display: -webkit-flex;
@@ -146,10 +146,19 @@
     font-size: 16px;
 }
 
-@media screen and (max-width: 504px) {
+@media screen and (max-width: 640px) {
     #stopwatch {
         width: auto;
         margin-left: -8px;
         margin-right: -8px;
     }
+    #residual-guide {
+        width: auto;
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+}
+
+#residual-guide img {
+    max-width: 100%;
 }
