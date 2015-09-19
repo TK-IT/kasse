@@ -53,11 +53,12 @@ class Title(models.Model):
     def __str__(self):
         p = self.period
         if p is None:
-            return self.title
+            s = self.title
         elif self.association.name == 'TÅGEKAMMERET':
-            return self.tk_str()
+            s = self.tk_str()
         else:
-            return self.def_str()
+            s = self.def_str()
+        return s or '(blank)'
 
 
 @python_2_unicode_compatible
