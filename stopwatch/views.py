@@ -253,7 +253,7 @@ class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
 
     def dispatch(self, request, *args, **kwargs):
         object = self.get_object()
-        if object.result != '':
+        if object.result != '' and not self.request.is_ajax():
             return HttpResponseRedirect(
                 reverse('timetrial_detail', kwargs={'pk': object.pk}))
         else:
