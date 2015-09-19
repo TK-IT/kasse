@@ -13,12 +13,8 @@ class TitleAdmin(admin.ModelAdmin):
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
-        '__str__', 'is_anonymous',
+        '__str__', 'get_anonymous',
     )
-
-    def is_anonymous(self, o):
-        return o.is_anonymous
-    is_anonymous.boolean = True
 
 
 admin.site.register(Association)
