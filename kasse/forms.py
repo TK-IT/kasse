@@ -79,8 +79,8 @@ class ProfileEditForm(forms.ModelForm):
                     'Tilknytning er påkrævet når titel er oplyst')
         elif period is not None:
             self.add_error('title', 'Titel er påkrævet når periode er oplyst')
-        if period < 1956 and association.title == 'TÅGEKAMMERET':
-            self.add_error('peroid', 'Periode skal være et 4-cifret årstal')
+        if period and period < 1956 and association.name == 'TÅGEKAMMERET':
+            self.add_error('period', 'Periode skal være et 4-cifret årstal')
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
