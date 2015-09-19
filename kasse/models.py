@@ -101,19 +101,27 @@ class Profile(models.Model):
         association = self.association
         new_title = (title, period, association)
         if self.title:
-            current_title = (
-                self.title.title,
-                self.title.period,
-                self.title.association,
-            )
+            if self.title.title == '':
+                # Title can't be blank -- choose a current_title
+                # that is definitely not equal to new_title
+                current_title = ()
+            else:
+                current_title = (
+                    self.title.title,
+                    self.title.period,
+                    self.title.association,
+                )
         else:
             current_title = '', None, None
         if new_title != current_title:
             if self.title:
                 self.title.delete()
-            t = Title(title=title, period=period, association=association)
-            t.save()
-            self.title = t
+            if title:
+                t = Title(title=title, period=period, association=association)
+                t.save()
+                self.title = t
+            else:
+                self.title = None
 
     def __str__(self):
         if self.title and self.name:
