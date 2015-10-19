@@ -164,7 +164,16 @@ class ProfileCreate(FormView):
         logger.info("Profile %s created by %s",
                     p, self.request.profile,
                     extra=self.request.log_data)
-        return HttpResponseRedirect(reverse('home'))
+
+        r = self.request.GET.get('r')
+        if r == 'ttc':
+            d = 'timetrial_create'
+            qs = '?profile=%d' % p.pk
+        else:
+            d = 'home'
+            qs = ''
+        success_url = reverse(d) + qs
+        return HttpResponseRedirect(success_url)
 
 
 class ProfileView(DetailView):
