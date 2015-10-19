@@ -100,7 +100,9 @@ class TimeTrialStopwatchCreate(FormView):
     template_name = 'stopwatch/timetrialstopwatchcreate.html'
 
     def get_initial(self):
-        initial = {'profile': self.request.profile}
+        initial = {
+            'profile': self.request.GET.get('profile', self.request.profile),
+        }
         return initial
 
     def form_valid(self, form):

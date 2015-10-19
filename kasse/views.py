@@ -169,6 +169,9 @@ class ProfileCreate(FormView):
         if r == 'ttc':
             d = 'timetrial_create'
             qs = '?profile=%d' % p.pk
+        elif r == 'sw':
+            d = 'timetrial_stopwatch_create'
+            qs = '?profile=%d' % p.pk
         else:
             d = 'home'
             qs = ''
