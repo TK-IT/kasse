@@ -25,7 +25,9 @@ på
 <td class="ttl_start_time">{{ object.start_time|default_if_none:"(dato ukendt)" }}</td>
 {% if object.result %}
 <td class="ttl_result ttl_result_{{ object.result }}">
+{% if object.result != 'f' %}
 {{ object.get_result_display }}
+{% endif %}
 </td>
 {% else %}
 <td class="ttl_result ttl_result_live">
