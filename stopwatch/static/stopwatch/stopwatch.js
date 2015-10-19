@@ -95,6 +95,7 @@ function update_laps() {
         div_laps.appendChild(
             lap_element(i + 1, duration, laps[i], difference));
     }
+    div_laps.className = (laps.length > 8) ? 'many' : '';
 
     ta_current = null;
     var ta_len = time_attack ? time_attack.durations.length : 0;

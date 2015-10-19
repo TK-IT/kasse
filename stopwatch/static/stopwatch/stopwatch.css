@@ -36,6 +36,9 @@
     align-items: center;
     -webkit-align-items: center;
 }
+#stopwatch #laps.many .lap {
+    height: 24px;
+}
 #stopwatch .lapIndex {
     flex-basis: 50px;
     -webkit-flex-basis: 50px;
