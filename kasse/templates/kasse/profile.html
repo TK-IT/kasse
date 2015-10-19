@@ -7,6 +7,10 @@
 <p>
 <a href="{% url "profile_edit" %}">Rediger profil</a>
 </p>
+{% elif user.is_superuser %}
+<p>
+<a href="{% url "profile_edit_admin" pk=object.pk %}">ADMIN: Rediger profil</a>
+</p>
 {% endif %}
 <p>
 Tilknytning:
