@@ -13,7 +13,9 @@ from kasse.models import Profile
 
 class ProfileModelChoiceField(forms.ModelChoiceField):
     def __init__(self, **kwargs):
-        kwargs.setdefault('queryset', Profile.all_named())
+        qs = Profile.all_named()
+        qs = qs.order_by('-association', 'display_name')
+        kwargs.setdefault('queryset', qs)
         super(ProfileModelChoiceField, self).__init__(**kwargs)
 
     def label_from_instance(self, obj):
