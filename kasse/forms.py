@@ -7,6 +7,22 @@ from django.contrib.auth.forms import UserCreationForm as AdminUserCreationForm
 from kasse.models import Profile, Association
 
 
+class ProfileModelChoiceField(forms.ModelChoiceField):
+    def __init__(self, **kwargs):
+        qs = Profile.all_named()
+        qs = qs.order_by('-association', 'display_name')
+        kwargs.setdefault('queryset', qs)
+        super(ProfileModelChoiceField, self).__init__(**kwargs)
+
+    def label_from_instance(self, obj):
+        if obj.is_anonymous:
+            return '%s' % (obj,)
+        elif obj.association:
+            return '%s (%s)' % (obj, obj.association)
+        else:
+            return '%s (independent)' % (obj,)
+
+
 def label_placeholder(cls):
     for f in cls.base_fields.values():
         f.widget.attrs.setdefault('placeholder', f.label)
@@ -15,9 +31,7 @@ def label_placeholder(cls):
 
 @label_placeholder
 class LoginForm(forms.Form):
-    profile = forms.ModelChoiceField(
-        Profile.all_named(),
-        empty_label="Brugernavn")
+    profile = ProfileModelChoiceField(empty_label="Brugernavn")
     password = forms.CharField(
         widget=forms.PasswordInput,
         required=False)

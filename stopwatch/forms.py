@@ -8,29 +8,8 @@ from django.forms.utils import to_current_timezone
 
 from stopwatch.models import TimeTrial
 from stopwatch.fields import DateTimeDefaultTodayField, DurationListField
+from kasse.forms import ProfileModelChoiceField
 from kasse.models import Profile
-
-
-class ProfileModelChoiceField(forms.ModelChoiceField):
-    def __init__(self, **kwargs):
-        qs = Profile.all_named()
-        qs = qs.order_by('-association', 'display_name')
-        kwargs.setdefault('queryset', qs)
-        super(ProfileModelChoiceField, self).__init__(**kwargs)
-
-    def label_from_instance(self, obj):
-        if obj.is_anonymous:
-            return '%s' % (obj,)
-        elif obj.association:
-            return '%s (%s)' % (obj, obj.association)
-        else:
-            return '%s (independent)' % (obj,)
-
-
-def label_placeholder(cls):
-    for f in cls.base_fields.values():
-        f.widget.attrs.setdefault('placeholder', f.label)
-    return cls
 
 
 class TimeTrialCreateForm(forms.Form):
