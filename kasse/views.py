@@ -300,4 +300,4 @@ class Log(View):
         filename = settings.LOGGING['handlers']['file']['filename']
         with open(filename) as fp:
             s = fp.read()
-        return HttpResponse(s, content_type='text/plain')
+        return HttpResponse(s, content_type='text/plain; charset=utf8')
