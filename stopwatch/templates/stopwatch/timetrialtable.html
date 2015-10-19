@@ -1,8 +1,10 @@
 {% load kasse_extras %}
-<table cellspacing="0">
+<table cellspacing="0" class="{{ table_class }}">
 <tbody>
 {% for object in timetrial_list %}
-<tr>
+{% ifchanged object.start_time.date %}
+<tr class="ttl_new_date">{% else %}
+<tr>{% endifchanged %}
 <td class="ttl_duration">
 {% if object.result %}
 {% if bestlinks %}

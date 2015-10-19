@@ -89,6 +89,9 @@ nav a, nav a:link, nav a:visited {
     font-size: 14px;
     font-style: italic;
 }
+.ttl_all .ttl_new_date > td {
+    padding-top: 10px;
+}
 .ttl_result {
     width: 24px;
     text-align: center;
