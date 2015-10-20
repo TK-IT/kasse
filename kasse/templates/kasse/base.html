@@ -20,6 +20,18 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" 
 En kasse i en festforening
 </li>
 </a>
+{% if user.is_superuser %}
+<a href="{% url 'log' %}" class="adminlink">
+<li>
+Log
+</li>
+</a>
+<a href="{% url 'admin:stopwatch_timetrial_changelist' %}" class="adminlink">
+<li>
+Time trials
+</li>
+</a>
+{% endif %}
 </ul>
 </nav>
 <div class="container">

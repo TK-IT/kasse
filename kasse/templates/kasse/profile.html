@@ -9,7 +9,7 @@
 </p>
 {% elif user.is_superuser %}
 <p>
-<a href="{% url "profile_edit_admin" pk=object.pk %}">ADMIN: Rediger profil</a>
+<a href="{% url "profile_edit_admin" pk=object.pk %}" class="adminlink">Rediger profil</a>
 </p>
 {% endif %}
 <p>

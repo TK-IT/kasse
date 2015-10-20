@@ -85,6 +85,9 @@ a.profile_link {
 nav a, nav a:link, nav a:visited {
     color: #333;
 }
+a.adminlink, a.adminlink:link, a.adminlink:visited {
+    color: red;
+}
 .hint {
     font-size: 14px;
     font-style: italic;
