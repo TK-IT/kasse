@@ -12,8 +12,10 @@ class BalanceList(ListView):
     template_name = 'iou/balancelist.html'
 
     def get_queryset(self):
-        return sorted(ExpenceProfile.all_named(),
-                      key=lambda p: p.balance)
+        qs = ExpenceProfile.all_named()
+        if self.request.association:
+            qs = qs.filter(association=self.request.association)
+        return sorted(qs, key=lambda p: p.balance)
 
 
 class ExpenceCreate(CreateView):
@@ -21,8 +23,10 @@ class ExpenceCreate(CreateView):
     form_class = ExpenceCreateForm
 
     def get_profiles(self):
-        return sorted(ExpenceProfile.all_named(),
-                      key=lambda p: p.balance)
+        qs = ExpenceProfile.all_named()
+        if self.request.association:
+            qs = qs.filter(association=self.request.association)
+        return sorted(qs, key=lambda p: p.balance)
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(ExpenceCreate, self).get_form_kwargs(**kwargs)
@@ -35,4 +39,9 @@ class ExpenceCreate(CreateView):
 
 class ExpenceList(ListView):
     template_name = 'iou/expencelist.html'
-    queryset = Expence.objects.all()
+
+    def get_queryset(self):
+        qs = Expence.objects.all()
+        if self.request.association:
+            qs = qs.filter(payer__association=self.request.association)
+        return qs
