@@ -23,6 +23,14 @@ class ProfileModelChoiceField(forms.ModelChoiceField):
             return '%s (independent)' % (obj,)
 
 
+class AssociationModelChoiceField(forms.ModelChoiceField):
+    def __init__(self, **kwargs):
+        kwargs.setdefault('queryset', Association.objects.all())
+        kwargs.setdefault('empty_label', Association.none_string())
+        kwargs.setdefault('label', 'Tilknytning')
+        super(AssociationModelChoiceField, self).__init__(**kwargs)
+
+
 def label_placeholder(cls):
     for f in cls.base_fields.values():
         f.widget.attrs.setdefault('placeholder', f.label)
@@ -43,9 +51,7 @@ class ProfileCreateForm(forms.Form):
     name = forms.CharField(required=False, label='Navn')
     title = forms.CharField(required=False, label='Titel')
     period = forms.IntegerField(required=False, label='Periode')
-    association = forms.ModelChoiceField(
-        Association.objects.all(), required=False,
-        empty_label=Association.none_string(), label='Tilknytning')
+    association = AssociationModelChoiceField(required=False)
 
     def clean(self):
         cleaned_data = super(ProfileCreateForm, self).clean()
