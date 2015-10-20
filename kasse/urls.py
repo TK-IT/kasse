@@ -10,7 +10,7 @@ from django.contrib import admin
 
 from kasse.views import (
     Home, Log, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
-    ProfileEdit, ProfileEditAdmin, UserCreate,
+    ProfileEdit, ProfileEditAdmin, UserCreate, Association,
 )
 import stopwatch.urls
 import iou.urls
@@ -40,4 +40,7 @@ urlpatterns = [
         name='profile_create'),
     url(r'^stopwatch/$', TimeTrialStopwatchOffline.as_view(),
         name='timetrial_stopwatch_offline'),
+
+    url(r'^association/$', Association.as_view(),
+        name='association'),
 ]

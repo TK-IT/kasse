@@ -21,8 +21,10 @@ from django.conf import settings
 from kasse.forms import (
     LoginForm, ProfileCreateForm,
     ProfileEditForm, UserCreationForm,
+    AssociationForm,
 )
 from kasse.models import Profile
+import kasse.models
 
 from stopwatch.models import TimeTrial
 
@@ -301,3 +303,21 @@ class Log(View):
         with open(filename) as fp:
             s = fp.read()
         return HttpResponse(s, content_type='text/plain; charset=utf8')
+
+
+class Association(FormView):
+    form_class = AssociationForm
+    template_name = 'kasse/association.html'
+
+    def form_valid(self, form):
+        association = form.cleaned_data['association']
+        self.request.set_association(association)
+        return self.get(self.request)
+
+    def get_initial(self):
+        return {'association': self.request.association}
+
+    def get_context_data(self, **kwargs):
+        context_data = super(Association, self).get_context_data(**kwargs)
+        context_data['association'] = self.request.association
+        return context_data

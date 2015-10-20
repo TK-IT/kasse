@@ -118,3 +118,8 @@ class ProfileEditForm(forms.ModelForm):
         instance.set_title(title, period)
         instance.save()
         return instance
+
+
+class AssociationForm(forms.Form):
+    association = AssociationModelChoiceField(
+        required=False, empty_label='Alle')
