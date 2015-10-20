@@ -6,7 +6,7 @@ from django.utils.functional import SimpleLazyObject
 
 from ipware.ip import get_real_ip
 
-from kasse.models import Profile
+from kasse.models import Profile, Association
 
 
 def get_profile(request):
@@ -38,6 +38,29 @@ def get_or_create_profile(request):
     return p
 
 
+def get_association(request):
+    KEY = 'kasse_association_id'
+    a_id = request.session.get(KEY)
+    if a_id is None:
+        return None
+    try:
+        a = Association.objects.get(pk=a_id)
+    except Association.DoesNotExist:
+        return None
+    return a
+
+
+def set_association(request, association):
+    KEY = 'kasse_association_id'
+    if association is None:
+        try:
+            del request.session[KEY]
+        except KeyError:
+            pass
+    else:
+        request.session[KEY] = association.pk
+
+
 class Middleware(object):
     def process_request(self, request):
         request.profile = SimpleLazyObject(functools.partial(
@@ -45,3 +68,7 @@ class Middleware(object):
         request.get_or_create_profile = functools.partial(
             get_or_create_profile, request)
         request.log_data = {'ip': get_real_ip(request)}
+        request.association = SimpleLazyObject(functools.partial(
+            get_association, request))
+        request.set_association = functools.partial(
+            set_association, request)
