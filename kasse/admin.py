@@ -13,8 +13,13 @@ class TitleAdmin(admin.ModelAdmin):
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
-        '__str__', 'get_anonymous',
+        'get_profile_display', 'get_anonymous',
     )
+
+    def get_profile_display(self, o):
+        return str(o)
+    get_profile_display.short_description = 'Profile'
+    get_profile_display.admin_order_field = 'display_name'
 
 
 admin.site.register(Association)
