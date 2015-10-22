@@ -44,7 +44,14 @@ class Title(models.Model):
             return 'T%sO' % Title.sup(age - 3)
 
     def tk_str(self):
-        age = self.association.current_period - self.period
+        enable_efuit = False
+        if enable_efuit and self.title == 'EFUIT':
+            years = [2015, 2014, 2013, 2011, 2010]
+            age = 0
+            while age < len(years) and self.period < years[age]:
+                age += 1
+        else:
+            age = self.association.current_period - self.period
         return '%s%s' % (self.tk_prefix(age), self.title)
 
     def def_str(self):
