@@ -1,6 +1,12 @@
 {% extends "kasse/base.html" %}
+{% load staticfiles %}
 {% load kasse_extras %}
 {% block fulltitle %}En kasse i en festforening{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{% static "awesomplete/awesomplete.css" %}" />
+<script src="{% static "awesomplete/awesomplete.js" %}" async></script>
+<script src="{% static "kasse/awesomplete.js" %}" async></script>
+{% endblock %}
 {% block content %}
 <h1>En kasse i en festforening</h1>
 <p>

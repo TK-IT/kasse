@@ -122,3 +122,6 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
         margin: 8px 0;
     }
 }
+
+/* home.html */
+div.awesomplete { vertical-align: middle; }
