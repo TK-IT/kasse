@@ -16,10 +16,10 @@ function home_init() {
 		}
 	}
 
+	var usernameinput = document.getElementById('profile_text');
 	username.style.display = 'none';
-	var usernameinput = document.createElement('input');
+	usernameinput.style.display = '';
 	usernameinput.placeholder = placeholder;
-	username.parentNode.insertBefore(usernameinput, username);
 
 	var regExpEscape = Awesomplete.$.regExpEscape;
 
@@ -43,9 +43,18 @@ function home_init() {
 		'minChars': 1,
 		'filter': filter
 	});
+
+	function update_select(text) {
+		username.selectedIndex = name_to_index[text];
+	}
+
 	usernameinput.addEventListener('awesomplete-select', function (ev) {
-		username.selectedIndex = name_to_index[ev.text];
+		update_select(ev.text);
 	}, false);
+
+	if (usernameinput.value !== '') {
+		update_select(usernameinput.value);
+	}
 }
 
 window.addEventListener('load', home_init, false);
