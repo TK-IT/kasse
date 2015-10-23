@@ -78,7 +78,11 @@ var _ = function (input, o) {
 				else if (c === 38 || c === 40) { // Down/Up arrow
 					evt.preventDefault();
 					me[c === 38? "previous" : "next"]();
+				} else if (c === 9) { // Tab
+					me.select();
+					// do not prevent default
 				}
+				// else { console.log(c); }
 			}
 		}
 	});
@@ -191,6 +195,12 @@ _.prototype = {
 
 	select: function (selected) {
 		selected = selected || this.ul.children[this.index];
+		if (!selected && this.input.value === '') {
+			return;
+		}
+		if (!selected) {
+			selected = this.ul.children[0];
+		}
 
 		if (selected) {
 			var prevented;
