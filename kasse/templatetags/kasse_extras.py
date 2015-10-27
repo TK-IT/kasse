@@ -31,6 +31,18 @@ def display_profile_plain(profile, autoescape=True):
 
 
 @register.filter
+def display_difference(duration):
+    s = '%+.2f' % duration
+    return s.replace('-', '−')
+    # minutes, seconds = divmod(duration or 0, 60)
+    # hours, minutes = divmod(minutes, 60)
+    # if hours > 0:
+    #     return '%d:%02d:%05.2f' % (hours, minutes, seconds)
+    # else:
+    #     return '%d:%05.2f' % (minutes, seconds)
+
+
+@register.filter
 def display_duration_plain(duration):
     minutes, seconds = divmod(duration or 0, 60)
     hours, minutes = divmod(minutes, 60)

@@ -4,7 +4,6 @@ from __future__ import absolute_import, unicode_literals, division
 import json
 import logging
 import datetime
-import functools
 
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
@@ -119,28 +118,42 @@ class TimeTrialStopwatchCreate(FormView):
                     kwargs={'pk': tt.pk}))
 
 
-class TimeTrialStateMixin(object):
-    def get_state(self):
-        o = self.object
-
+def get_time_attack(current_timetrial, **kwargs):
+    if 'prev' in kwargs:
+        prev = kwargs.pop('prev')
+        person = str(prev.profile)
+    else:
         qs = TimeTrial.objects.filter(
-            profile=o.profile,
+            profile=current_timetrial.profile,
             result='f',
-            leg_count=5).exclude(pk=o.pk)
+            leg_count=current_timetrial.leg_count or 5,
+            created_time__lt=current_timetrial.created_time)
         qs = qs.order_by('duration')
         try:
             prev = qs[0]
         except IndexError:
             prev = None
+        person = 'Personlig rekord'
 
-        if prev:
-            durations = [int(1000 * l.duration) for l in prev.leg_set.all()]
-            time_attack = {
-                'person': 'Personlig rekord',
-                'durations': durations,
-            }
-        else:
-            time_attack = None
+    if kwargs:
+        raise TypeError(', '.join(kwargs.keys()))
+
+    if prev:
+        durations = [int(1000 * l.duration) for l in prev.leg_set.all()]
+        time_attack = {
+            'person': person,
+            'durations': durations,
+        }
+    else:
+        time_attack = None
+
+    return prev, time_attack
+
+
+class TimeTrialStateMixin(object):
+    def get_state(self):
+        o = self.object
+        prev, time_attack = get_time_attack(o)
 
         if o.start_time:
             now = datetime.datetime.now()
@@ -282,6 +295,29 @@ class TimeTrialStopwatchLive(DetailView, TimeTrialStateMixin):
 class TimeTrialDetail(DetailView):
     model = TimeTrial
     template_name = 'stopwatch/timetrialdetail.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super(TimeTrialDetail, self).get_context_data(**kwargs)
+        if 'previous' in self.request.GET:
+            prev_pk = self.request.GET['previous']
+            try:
+                prev = TimeTrial.objects.get(pk=int(prev_pk))
+            except:
+                prev = None
+            prev, time_attack = get_time_attack(
+                context_data['object'], prev=prev)
+        else:
+            prev, time_attack = get_time_attack(context_data['object'])
+        laps = list(context_data['object'].leg_set.all())
+        for leg in laps:
+            leg.diff = None
+        if prev:
+            for leg, prev_leg in zip(laps, prev.leg_set.all()):
+                leg.diff = leg.duration_prefix_sum - prev_leg.duration_prefix_sum
+            context_data['prev'] = prev
+            context_data['prev_person'] = time_attack['person']
+        context_data['laps'] = laps
+        return context_data
 
 
 class TimeTrialList(ListView):

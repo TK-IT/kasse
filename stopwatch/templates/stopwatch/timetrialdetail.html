@@ -14,17 +14,30 @@
 <h1>{{ object.leg_count }} øl på tid</h1>
 <p>{{ object.profile|display_profile }}</p>
 <p>Starttidspunkt: {{ object.start_time|default_if_none:"(dato ukendt)" }}</p>
+{% if prev %}
+<p>Sammenligner med:
+<a href="{% url 'timetrial_detail' prev.pk %}">{{ prev_person }}</a></p>
+{% endif %}
 <div id="stopwatch" class="initial">
     <div id="time">{{ object.duration|display_duration }}</div>
     <div id="buttons">
         <button>{{ object.get_result_display }}</button>
     </div>
     <div id="laps">
-        {% for d in object.leg_set.all %}
+        {% for d in laps %}
         <div class="lap">
             <div class="lapIndex">Øl {{ d.order }}</div>
             <div class="lapDuration">{{ d.duration|display_duration }}</div>
             <div class="lapTotal">{{ d.duration_prefix_sum|display_duration }}</div>
+            {% if d.diff != None %}
+            {% if d.diff > 0 %}
+            <div class="lapDiff posdiff">{{ d.diff|display_difference }}</div>
+            {% else %}
+            <div class="lapDiff negdiff">{{ d.diff|display_difference }}</div>
+            {% endif %}
+            {% else %}
+            <div class="lapDiff"></div>
+            {% endif %}
         </div>
         {% endfor %}
     </div>
