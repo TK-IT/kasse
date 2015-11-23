@@ -72,7 +72,7 @@ class Home(TemplateView):
 
     def get_live(self):
         qs = TimeTrial.objects.all()
-        qs = self.request.filter_association(qs)
+        # qs = self.request.filter_association(qs)
         qs = qs.filter(result='')
         now = datetime.datetime.now()
         threshold = now - datetime.timedelta(hours=1)
