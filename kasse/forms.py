@@ -1,10 +1,13 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
+from django.core.exceptions import ValidationError
 from django import forms
+from django.utils import six
 from django.contrib.auth.forms import UserCreationForm as AdminUserCreationForm
 
 from kasse.models import Profile, Association
+from kasse.fields import TKPeriodField, APeriodField
 
 
 class ProfileModelChoiceField(forms.ModelChoiceField):
@@ -83,24 +86,47 @@ class ProfileEditForm(forms.ModelForm):
         fields = ['name', 'favorite_drink', 'association']
 
     title = forms.CharField(required=False, label='Titel')
-    period = forms.IntegerField(required=False, label='Periode')
     association = forms.ModelChoiceField(
         Association.objects.all(), required=False,
         empty_label=Association.none_string(), label='Tilknytning')
+    period = forms.CharField(required=False, label='Periode')
+
+    def set_period_field(self, association):
+        if association.name == 'TÅGEKAMMERET':
+            self.fields['period'] = TKPeriodField(required=False)
+        elif association.name == '@lkymia':
+            self.fields['period'] = APeriodField(required=False)
+        else:
+            self.fields['period'] = forms.CharField(required=False)
+
+    def clean_association(self):
+        a = self.cleaned_data['association']
+        self.set_period_field(a)
+        self.did_clean_association = True
+        return a
+
+    def clean_period(self):
+        if not self.did_clean_association:
+            raise ValidationError("Cleaned fields in the wrong order")
+        p = self.cleaned_data['period']
+        p = self.fields['period'].clean(p)
+        if not isinstance(p, six.integer_types):
+            raise ValidationError("Period is %r, not an int; field is %s" %
+                (p, type(self.fields['period'])))
+        return p
 
     def clean(self):
+        self.did_clean_association = False
         cleaned_data = super(ProfileEditForm, self).clean()
-        association = cleaned_data['association']
-        period = cleaned_data['period']
-        if cleaned_data['title']:
-            if not association:
+        association = cleaned_data.get('association')
+        period = cleaned_data.get('period')
+        if cleaned_data.get('title'):
+            if 'association' in cleaned_data and not association:
                 self.add_error(
                     'association',
                     'Tilknytning er påkrævet når titel er oplyst')
-        elif period is not None:
+        elif 'period' in cleaned_data and period is not None:
             self.add_error('title', 'Titel er påkrævet når periode er oplyst')
-        if period and period < 1956 and association.name == 'TÅGEKAMMERET':
-            self.add_error('period', 'Periode skal være et 4-cifret årstal')
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
@@ -109,6 +135,8 @@ class ProfileEditForm(forms.ModelForm):
             kwargs['initial']['title'] = instance.title.title
             kwargs['initial']['period'] = instance.title.period
         super(ProfileEditForm, self).__init__(*args, **kwargs)
+        if not self.is_bound:
+            self.set_period_field(instance.association)
 
     def save(self):
         instance = super(ProfileEditForm, self).save(commit=False)

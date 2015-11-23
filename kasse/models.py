@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from kasse.managers import ProfileManager
+from kasse.fields import APeriodField
 
 
 @python_2_unicode_compatible
@@ -54,6 +55,10 @@ class Title(models.Model):
             age = self.association.current_period - self.period
         return '%s%s' % (self.tk_prefix(age), self.title)
 
+    def a_str(self):
+        return '%s %s' % (
+            self.title, APeriodField.static_prepare_value(self.period))
+
     def def_str(self):
         return '%s %s' % (self.title, self.period)
 
@@ -63,6 +68,8 @@ class Title(models.Model):
             s = self.title
         elif self.association.name == 'TÅGEKAMMERET':
             s = self.tk_str()
+        elif self.association.name == '@lkymia':
+            s = self.a_str()
         else:
             s = self.def_str()
         return s or '(blank)'
