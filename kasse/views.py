@@ -34,15 +34,13 @@ logger = logging.getLogger('kasse')
 class Home(TemplateView):
     template_name = 'kasse/home.html'
 
-    @staticmethod
-    def get_latest():
+    def get_latest(self):
         qs = TimeTrial.objects.all()
         qs = qs.exclude(result='')
         qs = qs.order_by('-start_time')
         return list(qs[:5])
 
-    @staticmethod
-    def get_best(**kwargs):
+    def get_best(self, **kwargs):
         limit = kwargs.pop('limit', None)
         leg_count = kwargs.pop('leg_count', 5)
         qs = TimeTrial.objects.all()
@@ -66,13 +64,11 @@ class Home(TemplateView):
     def get_season_start():
         return datetime.date(2015, 8, 1)
 
-    @staticmethod
-    def get_current_best(**kwargs):
+    def get_current_best(self, **kwargs):
         season_start = Home.get_season_start()
-        return Home.get_best(start_time__gt=season_start, **kwargs)
+        return self.get_best(start_time__gt=season_start, **kwargs)
 
-    @staticmethod
-    def get_live():
+    def get_live(self):
         qs = TimeTrial.objects.all()
         qs = qs.filter(result='')
         now = datetime.datetime.now()
