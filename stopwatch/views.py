@@ -321,11 +321,14 @@ class TimeTrialDetail(DetailView):
 
 
 class TimeTrialList(ListView):
-    queryset = (
-        TimeTrial.objects.exclude(result='')
-        .order_by('-start_time')
-    )
     template_name = 'stopwatch/timetriallist.html'
+
+    def get_queryset(self):
+        queryset = (
+            TimeTrial.objects.exclude(result='')
+            .order_by('-start_time')
+        )
+        return self.request.filter_association(queryset)
 
 
 class TimeTrialAllBest(TemplateView):
@@ -343,6 +346,7 @@ class TimeTrialAllBest(TemplateView):
 
     def get_timetrial_list(self, **kwargs):
         qs = TimeTrial.objects.filter(result='f', **kwargs)
+        qs = self.request.filter_association(qs)
         qs = qs.order_by('leg_count', 'duration')
         try:
             qs_distinct = qs.distinct('leg_count')
@@ -374,6 +378,7 @@ class TimeTrialBest(TemplateView):
             .filter(leg_count=int(self.kwargs['legs']), **kwargs)
             .order_by('duration')
         )
+        qs = self.request.filter_association(qs)
         try:
             qs_distinct = qs.distinct('profile')
             return list(qs_distinct)
@@ -399,6 +404,7 @@ class Json(View):
                 'start_time': str(tt.start_time),
                 'profile_id': tt.profile_id,
                 'profile': str(tt.profile),
+                'association': tt.profile.association_id,
                 'result': tt.result,
                 'comment': tt.comment,
                 'residue': tt.residue,
