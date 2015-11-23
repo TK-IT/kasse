@@ -61,6 +61,17 @@ def set_association(request, association):
         request.session[KEY] = association.pk
 
 
+def filter_association(request, qs):
+    KEY = 'kasse_association_id'
+    a_id = request.session.get(KEY)
+    if a_id is None:
+        return qs
+    if qs.model.__name__ == 'TimeTrial':
+        return qs.filter(profile__association_id=a_id)
+    else:
+        raise Exception("Don't know how to handle %s" % (qs.model))
+
+
 class Middleware(object):
     def process_request(self, request):
         request.profile = SimpleLazyObject(functools.partial(
@@ -72,3 +83,5 @@ class Middleware(object):
             get_association, request))
         request.set_association = functools.partial(
             set_association, request)
+        request.filter_association = functools.partial(
+            filter_association, request)
