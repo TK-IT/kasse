@@ -28,9 +28,14 @@ class DateTimeDefaultTodayField(BaseTemporalField):
 
     def widget_attrs(self, widget):
         attrs = super(DateTimeDefaultTodayField, self).widget_attrs(widget)
-        d = datetime.datetime.now()
-        d = d - datetime.timedelta(1)
-        attrs.update({'placeholder': d.strftime('f.eks. %Y-%m-%d 21:00')})
+        now = datetime.datetime.now().replace(tzinfo=None)
+        date = now.date()
+        time = datetime.time(hour=21, minute=0)
+        d = datetime.datetime.combine(date, time)
+        if now < d:
+            date = date - datetime.timedelta(1)
+            d = datetime.datetime.combine(date, time)
+        attrs.update({'placeholder': d.strftime('f.eks. %Y-%m-%d %H:%M')})
         return attrs
 
     def prepare_value(self, value):
