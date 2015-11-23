@@ -36,6 +36,7 @@ class Home(TemplateView):
 
     def get_latest(self):
         qs = TimeTrial.objects.all()
+        qs = self.request.filter_association(qs)
         qs = qs.exclude(result='')
         qs = qs.order_by('-start_time')
         return list(qs[:5])
@@ -44,6 +45,7 @@ class Home(TemplateView):
         limit = kwargs.pop('limit', None)
         leg_count = kwargs.pop('leg_count', 5)
         qs = TimeTrial.objects.all()
+        qs = self.request.filter_association(qs)
         if kwargs:
             qs = qs.filter(**kwargs)
         qs = qs.exclude(result='')
@@ -70,6 +72,7 @@ class Home(TemplateView):
 
     def get_live(self):
         qs = TimeTrial.objects.all()
+        qs = self.request.filter_association(qs)
         qs = qs.filter(result='')
         now = datetime.datetime.now()
         threshold = now - datetime.timedelta(hours=1)
