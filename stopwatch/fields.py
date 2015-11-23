@@ -26,6 +26,13 @@ class DateTimeDefaultTodayField(BaseTemporalField):
         'invalid': _('Enter a valid date/time.'),
     }
 
+    def widget_attrs(self, widget):
+        d = datetime.datetime.now()
+        d = d - datetime.timedelta(1)
+        return {
+            'placeholder': d.strftime('f.eks. %Y-%m-%d 21:00')
+        }
+
     def prepare_value(self, value):
         if isinstance(value, datetime.datetime):
             value = to_current_timezone(value)
