@@ -89,6 +89,9 @@ class Home(TemplateView):
         context_data['current_season'] = '%d/%d' % (
             season_start.year, season_start.year - 2000 + 1)
         context_data['current_season_best'] = self.get_current_best(limit=5)
+        context_data['association_form'] = AssociationForm(
+            initial={'association': self.request.association}
+        )
         return context_data
 
 
@@ -311,6 +314,9 @@ class Association(FormView):
     def form_valid(self, form):
         association = form.cleaned_data['association']
         self.request.set_association(association)
+        ret = self.request.GET.get('return')
+        if ret == 'home':
+            return HttpResponseRedirect(reverse('home'))
         return self.get(self.request)
 
     def get_initial(self):

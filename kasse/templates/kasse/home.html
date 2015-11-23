@@ -47,6 +47,11 @@ Seks personer en kasse?
     </div>
 {% endif %}
 </form>
+<form action="{% url 'association' %}?return=home" method="post">{% csrf_token %}
+Vælg hvilken forening der skal vises tider for:
+{{ association_form.association }}
+<input type="submit" value="Vis" />
+</form>
 {% if live %}
 <h2>Live</h2>
 {% include "stopwatch/timetrialtable.html" with timetrial_list=live only %}
