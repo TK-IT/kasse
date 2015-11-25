@@ -1,4 +1,4 @@
-Django==1.8.4
-wheel==0.24.0
-django-ipware==1.1.1
+Django==1.8.7
+wheel==0.26.0
+django-ipware==1.1.2
 wsgiref==0.1.2
