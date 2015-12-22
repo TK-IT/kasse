@@ -398,7 +398,7 @@ class IndentJSONEncoder(DjangoJSONEncoder):
 class Json(View):
     def get(self, request):
         data = []
-        qs = TimeTrial.objects.exclude(result='')
+        qs = TimeTrial.objects.all()
         for tt in qs:
             tt_data = {
                 'start_time': str(tt.start_time),
