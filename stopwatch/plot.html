@@ -1,7 +1,6 @@
 <!-- From http://sobuno.dk/chart.html -->
  <html>
   <head>
-	      
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script type="text/javascript"
           src="https://www.google.com/jsapi?autoload={
@@ -36,7 +35,6 @@
 
 		var yql_url = 'https://query.yahooapis.com/v1/public/yql';
 var url = 'http://www.enkasseienfestforening.dk/timetrial/json/';
-		
 		$.ajax({
   'url': yql_url,
   'data': {
@@ -69,7 +67,6 @@ var url = 'http://www.enkasseienfestforening.dk/timetrial/json/';
 
 			}
 		if(duration <= maxTime && j > maxDrink) maxDrink = j;
-					
 	  }
 	  tooslow.sort(function(a, b){return b-a});
 	  for(i = 0; i<tooslow.length; i++) {
@@ -82,12 +79,6 @@ var url = 'http://www.enkasseienfestforening.dk/timetrial/json/';
     console.log(response.query.results.json.json);
   },
 });
-  
-
-
-
-
-
       }
     </script>
   </head>
