@@ -253,8 +253,8 @@ function fetch_state() {
         update_state(data);
     }
     function fail() {
-	var btn = document.getElementById('live');
-	if (btn) btn.textContent = 'Fejl';
+        var btn = document.getElementById('live');
+        if (btn) btn.textContent = 'Fejl';
     }
     $.getJSON('.', success).fail(fail);
 }
@@ -274,44 +274,44 @@ function update_state(state) {
 
     div_stopwatch.className = state['state'];
     if (state['state'] === 'initial') {
-	stopped = true;
-	update_div_time(0, 2);
+        stopped = true;
+        update_div_time(0, 2);
     } else if (state['state'] === 'running') {
         stopped = false;
         update_time();
     } else if (state['state'] === 'stopped') {
         stopped = true;
-	if (laps.length > 0) {
-	    update_div_time(laps[laps.length - 1], 2);
-	} else {
-	    update_div_time(elapsed, 2);
-	}
+        if (laps.length > 0) {
+            update_div_time(laps[laps.length - 1], 2);
+        } else {
+            update_div_time(elapsed, 2);
+        }
     } else if (state['state'] === 'f') {
         stopped = true;
-	if (laps.length > 0) {
-	    update_div_time(laps[laps.length - 1], 2);
-	} else {
-	    update_div_time(elapsed, 2);
-	}
-	if (fetch_interval !== null) {
-	    clearInterval(fetch_interval);
-	    fetch_interval = null;
-	}
-	var btn = document.getElementById('live');
-	if (btn) btn.textContent = 'Færdig';
+        if (laps.length > 0) {
+            update_div_time(laps[laps.length - 1], 2);
+        } else {
+            update_div_time(elapsed, 2);
+        }
+        if (fetch_interval !== null) {
+            clearInterval(fetch_interval);
+            fetch_interval = null;
+        }
+        var btn = document.getElementById('live');
+        if (btn) btn.textContent = 'Færdig';
     } else if (state['state'] === 'dnf') {
         stopped = true;
-	if (laps.length > 0) {
-	    update_div_time(laps[laps.length - 1], 2);
-	} else {
-	    update_div_time(elapsed, 2);
-	}
-	if (fetch_interval !== null) {
-	    clearInterval(fetch_interval);
-	    fetch_interval = null;
-	}
-	var btn = document.getElementById('live');
-	if (btn) btn.textContent = 'DNF';
+        if (laps.length > 0) {
+            update_div_time(laps[laps.length - 1], 2);
+        } else {
+            update_div_time(elapsed, 2);
+        }
+        if (fetch_interval !== null) {
+            clearInterval(fetch_interval);
+            fetch_interval = null;
+        }
+        var btn = document.getElementById('live');
+        if (btn) btn.textContent = 'DNF';
     }
 }
 
@@ -345,7 +345,7 @@ function init() {
     if (initial_state !== null) update_state(initial_state);
 
     if (fetch_pk !== null) {
-	fetch_interval = setInterval(fetch_state, 2000);
+        fetch_interval = setInterval(fetch_state, 2000);
     }
 }
 
