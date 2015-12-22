@@ -153,16 +153,22 @@ function lap(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     var n = new Date().getTime();
-    laps.push((n - start_time)|0);
-    update_laps();
-    post_live_update();
+    try_add_lap((n - start_time)|0);
 }
 
 function lap_touchstart(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     var n = new Date().getTime();
-    laps.push((n - start_time)|0);
+    try_add_lap((n - start_time)|0);
+}
+
+function try_add_lap(d) {
+    var min_length = 1000;
+    if (laps.length === 0) min_length = 3000;
+    var prev_lap = (laps.length === 0) ? 0 : laps[laps.length - 1];
+    if (d - prev_lap < min_length) return;
+    laps.push(d);
     update_laps();
     post_live_update();
 }
