@@ -411,4 +411,5 @@ class Json(View):
                 'durations': [l.duration for l in tt.leg_set.all()],
             }
             data.append(tt_data)
-        return JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
+        response = JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
+        return response
