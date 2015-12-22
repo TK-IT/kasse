@@ -1,0 +1,96 @@
+ <html>
+  <head>
+	      
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript"
+          src="https://www.google.com/jsapi?autoload={
+            'modules':[{
+              'name':'visualization',
+              'version':'1',
+              'packages':['corechart']
+            }]
+          }"></script>
+
+    <script type="text/javascript">
+      google.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var maxTime = 120;
+        var hash = window.location.hash;
+        if(hash.length > 1) {
+			maxTime = hash.substr(1);
+		}
+          var data = new google.visualization.DataTable();
+                  var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                          var options = {
+          title: '\u00D8l p\u00E5 tid',
+          curveType: 'none',
+        /*  vAxis: {
+			viewWindow: {
+				max: maxTime,
+			},  
+		  },*/
+          legend: { position: 'bottom' },
+        };
+
+		var yql_url = 'https://query.yahooapis.com/v1/public/yql';
+var url = 'http://www.enkasseienfestforening.dk/timetrial/json/';
+		
+		$.ajax({
+  'url': yql_url,
+  'data': {
+    'q': 'SELECT * FROM json WHERE url="'+url+'"',
+    'format': 'json',
+    'jsonCompat': 'new',
+  },
+  'dataType': 'jsonp',
+  'success': function(response) {
+	  var tries = response.query.results.json.json;
+	  		  data.addColumn('string', '\u00D8l');
+	  for(i = 0; i<tries.length; i++) {
+		  data.addColumn('number', tries[i].profile+" "+tries[i].start_time);
+	  }
+	  data.addRows(10);
+	  for(i = 0; i<10; i++) {
+		  data.setCell(i,0,(i+1)+". \u00F8l");
+	  }
+	  var maxDrink = 0;
+	  var tooslow = [];
+	  for(i = 0; i<tries.length; i++) {
+		  var duration = 0;
+			for(j = 0; j<tries[i].durations.length; j++) {
+				duration += tries[i].durations[j];
+				if(duration > maxTime) {
+					tooslow.push(i+1);
+					break;
+				}
+				data.setCell(j, i+1, duration);
+
+			}
+		if(duration <= maxTime && j > maxDrink) maxDrink = j;
+					
+	  }
+	  tooslow.sort(function(a, b){return b-a});
+	  for(i = 0; i<tooslow.length; i++) {
+		  data.removeColumn(tooslow[i]);
+	  }
+	  for(i = 9; i>=maxDrink; i--) {
+		  data.removeRow(i);
+	  }
+	          chart.draw(data, options);
+    console.log(response.query.results.json.json);
+  },
+});
+  
+
+
+
+
+
+      }
+    </script>
+  </head>
+  <body>
+    <div id="curve_chart" style="width: 100%; height: 100%">Loading data from external site, please hold...</div>
+  </body>
+</html>
