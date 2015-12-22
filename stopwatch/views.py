@@ -412,4 +412,5 @@ class Json(View):
             }
             data.append(tt_data)
         response = JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
+        response['Access-Control-Allow-Origin'] = '*'
         return response
