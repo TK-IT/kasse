@@ -110,6 +110,8 @@ class ProfileEditForm(forms.ModelForm):
             raise ValidationError("Cleaned fields in the wrong order")
         p = self.cleaned_data['period']
         p = self.fields['period'].clean(p)
+        if p is None:
+            return p
         if not isinstance(p, six.integer_types):
             raise ValidationError("Period is %r, not an int; field is %s" %
                 (p, type(self.fields['period'])))
