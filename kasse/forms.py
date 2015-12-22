@@ -92,7 +92,7 @@ class ProfileEditForm(forms.ModelForm):
     period = forms.CharField(required=False, label='Periode')
 
     def set_period_field(self, association):
-        self.fields['period'] = forms.CharField(required=False)
+        self.fields['period'] = forms.IntegerField(required=False)
         if association is not None:
             if association.name == 'TÅGEKAMMERET':
                 self.fields['period'] = TKPeriodField(required=False)
