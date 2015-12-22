@@ -28,7 +28,8 @@ var fetch_pk = {{ object.pk }};
 {% else %}
 var fetch_pk = null;
 {% endif %}
-var time_attack = initial_state['time_attack'];
+var time_attack = ((initial_state === null) ?
+	null : initial_state['time_attack']);
 </script>
 <script src="{% static "stopwatch/stopwatch.js" %}"></script>
 <script>
