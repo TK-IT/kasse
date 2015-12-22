@@ -92,12 +92,12 @@ class ProfileEditForm(forms.ModelForm):
     period = forms.CharField(required=False, label='Periode')
 
     def set_period_field(self, association):
-        if association.name == 'TÅGEKAMMERET':
-            self.fields['period'] = TKPeriodField(required=False)
-        elif association.name == '@lkymia':
-            self.fields['period'] = APeriodField(required=False)
-        else:
-            self.fields['period'] = forms.CharField(required=False)
+        self.fields['period'] = forms.CharField(required=False)
+        if association is not None:
+            if association.name == 'TÅGEKAMMERET':
+                self.fields['period'] = TKPeriodField(required=False)
+            elif association.name == '@lkymia':
+                self.fields['period'] = APeriodField(required=False)
 
     def clean_association(self):
         a = self.cleaned_data['association']
