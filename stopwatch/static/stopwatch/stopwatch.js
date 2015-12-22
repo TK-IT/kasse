@@ -168,12 +168,11 @@ function lap_touchstart(ev) {
 }
 
 function stop(ev) {
+    if (laps.length === 0) return reset(ev);
     ev.preventDefault();
     ev.stopPropagation();
     stopped = true;
-    if (laps.length > 0) {
-        update_div_time(laps[laps.length - 1], 2);
-    }
+    update_div_time(laps[laps.length - 1], 2);
     div_stopwatch.className = 'stopped';
     post_live_update();
 }
