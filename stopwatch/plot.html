@@ -33,18 +33,12 @@
           legend: { position: 'bottom' },
         };
 
-		var yql_url = 'https://query.yahooapis.com/v1/public/yql';
 var url = 'http://www.enkasseienfestforening.dk/timetrial/json/';
 		$.ajax({
-  'url': yql_url,
-  'data': {
-    'q': 'SELECT * FROM json WHERE url="'+url+'"',
-    'format': 'json',
-    'jsonCompat': 'new',
-  },
-  'dataType': 'jsonp',
+  'url': url,
+  'dataType': 'json',
   'success': function(response) {
-	  var tries = response.query.results.json.json;
+	  var tries = response;
 	  		  data.addColumn('string', '\u00D8l');
 	  for(i = 0; i<tries.length; i++) {
 		  data.addColumn('number', tries[i].profile+" "+tries[i].start_time);
