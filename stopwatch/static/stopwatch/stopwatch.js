@@ -1,3 +1,4 @@
+// vim:set sw=4 sts=4 ts=4 et:
 var start_time = null;
 var stopped = true;
 var laps = [];
