@@ -2,6 +2,7 @@
 var start_time = null;
 var stopped = true;
 var laps = [];
+var possible_laps = [];
 var div_time = null;
 var div_stopwatch = null;
 var div_laps = null;
@@ -141,6 +142,7 @@ function start(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     start_time = new Date().getTime(); // note, too large for signed 32-bit int
+    add_possible_lap("Start");
     stopped = false;
     div_stopwatch.className = 'running';
     window.requestAnimationFrame(update_time);
@@ -163,18 +165,43 @@ function lap_touchstart(ev) {
     try_add_lap((n - start_time)|0);
 }
 
+function add_possible_lap(comment) {
+    if (start_time === null) return;
+    var n = new Date().getTime();
+    var d = (n - start_time) | 0;
+    possible_laps.push({
+        'time': d,
+        'lap': false,
+        'comment': comment
+    });
+    console.log(possible_laps);
+}
+
 function try_add_lap(d) {
     var min_length = 1000;
     if (laps.length === 0) min_length = 3000;
     var prev_lap = (laps.length === 0) ? 0 : laps[laps.length - 1];
-    if (d - prev_lap < min_length) return;
-    laps.push(d);
-    update_laps();
-    post_live_update();
+    if (d - prev_lap < min_length) {
+        possible_laps.push({
+            'time': d,
+            'lap': false,
+            'comment': "For kort (" + (d - prev_lap) + " < " + min_length + ")"
+        });
+    } else {
+        possible_laps.push({
+            'time': d,
+            'lap': true,
+            'comment': "Tilføjet som Øl " + (1 + laps.length),
+        });
+        laps.push(d);
+        update_laps();
+        post_live_update();
+    }
 }
 
 function stop(ev) {
     if (laps.length === 0) return reset(ev);
+    add_possible_lap("Stop");
     ev.preventDefault();
     ev.stopPropagation();
     stopped = true;
@@ -187,8 +214,12 @@ function reset(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     stopped = true;
+    add_possible_lap("Reset");
     start_time = null;
     laps = [];
+    for (var i = 0; i < possible_laps.length; i += 1) {
+        possible_laps[i].lap = false;
+    }
     update_laps();
     div_stopwatch.className = 'initial';
     update_div_time(0, 2);
@@ -199,9 +230,14 @@ function continue_(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     stopped = false;
+    add_possible_lap("Fortsæt");
     window.requestAnimationFrame(update_time);
     div_stopwatch.className = 'running';
     post_live_update();
+}
+
+function window_click(ev) {
+    add_possible_lap("Tryk");
 }
 
 // getCookie from https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/
@@ -352,6 +388,7 @@ function init() {
     if (fetch_pk !== null) {
         fetch_interval = setInterval(fetch_state, 2000);
     }
+    window.addEventListener('touchstart', window_click, false);
 }
 
 window.addEventListener('load', init, false);
