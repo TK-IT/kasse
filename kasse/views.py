@@ -24,7 +24,6 @@ from kasse.forms import (
     AssociationForm,
 )
 from kasse.models import Profile
-import kasse.models
 
 from stopwatch.models import TimeTrial
 
