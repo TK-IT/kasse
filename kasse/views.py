@@ -165,7 +165,7 @@ class ProfileCreate(FormView):
         form.save(p)
         p.save()
         logger.info("Profile %s created by %s",
-                    p, self.request.profile,
+                    p, self.request.get_or_create_profile(),
                     extra=self.request.log_data)
 
         r = self.request.GET.get('r')
