@@ -203,7 +203,12 @@ class ProfileEditBase(UpdateView):
 
 class ProfileEdit(ProfileEditBase):
     def get_object(self):
-        return self.request.profile
+        p = self.request.profile
+        if p == None:  # noqa (SimpleLazyObject)
+            raise Http404()
+        if p.is_anonymous:
+            raise Http404()
+        return p
 
     def form_valid(self, form):
         response = super(ProfileEdit, self).form_valid(form)
