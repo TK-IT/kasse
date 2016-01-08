@@ -189,6 +189,11 @@ class ProfileView(DetailView):
     def get_context_data(self, **kwargs):
         context_data = super(ProfileView, self).get_context_data(**kwargs)
         context_data['is_self'] = self.request.profile == self.object
+        qs = self.object.timetrial_profile_set.all()
+        qs = qs.exclude(result='')
+        qs = qs.order_by('-start_time')
+        context_data['timetrial_list'] = qs
+        context_data['leg_count'] = sum(len(tt.leg_set.all()) for tt in qs)
         return context_data
 
 

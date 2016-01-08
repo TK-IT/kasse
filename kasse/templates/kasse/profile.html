@@ -24,4 +24,9 @@ Ingen (independent)
 Yndlingsøl:
 {{ object.favorite_drink|default:"(ej angivet)" }}
 </p>
+<p>
+{{ object|display_profile_plain }}
+har drukket {{ leg_count }} øl på {{ timetrial_list|length }} forsøg:
+</p>
+{% include "stopwatch/timetrialtable.html" with timetrial_list=timetrial_list only %}
 {% endblock %}
