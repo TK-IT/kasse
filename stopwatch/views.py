@@ -368,8 +368,8 @@ class TimeTrialBest(TemplateView):
 
     def get_timetrial_list(self, **kwargs):
         qs = (
-            TimeTrial.objects.filter(result='f')
-            .filter(leg_count=int(self.kwargs['legs']), **kwargs)
+            TimeTrial.leg_prefix(int(self.kwargs['legs']))
+            .filter(result='f', **kwargs)
             .order_by('duration')
         )
         qs = self.request.filter_association(qs)
