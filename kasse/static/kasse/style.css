@@ -124,6 +124,15 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
     text-align: center;
 }
 
+@media screen and (max-width: 360px) {
+    .ttl_table {
+        overflow-x: auto;
+    }
+    .ttl_table > table {
+        width: 640px;
+    }
+}
+
 @media screen and (max-width: 504px) {
     body {
         margin: 8px 0;
