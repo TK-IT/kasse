@@ -293,9 +293,11 @@ function fetch_state() {
         console.log(data);
         update_state(data);
     }
-    function fail() {
+    function fail(jqxhr, textStatus, error) {
         var btn = document.getElementById('live');
         if (btn) btn.textContent = 'Fejl';
+        document.getElementById('stopwatchlog').appendChild(
+            document.createTextNode(textStatus + ', ' + error + '\n'));
     }
     $.getJSON('.', success).fail(fail);
 }
