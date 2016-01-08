@@ -10,6 +10,10 @@ class TimeTrialManager(models.Manager):
 
     def get_queryset(self):
         qs = super(TimeTrialManager, self).get_queryset()
+        return self.process_queryset(qs)
+
+    @classmethod
+    def process_queryset(cls, qs):
         qs = qs.annotate(leg_count=Count('leg'))
         qs = qs.annotate(duration=Sum('leg__duration'))
         return qs.select_related('profile', 'creator')
