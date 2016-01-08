@@ -15,6 +15,14 @@ from stopwatch.managers import (
 @python_2_unicode_compatible
 class TimeTrial(models.Model):
     objects = TimeTrialManager()
+    raw_objects = models.Manager()
+
+    @classmethod
+    def leg_prefix(cls, n):
+        qs = cls.raw_objects.filter(leg__order__lt=n + 1)
+        qs = TimeTrialManager.process_queryset(qs).filter(leg_count=n)
+        qs = qs.filter(duration__gt=0)
+        return qs
 
     RESULTS = (
         ('f', '✓'),
