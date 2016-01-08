@@ -116,6 +116,13 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
 .ttl_start_time {
     width: 220px;
 }
+.ttl_residue {
+    text-align: right;
+    width: 70px;
+}
+.ttl_residue_unknown {
+    text-align: center;
+}
 
 @media screen and (max-width: 504px) {
     body {

@@ -19,20 +19,19 @@ på
 <a href="{% url "timetrial_live" pk=object.pk %}" class="timetrial_link">
 {{ object.get_state_display }}
 </a>
+{% if object.result != 'f' %}
+<span class="ttl_result_{{ object.result }}">
+{{ object.get_result_display }}
+</span>
+{% endif %}
 {% endif %}
 </td>
 <td class="ttl_profile">{{ object.profile|display_profile }}</td>
 <td class="ttl_start_time">{{ object.start_time|default_if_none:"(dato ukendt)" }}</td>
-{% if object.result %}
-<td class="ttl_result ttl_result_{{ object.result }}">
-{% if object.result != 'f' %}
-{{ object.get_result_display }}
-{% endif %}
-</td>
+{% if object.residue %}
+<td class="ttl_residue">{{ object.residue }} cL</td>
 {% else %}
-<td class="ttl_result ttl_result_live">
-LIVE
-</td>
+<td class="ttl_residue ttl_residue_unknown">&mdash;</td>
 {% endif %}
 </tr>
 {% endfor %}
