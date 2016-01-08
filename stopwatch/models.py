@@ -55,6 +55,13 @@ class TimeTrial(models.Model):
     def clean(self):
         pass
 
+    def set_legs(self, durations):
+        legs = [Leg(timetrial=self, duration=d, order=i + 1)
+                for i, d in enumerate(durations)]
+        self.leg_set.all().delete()
+        for l in legs:
+            l.save()
+
     def __str__(self):
         if self.result == 'dnf':
             state = 'DNF '

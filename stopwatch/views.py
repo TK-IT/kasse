@@ -207,11 +207,8 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
                 start_time=form.cleaned_data['start_time'],
             )
         self.object.leg_set.all().delete()
-        self.object.leg_set = [
-            Leg(duration=d.total_seconds(), order=i + 1)
-            for i, d in enumerate(form.cleaned_data['durations'])
-        ]
-        # self.object.durations.save()
+        self.object.set_legs(
+            [d.total_seconds() for d in form.cleaned_data['durations']])
 
         timetrial = TimeTrial.objects.get(pk=self.object.pk)
         durations = [l.duration for l in timetrial.leg_set.all()]
@@ -242,11 +239,8 @@ class TimeTrialLiveUpdate(BaseFormView):
 
         timetrial.save()
 
-        timetrial.leg_set.all().delete()
-        timetrial.leg_set = [
-            Leg(duration=d.total_seconds(), order=i + 1)
-            for i, d in enumerate(form.cleaned_data['durations'])
-        ]
+        timetrial.set_legs(
+            [d.total_seconds() for d in form.cleaned_data['durations']])
         return HttpResponse('OK')
 
 
