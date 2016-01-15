@@ -77,12 +77,12 @@ def duration_string(duration):
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
 
-    if minutes or hours:
-        string = '{:02d}:{:02d}' % (minutes, seconds)
+    if hours:
+        string = '{}:{:02d}:{:02d}'.format(hours, minutes, seconds)
+    elif minutes:
+        string = '{}:{:02d}'.format(minutes, seconds)
     else:
         string = '{}'.format(seconds)
-    if hours:
-        string = '{:02d}:{}' % (hours, string)
     if microseconds:
         string += '.{:06d}'.format(microseconds).rstrip('0')
 
