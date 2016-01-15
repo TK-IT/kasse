@@ -18,6 +18,11 @@
 <p>Sammenligner med:
 <a href="{% url 'timetrial_detail' prev.pk %}">{{ prev_person }}</a></p>
 {% endif %}
+{% if user.is_superuser %}
+<p>
+<a href="{% url "timetrial_update" pk=object.pk %}" class="adminlink">Rediger forsøg</a>
+</p>
+{% endif %}
 <div id="stopwatch" class="initial">
     <div id="time">{{ object.duration|display_duration }}</div>
     <div id="buttons">
