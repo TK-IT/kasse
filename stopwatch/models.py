@@ -1,6 +1,7 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
+from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from django.db.models import Sum
@@ -79,6 +80,9 @@ class TimeTrial(models.Model):
             state = ''
         return '[TimeTrial: %s %son %s by %s]' % (
             self.get_duration_display(), state, self.start_time, self.profile)
+
+    def get_absolute_url(self):
+        return reverse('timetrial_detail', kwargs={'pk': self.pk})
 
     class Meta:
         ordering = ['-created_time']
