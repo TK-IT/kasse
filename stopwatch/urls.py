@@ -5,7 +5,7 @@ from django.conf.urls import url
 from stopwatch.views import (
     Json,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
-    TimeTrialAllBest, TimeTrialStopwatch,
+    TimeTrialAllBest, TimeTrialStopwatch, TimeTrialUpdate,
     TimeTrialStopwatchCreate, TimeTrialStopwatchLive, TimeTrialLiveUpdate,
 )
 
@@ -26,6 +26,8 @@ urlpatterns = [
         name='timetrial_create'),
     url(r'^(?P<pk>\d+)/$', TimeTrialDetail.as_view(),
         name='timetrial_detail'),
+    url(r'^(?P<pk>\d+)/edit/$', TimeTrialUpdate.as_view(),
+        name='timetrial_update'),
     url(r'^(?P<pk>\d+)/live/$', TimeTrialStopwatchLive.as_view(),
         name='timetrial_live'),
     url(r'^(?P<pk>\d+)/liveupdate/$', TimeTrialLiveUpdate.as_view(),

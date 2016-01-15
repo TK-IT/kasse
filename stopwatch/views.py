@@ -14,6 +14,7 @@ from django.http import (
     HttpResponse, JsonResponse, HttpResponseRedirect,
     HttpResponseForbidden,
 )
+from django.views.defaults import permission_denied
 from django.views.generic import (
     TemplateView, FormView, DetailView, ListView, UpdateView, View,
 )
@@ -21,7 +22,7 @@ from django.views.generic.edit import BaseFormView
 from django.forms.utils import to_current_timezone
 
 from stopwatch.forms import (
-    TimeTrialCreateForm,
+    TimeTrialCreateForm, TimeTrialForm,
     StopwatchForm, TimeTrialLiveForm,
 )
 from stopwatch.models import TimeTrial, Leg
@@ -323,6 +324,17 @@ class TimeTrialList(ListView):
             .order_by('-start_time')
         )
         return self.request.filter_association(queryset)
+
+
+class TimeTrialUpdate(UpdateView):
+    form_class = TimeTrialForm
+    template_name = 'stopwatch/timetrialupdate.html'
+    queryset = TimeTrial.objects.all()
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super(TimeTrialUpdate, self).dispatch(request, *args, **kwargs)
 
 
 class TimeTrialAllBest(TemplateView):

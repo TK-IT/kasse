@@ -104,3 +104,25 @@ class StopwatchForm(forms.Form):
         cleaned_data['start_time'] = to_current_timezone(
             datetime.datetime.fromtimestamp(start_time))
         return cleaned_data
+
+
+class TimeTrialForm(forms.ModelForm):
+    class Meta:
+        model = TimeTrial
+        fields = ('profile', 'state', 'result', 'start_time',
+                  'comment', 'residue')
+
+    durations = DurationListField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs['instance']
+        kwargs['initial']['durations'] = list(instance.leg_set.all())
+        super(TimeTrialForm, self).__init__(*args, **kwargs)
+
+    def save(self):
+        instance = super(TimeTrialForm, self).save(commit=True)
+        instance.set_legs(
+            [d.total_seconds() for d in self.cleaned_data['durations']])
+        return instance
