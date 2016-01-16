@@ -14,11 +14,13 @@ from kasse.views import (
 )
 import stopwatch.urls
 import iou.urls
+import news.urls
 from stopwatch.views import TimeTrialStopwatchOffline
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^timetrial/', include(stopwatch.urls)),
+    url(r'^news/', include(news.urls)),
     url(r'^iou/', include(iou.urls)),
 
     url(r'^$', Home.as_view(), name='home'),
