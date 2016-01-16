@@ -83,13 +83,11 @@ class TimeTrial(models.Model):
             l.save()
 
     def __str__(self):
-        if self.result == 'dnf':
-            state = 'DNF '
-        elif self.result == '':
-            state = ('%s ' % self.state).upper()
+        if self.result == '':
+            state = self.state.upper()
         else:
-            state = ''
-        return '[TimeTrial: %s %son %s by %s]' % (
+            state = self.get_result_display()
+        return '[TimeTrial: %s %s on %s by %s]' % (
             self.get_duration_display(), state, self.start_time, self.profile)
 
     def get_absolute_url(self):
