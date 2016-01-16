@@ -20,11 +20,11 @@ på
 <a href="{% url "timetrial_live" pk=object.pk %}" class="timetrial_link">
 {{ object.get_state_display }}
 </a>
+{% endif %}
 {% if object.result != 'f' %}
 <span class="ttl_result_{{ object.result }}">
 {{ object.get_result_display }}
 </span>
-{% endif %}
 {% endif %}
 </td>
 <td class="ttl_profile">{{ object.profile|display_profile }}</td>
