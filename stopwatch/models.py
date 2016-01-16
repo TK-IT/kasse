@@ -27,6 +27,7 @@ class TimeTrial(models.Model):
 
     RESULTS = (
         ('f', 'Finished'),
+        ('irr', 'Not accepted'),  # not accepted / irregular result
         ('dnf', 'Did not finish'),
     )
     STATES = (
@@ -50,6 +51,8 @@ class TimeTrial(models.Model):
     def get_result_mark(self):
         if self.result == 'f':
             return '✓'
+        elif self.result == 'irr':
+            return '#'
         elif self.result == 'dnf':
             return 'DNF'
         else:
