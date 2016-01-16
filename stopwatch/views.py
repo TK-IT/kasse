@@ -248,8 +248,16 @@ class TimeTrialLiveUpdate(BaseFormView):
 
         timetrial.save()
 
-        timetrial.set_legs(
-            [d.total_seconds() for d in form.cleaned_data['durations']])
+        legs = [d.total_seconds() for d in form.cleaned_data['durations']]
+        if not legs:
+            old_legs = [l.duration for l in timetrial.leg_set.all()]
+            if old_legs:
+                logger.info("%s %s reset by %s",
+                            timetrial,
+                            ' '.join(map(str, old_legs)),
+                            self.request.profile,
+                            extra=self.request.log_data)
+        timetrial.set_legs(legs)
         return HttpResponse('OK')
 
 
