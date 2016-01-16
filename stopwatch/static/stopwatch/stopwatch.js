@@ -315,34 +315,24 @@ function update_state(state) {
     }
     update_laps();
 
+    var button_label = 'Live';
     div_stopwatch.className = state['state'];
-    if (state['state'] === 'initial') {
-        stopped = true;
-        update_div_time(0, 2);
-    } else if (state['state'] === 'running') {
-        stopped = false;
-        update_time();
-    } else if (state['state'] === 'stopped') {
-        stopped = true;
-        if (laps.length > 0) {
-            update_div_time(laps[laps.length - 1], 2);
-        } else {
-            update_div_time(elapsed, 2);
+    if (state['result'] === '') {
+        if (state['state'] === 'initial') {
+            stopped = true;
+            update_div_time(0, 2);
+        } else if (state['state'] === 'running') {
+            stopped = false;
+            update_time();
+        } else if (state['state'] === 'stopped') {
+            stopped = true;
+            if (laps.length > 0) {
+                update_div_time(laps[laps.length - 1], 2);
+            } else {
+                update_div_time(elapsed, 2);
+            }
         }
-    } else if (state['state'] === 'f') {
-        stopped = true;
-        if (laps.length > 0) {
-            update_div_time(laps[laps.length - 1], 2);
-        } else {
-            update_div_time(elapsed, 2);
-        }
-        if (fetch_interval !== null) {
-            clearInterval(fetch_interval);
-            fetch_interval = null;
-        }
-        var btn = document.getElementById('live');
-        if (btn) btn.textContent = 'Færdig';
-    } else if (state['state'] === 'dnf') {
+    } else {
         stopped = true;
         if (laps.length > 0) {
             update_div_time(laps[laps.length - 1], 2);
@@ -353,9 +343,11 @@ function update_state(state) {
             clearInterval(fetch_interval);
             fetch_interval = null;
         }
-        var btn = document.getElementById('live');
-        if (btn) btn.textContent = 'DNF';
+        button_label = state['result_display'];
     }
+
+    var btn = document.getElementById('live');
+    if (btn) btn.textContent = button_label;
 }
 
 function init() {

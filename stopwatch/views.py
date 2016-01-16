@@ -163,10 +163,18 @@ class TimeTrialStateMixin(object):
         else:
             elapsed = 0
         durations = [l.duration for l in o.leg_set.all()]
+        if o.result == 'dnf':
+            state_display = 'DNF'
+        elif o.result != '':
+            state_display = o.get_result_display()
+        else:
+            state_display = 'Live'
         return {
             'elapsed_time': elapsed,
             'durations': durations,
-            'state': o.result or o.state,
+            'state': o.state,
+            'result': o.result,
+            'result_display': o.get_result_display(),
             'time_attack': time_attack,
         }
 
