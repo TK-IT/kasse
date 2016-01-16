@@ -100,8 +100,8 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
     text-align: center;
 }
 .ttl_duration {
-    width: 140px;
-    max-width: 140px;
+    width: 146px;
+    max-width: 146px;
     overflow: hidden;
     white-space: nowrap;
 }
