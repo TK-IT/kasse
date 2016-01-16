@@ -22,7 +22,8 @@ på
 </a>
 {% endif %}
 {% if object.result != 'f' %}
-<span class="ttl_result_{{ object.result }}">
+<span class="ttl_result_{{ object.result }}"
+title="{{ object.get_result_mark }} = {{ object.get_result_display }}">
 {{ object.get_result_mark }}
 </span>
 {% endif %}
