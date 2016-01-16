@@ -4,6 +4,20 @@ body {
     margin: 24px 0;
 }
 
+h1 {
+    font-size: 125%;
+}
+
+h2 {
+    font-size: 120%;
+}
+
+h3 {
+    font-size: 120%;
+    font-weight: normal;
+    font-style: italic;
+}
+
 .container {
     padding: 0 8px;
     margin: 0 auto;
