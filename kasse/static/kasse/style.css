@@ -129,6 +129,7 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
 }
 .ttl_start_time {
     width: 220px;
+    text-align: right;
 }
 .ttl_residue {
     text-align: right;
