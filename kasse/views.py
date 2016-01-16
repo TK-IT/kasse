@@ -47,8 +47,7 @@ class Home(TemplateView):
         qs = self.request.filter_association(qs)
         if kwargs:
             qs = qs.filter(**kwargs)
-        qs = qs.exclude(result='')
-        qs = qs.filter(leg_count=leg_count)
+        qs = qs.filter(result='f', leg_count=leg_count)
         qs = qs.order_by('duration')
         try:
             qs_distinct = qs.distinct('profile')
