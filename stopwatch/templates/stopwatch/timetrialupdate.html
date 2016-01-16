@@ -1,0 +1,11 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block title %}Rediger forsøg{% endblock %}
+{% block content %}
+<h1>Rediger forsøg</h1>
+
+<form method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" />
+</form>
+{% endblock %}
