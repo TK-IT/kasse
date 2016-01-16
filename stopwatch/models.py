@@ -26,8 +26,8 @@ class TimeTrial(models.Model):
         return qs
 
     RESULTS = (
-        ('f', '✓'),
-        ('dnf', 'DNF'),
+        ('f', 'Finished'),
+        ('dnf', 'Did not finish'),
     )
     STATES = (
         ('running', 'I gang'),
@@ -46,6 +46,14 @@ class TimeTrial(models.Model):
     creator = models.ForeignKey(
         Profile, related_name='timetrial_creator_set')
     created_time = models.DateTimeField()
+
+    def get_result_mark(self):
+        if self.result == 'f':
+            return '✓'
+        elif self.result == 'dnf':
+            return 'DNF'
+        else:
+            return self.result
 
     def get_duration_display(self):
         try:
