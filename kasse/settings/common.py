@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'kasse.apps.KasseConfig',
     'stopwatch.apps.StopwatchConfig',
     'iou.apps.IouConfig',
+    'news.apps.NewsConfig',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,6 +119,10 @@ LOGGING = {
             'format': ('[%(asctime)s %(name)s %(levelname)s %(ip)s] ' +
                        '%(message)s'),
         },
+        'news': {
+            'format': ('[%(asctime)s %(name)s %(levelname)s] ' +
+                       '%(message)s'),
+        },
     },
     'handlers': {
         'file': {
@@ -126,10 +131,21 @@ LOGGING = {
             'filename': '/home/rav/enkasseienfestforening.dk/django.log',
             'formatter': 'simple',
         },
+        'news': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/home/rav/enkasseienfestforening.dk/news.log',
+            'formatter': 'news',
+        },
     },
     'loggers': {
         'kasse': {
             'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'news': {
+            'handlers': ['news'],
             'level': 'DEBUG',
             'propagate': True,
         },
