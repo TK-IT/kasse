@@ -1,6 +1,29 @@
 from django.db import models
 
 
+from kasse.models import Profile
+
+
+class NewsProfile(models.Model):
+    profile = models.OneToOneField(
+        Profile,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+    ignore = models.BooleanField(blank=True)
+
+    @classmethod
+    def get(cls, **kwargs):
+        try:
+            if sorted(kwargs.keys()) == ['profile'] and cls == NewsProfile:
+                # Might be precomputed
+                return kwargs['profile'].newsprofile
+            else:
+                return cls.objects.get(**kwargs)
+        except cls.DoesNotExist:
+            return cls(**kwargs)
+
+
 class Config(models.Model):
     client_id = models.CharField(blank=True, max_length=100)
     app_secret = models.CharField(blank=True, max_length=100)
