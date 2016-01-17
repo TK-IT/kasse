@@ -1,0 +1,169 @@
+<!-- vim:set sw=2 et: -->
+<html>
+<head>
+<meta charset="utf-8" />
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+function format_timestamp(total_milliseconds, n) {
+  var total_seconds = (total_milliseconds / 1000)|0;
+  var milliseconds = (total_milliseconds - 1000 * total_seconds)|0;
+  var total_minutes = (total_seconds / 60)|0;
+  var seconds = (total_seconds - 60 * total_minutes)|0;
+  var total_hours = (total_minutes / 60)|0;
+  var minutes = total_minutes - 60 * total_hours;
+  return (
+    total_hours + ':' +
+    ('00' + minutes).slice(-2) + ':' +
+    ('00' + seconds).slice(-2) + '.' +
+    ('000' + milliseconds).slice(-3, -3 + n)
+  );
+}
+
+google.load('visualization', '1.0', {'packages':['corechart']});
+
+function load_timetrial(fn) {
+  var request = new XMLHttpRequest();
+
+  function ev(e) {
+    if (request.readyState === 4) {
+      if (request.status === 200) {
+        var o = JSON.parse(request.responseText);
+        fn(o);
+      } else {
+        console.log("XMLHttpRequest: Remote returned " + request.status);
+      }
+    }
+  }
+
+  request.onreadystatechange = ev;
+  request.open('GET', 'http://enkasseienfestforening.dk/timetrial/json/');
+  request.send();
+}
+
+var s = 0;
+
+google.setOnLoadCallback(callback);
+load_timetrial(tt_callback);
+
+var timetrials = null;
+
+function callback() {
+  s += 1;
+  if (s === 2) drawChart(timetrials);
+}
+
+function tt_callback(o) {
+  timetrials = o;
+  callback();
+}
+
+function unique(a) {
+  var o = {};
+  for (var i = 0; i < a.length; ++i) o[a[i]] = true;
+  var res = [];
+  for (var i in o) {res.push(i);}
+  res.sort();
+  return res;
+}
+
+function sum(xs) {
+  return xs.reduce(function (a, b) { return a + b; }, 0);
+}
+
+function dominates(a, b) {
+  return sum(a.durations) <= sum(b.durations) && a.residue <= b.residue;
+}
+
+function skyline(timetrials) {
+  var result = [];
+  for (var i = 0; i < timetrials.length; ++i) {
+    var dominated = false;
+    var j = 0;
+    while (j < result.length) {
+      if (dominates(timetrials[i], result[j])) {
+        result.splice(j, 1);
+        continue;
+      } else if (dominates(result[j], timetrials[i])) {
+        dominated = true;
+      }
+      ++j;
+    }
+    if (!dominated) result.push(timetrials[i]);
+  }
+  return result;
+}
+
+function skyline_per_profile(timetrials) {
+  var by_profiles = {};
+  for (var i = 0; i < timetrials.length; ++i)
+    by_profiles[timetrials[i].profile] = [];
+  for (var i = 0; i < timetrials.length; ++i)
+    by_profiles[timetrials[i].profile].push(timetrials[i]);
+  var result = [];
+  for (var p in by_profiles)
+    result.push.apply(result, skyline(by_profiles[p]));
+  return result;
+}
+
+function drawChart(timetrials) {
+  var time_axis = {'title': 'Time / s', 'minValue': 0, 'maxValue': 140};
+  var residue_axis = {'title': 'Residue / cL', 'minValue': 0, 'maxValue': 15};
+  function tooltip(o) {
+    return (o.profile + "\n" + o.residue + " cL\n" +
+      format_timestamp(sum(o.durations) * 1000, 2)) + "\n" +
+      new Date(o.start_time.replace(' ', 'T')) ;
+  }
+
+  timetrials = timetrials.filter(
+    function (o) {
+      return o.result === 'f' && o.residue > 0 &&
+        o.durations.length === 5 &&
+        sum(o.durations) <= time_axis.maxValue &&
+        o.residue <= residue_axis.maxValue;
+    });
+
+  timetrials = skyline_per_profile(timetrials);
+
+  var names = unique(timetrials.map(function (o) {
+    return o.profile;}));
+
+  var data = new google.visualization.DataTable();
+  data.addColumn('number', time_axis.title);
+  for (var i = 0; i < names.length; ++i) {
+    data.addColumn('number', names[i]);
+    data.addColumn({type: 'string', role: 'tooltip'});
+  }
+
+  function make_row(o) {
+    var r = [];
+    r.push(sum(o.durations));
+    var t = tooltip(o);
+    for (var i = 0; i < names.length; ++i) {
+      r.push((o.profile === names[i]) ? o.residue : null);
+      r.push(t);
+    }
+    return r;
+  }
+
+  data.addRows(timetrials.map(make_row));
+
+  var options = {
+    'title':"TimeTrial residue skyline",
+    'hAxis': time_axis,
+    'vAxis': residue_axis,
+    'width':600,
+    'height':450
+  };
+
+  var chart = new google.visualization.ScatterChart(
+    document.getElementById('chart_div'));
+  chart.draw(data, options);
+}
+</script>
+</head>
+
+<body>
+<div id="chart_div"></div>
+</body>
+</html>
