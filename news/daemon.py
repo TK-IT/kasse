@@ -2,7 +2,6 @@
 from __future__ import absolute_import, unicode_literals, division
 
 import os
-import sys
 import time
 import codecs
 import logging
@@ -30,8 +29,6 @@ def main():
     while True:
         try:
             events = get_current_events(qs.all())
-            sys.stdout.write(unicode(events).encode('ascii', errors='replace'))
-            sys.stdout.write('\n')
             report, action = update_report(report, events)
         except TryAgainShortly as e:
             logger.debug("Try again in %s", e.suggested_wait)
