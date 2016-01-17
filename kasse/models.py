@@ -103,7 +103,6 @@ class Profile(models.Model):
         return not self.name and not self.title
     get_anonymous.boolean = True
     get_anonymous.short_description = 'Anonym'
-    get_anonymous.admin_order_field = 'name'
     is_anonymous = property(get_anonymous)
 
     def clean(self):
