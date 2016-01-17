@@ -103,6 +103,7 @@ def get_current_events(qs, now=None):
 
     hour = datetime.timedelta(hours=1)
     qs = qs.exclude(result='f', state='initial')
+    qs = qs.exclude(profile__newsprofile__ignore=True)
     qs = qs.filter(created_time__gt=now - hour)
 
     qs = qs.order_by('profile_id')
