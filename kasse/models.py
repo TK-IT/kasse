@@ -74,6 +74,9 @@ class Title(models.Model):
             s = self.def_str()
         return s or '(blank)'
 
+    class Meta:
+        ordering = ['association', 'period', 'title']
+
 
 @python_2_unicode_compatible
 class Profile(models.Model):
