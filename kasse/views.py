@@ -11,12 +11,13 @@ from django.http import (
     Http404,
 )
 from django.views.generic import (
-    View, TemplateView, FormView, DetailView, UpdateView,
+    View, TemplateView, FormView, DetailView, UpdateView, ListView,
 )
 from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
+from django.db.models import Count
 
 from kasse.forms import (
     LoginForm, ProfileCreateForm,
@@ -194,6 +195,17 @@ class ProfileView(DetailView):
         context_data['timetrial_list'] = qs
         context_data['leg_count'] = sum(len(tt.leg_set.all()) for tt in qs)
         return context_data
+
+
+class ProfileList(ListView):
+    template_name = 'kasse/profile_list.html'
+    model = Profile
+
+    def get_queryset(self):
+        qs = Profile.all_named()
+        qs = qs.annotate(timetrial_count=Count('timetrial_profile_set'))
+        qs = qs.order_by('-timetrial_count')
+        return qs
 
 
 class ProfileEditBase(UpdateView):

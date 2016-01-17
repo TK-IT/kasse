@@ -1,0 +1,30 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block title %}Profiler{% endblock %}
+{% block content %}
+<h1>Profiler</h1>
+<table>
+<thead>
+    <tr><th>Titel</th><th>Navn</th><th>Forsøg</th></tr>
+</thead>
+<tbody>
+{% for profile in object_list %}
+<tr>
+<td>
+    {% if profile.title %}
+    <a href="{% url 'profile' pk=profile.pk %}">{{ profile.title }}</a>
+    {% endif %}
+</td>
+<td>
+    {% if profile.name %}
+    <a href="{% url 'profile' pk=profile.pk %}">{{ profile.name }}</a>
+    {% endif %}
+</td>
+<td>
+    {{ profile.timetrial_count }}
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

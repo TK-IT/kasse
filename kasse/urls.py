@@ -10,7 +10,7 @@ from django.contrib import admin
 
 from kasse.views import (
     Home, Log, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
-    ProfileEdit, ProfileEditAdmin, UserCreate, Association,
+    ProfileEdit, ProfileEditAdmin, UserCreate, Association, ProfileList,
 )
 import stopwatch.urls
 import iou.urls
@@ -32,6 +32,8 @@ urlpatterns = [
 
     url(r'^newuser/(?P<pk>\d+)/$', UserCreate.as_view(),
         name='newuser'),
+    url(r'^profile/$', ProfileList.as_view(),
+        name='profile_list'),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(),
         name='profile'),
     url(r'^profile/edit/$', ProfileEdit.as_view(),
