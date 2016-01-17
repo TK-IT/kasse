@@ -176,7 +176,7 @@ def join_parts(sentences, ucfirst):
     if ucfirst:
         s = s[0].upper() + s[1:]
 
-    return s
+    return s + '.'
 
 
 def describe_info(current_events, new_info):
