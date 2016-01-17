@@ -40,7 +40,7 @@ def main():
                 p = new_post(text)
             elif action == 'comment':
                 p = comment_on_latest_post(text)
-            logger.debug("%s", p)
+            logger.debug("Posted to Facebook: %s", p)
         time.sleep(15)
 
 
