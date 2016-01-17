@@ -45,3 +45,9 @@ class Expence(models.Model):
         Profile, related_name='expence_consumed_set')
     amount = models.DecimalField(max_digits=9, decimal_places=2)
     comment = models.TextField(blank=True)
+
+
+def move_profile(target, destination):
+    Expence.objects.filter(payer=target).update(payer=destination)
+    consumers = Expence.consumers.through
+    consumers.objects.filter(profile=target).update(profile=destination)

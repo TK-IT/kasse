@@ -12,6 +12,11 @@
 <a href="{% url "profile_edit_admin" pk=object.pk %}" class="adminlink">Rediger profil</a>
 </p>
 {% endif %}
+{% if user.is_superuser %}
+<p>
+<a href="{% url "profile_merge" pk=object.pk %}" class="adminlink">Flet ind i anden profil</a>
+</p>
+{% endif %}
 <p>
 Tilknytning:
 {% if object.association %}

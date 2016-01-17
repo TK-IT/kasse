@@ -110,3 +110,8 @@ class Leg(models.Model):
 
     class Meta:
         ordering = ['timetrial', 'order']
+
+
+def move_profile(target, destination):
+    TimeTrial.objects.filter(profile=target).update(profile=destination)
+    TimeTrial.objects.filter(creator=target).update(creator=destination)

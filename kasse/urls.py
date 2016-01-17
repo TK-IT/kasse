@@ -11,6 +11,7 @@ from django.contrib import admin
 from kasse.views import (
     Home, Log, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
     ProfileEdit, ProfileEditAdmin, UserCreate, Association, ProfileList,
+    ProfileMerge,
 )
 import stopwatch.urls
 import iou.urls
@@ -36,6 +37,8 @@ urlpatterns = [
         name='profile_list'),
     url(r'^profile/(?P<pk>\d+)/$', ProfileView.as_view(),
         name='profile'),
+    url(r'^profile/(?P<pk>\d+)/merge/$', ProfileMerge.as_view(),
+        name='profile_merge'),
     url(r'^profile/edit/$', ProfileEdit.as_view(),
         name='profile_edit'),
     url(r'^profile/edit/(?P<pk>\d+)/$', ProfileEditAdmin.as_view(),

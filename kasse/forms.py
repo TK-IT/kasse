@@ -153,3 +153,7 @@ class ProfileEditForm(forms.ModelForm):
 class AssociationForm(forms.Form):
     association = AssociationModelChoiceField(
         required=False, empty_label='Alle')
+
+
+class ProfileMergeForm(forms.Form):
+    destination = ProfileModelChoiceField()

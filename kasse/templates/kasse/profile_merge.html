@@ -1,0 +1,12 @@
+{% extends "kasse/base.html" %}
+{% load kasse_extras %}
+{% block title %}Overflyt {{ target|display_profile_plain }}{% endblock %}
+{% block content %}
+<h1>Overflyt {{ target|display_profile_plain }}</h1>
+<form method="post">{% csrf_token %}
+{{ form.non_field_errors }}
+<p>Overflyt til: {{ form.destination }}</p>
+{{ form.destination.errors }}
+<input type="submit" value="Overflyt" />
+</form>
+{% endblock %}

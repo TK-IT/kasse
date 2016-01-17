@@ -18,14 +18,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 from kasse.forms import (
     LoginForm, ProfileCreateForm,
     ProfileEditForm, UserCreationForm,
-    AssociationForm,
+    AssociationForm, ProfileMergeForm,
 )
 from kasse.models import Profile
 
+import stopwatch.models
+import iou.models
 from stopwatch.models import TimeTrial
 
 logger = logging.getLogger('kasse')
@@ -206,6 +209,44 @@ class ProfileList(ListView):
         qs = qs.annotate(timetrial_count=Count('timetrial_profile_set'))
         qs = qs.order_by('-timetrial_count')
         return qs
+
+
+class ProfileMerge(FormView):
+    template_name = 'kasse/profile_merge.html'
+    form_class = ProfileMergeForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super(ProfileMerge, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context_data = super(ProfileMerge, self).get_context_data(**kwargs)
+        context_data['target'] = self.get_target()
+        return context_data
+
+    def get_target(self):
+        return get_object_or_404(
+            Profile.all_named(), pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        target = self.get_target()
+        destination = form.cleaned_data['destination']
+        if target == destination:
+            form.add_error('destination', 'Kan ikke overflytte til sig selv')
+            return self.form_invalid(form)
+        stopwatch.models.move_profile(target, destination)
+        iou.models.move_profile(target, destination)
+        logger.info("Profile %s merged into %s by %s",
+                    target, destination,
+                    self.request.profile,
+                    extra=self.request.log_data)
+        target.association = None
+        target.set_title('', None)
+        target.name = ''
+        target.save()
+        success_url = reverse('profile', kwargs={'pk': destination.pk})
+        return HttpResponseRedirect(success_url)
 
 
 class ProfileEditBase(UpdateView):
