@@ -270,13 +270,14 @@ def update_report(previous_report, current_events):
     cur_profiles = set(x[1].id for x in cur_info)
     prev_info = filter_info_set(set(previous_report.info()))
     prev_profiles = set(x[1].id for x in prev_info)
+    prev_only_upcoming = all(i[0] == 'upcoming' for i in prev_info)
     new_info = sorted(cur_info - prev_info)
     new_profiles = set(x[1].id for x in new_info)
     same_profiles = new_profiles & prev_profiles
     if not new_info:
         return current_events, None
     text = describe_info(current_events, new_info)
-    if same_profiles:
+    if same_profiles or (prev_info and prev_only_upcoming):
         return current_events, ('comment', text)
     else:
         return current_events, ('new', text)
