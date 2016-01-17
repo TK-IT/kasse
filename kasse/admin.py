@@ -11,10 +11,30 @@ class TitleAdmin(admin.ModelAdmin):
     )
 
 
+class AnonymousFilter(admin.SimpleListFilter):
+    title = 'anonym'
+    parameter_name = 'anonymous'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'anonym'),
+            ('no', 'ej anonym'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            queryset = queryset.filter(name='', title__isnull=True)
+        elif self.value() == 'no':
+            queryset = queryset.exclude(name='', title__isnull=True)
+        return queryset
+
+
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
-        'get_profile_display', 'get_anonymous',
+        'get_profile_display', 'title', 'name', 'get_anonymous',
     )
+
+    list_filter = (AnonymousFilter, 'association')
 
     def get_profile_display(self, o):
         return str(o)
