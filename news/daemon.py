@@ -37,7 +37,7 @@ def main():
             logger.debug("Try again in %s", e.suggested_wait)
             time.sleep(e.suggested_wait)
             continue
-        if action != None:  # noqa
+        if action is not None:
             action, text = action
             if action == 'new':
                 p = new_post(text)
