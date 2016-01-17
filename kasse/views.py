@@ -294,10 +294,9 @@ class UserCreate(TemplateView):
     template_name = 'kasse/usercreateform.html'
 
     def get_profile(self):
-        try:
-            return Profile.objects.get(pk=self.kwargs['pk'])
-        except Profile.DoesNotExist:
-            raise Http404()
+        return get_object_or_404(
+            Profile, pk=self.kwargs['pk'],
+        )
 
     def get_initial(self):
         profile = self.get_profile()
