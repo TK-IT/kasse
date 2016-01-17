@@ -92,9 +92,14 @@ def get_current_events(qs, now=None):
 
     if now is None:
         now = datetime.datetime.utcnow()
+
+    # Hack to ensure that we are not mixing naive and aware datetimes
     tt_ = TimeTrial.objects.filter(start_time__isnull=False)[0]
-    assert unicode(tt_.start_time.tzinfo) == '<UTC>'
-    now = now.replace(tzinfo=tt_.start_time.tzinfo)
+    if tt_.start_time.tzinfo != now.tzinfo:
+        # Assert that the database is in UTC
+        assert unicode(tt_.start_time.tzinfo) == '<UTC>'
+        # Assume that any argument 'now' was a naive UTC datetime
+        now = now.replace(tzinfo=tt_.start_time.tzinfo)
 
     hour = datetime.timedelta(hours=1)
     qs = qs.exclude(result='f', state='initial')
