@@ -5,6 +5,8 @@ import datetime
 import itertools
 import collections
 
+from django.utils.encoding import python_2_unicode_compatible
+
 from kasse.templatetags.kasse_extras import display_duration_plain
 
 from stopwatch.models import TimeTrial
@@ -14,8 +16,9 @@ CurrentEventsBase = collections.namedtuple(
     'CurrentEvents', 'done ongoing upcoming'.split())
 
 
+@python_2_unicode_compatible
 class CurrentEvents(CurrentEventsBase):
-    def __unicode__(self):
+    def __str__(self):
         return "CurrentEvents(done=%s, ongoing=%s, upcoming=%s)" % tuple(
             "[%s]" % ', '.join("(%s, %s)" % x for x in y)
             for y in (self.done, self.ongoing, self.upcoming))
@@ -60,6 +63,7 @@ class CurrentEvents(CurrentEventsBase):
                 yield x
 
 
+@python_2_unicode_compatible
 class TryAgainShortly(Exception):
     def __init__(self, suggested_wait):
         self.suggested_wait = suggested_wait
