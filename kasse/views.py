@@ -296,20 +296,25 @@ class UserCreate(TemplateView):
     def get_profile(self):
         return get_object_or_404(
             Profile, pk=self.kwargs['pk'],
-        )
+            user__isnull=True)
 
     def get_initial(self):
-        profile = self.get_profile()
-        initial = {
-            'username': 'profile%d' % profile.pk,
-            'name': profile.name,
-            'association': profile.association,
-        }
-        if profile.title:
-            initial.update({
-                'title': profile.title.title,
-                'period': profile.title.period,
-            })
+        if 'pk' in self.kwargs:
+            profile = self.get_profile()
+            initial = {
+                'username': 'profile%d' % profile.pk,
+                'name': profile.name,
+                'association': profile.association,
+            }
+            if profile.title:
+                initial.update({
+                    'title': profile.title.title,
+                    'period': profile.title.period,
+                })
+        else:
+            initial = {
+                'username': 'placeholder',
+            }
         return initial
 
     def get_forms(self):
@@ -337,10 +342,16 @@ class UserCreate(TemplateView):
             return self.form_invalid(user_form, profile_form)
 
     def form_valid(self, user_form, profile_form):
-        user = user_form.save()
-        profile = self.get_profile()
-        profile.user = user
+        if 'pk' in self.kwargs:
+            profile = self.get_profile()
+        else:
+            profile = Profile()
         profile_form.save(profile)
+        profile.save()
+        user = user_form.save()
+        user.username = 'profile%d' % profile.pk
+        user.save()
+        profile.user = user
         profile.save()
         logger.info("Create user %s from profile %s",
                     user.username, profile,

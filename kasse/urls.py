@@ -31,6 +31,8 @@ urlpatterns = [
     url(r'^logout/$', Logout.as_view(), name='logout'),
     url(r'^password/$', ChangePassword.as_view(), name='password'),
 
+    url(r'^newuser/$', UserCreate.as_view(),
+        name='newuserprofile'),
     url(r'^newuser/(?P<pk>\d+)/$', UserCreate.as_view(),
         name='newuser'),
     url(r'^profile/$', ProfileList.as_view(),

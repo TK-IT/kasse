@@ -53,8 +53,9 @@ class LoginForm(forms.Form):
 class ProfileCreateForm(forms.Form):
     name = forms.CharField(required=False, label='Navn')
     title = forms.CharField(required=False, label='Titel')
-    period = forms.IntegerField(required=False, label='Periode')
-    association = AssociationModelChoiceField(required=False)
+    period = forms.IntegerField(required=False, label='År/semester')
+    association = AssociationModelChoiceField(
+        required=False, empty_label='Forening')
 
     def clean(self):
         cleaned_data = super(ProfileCreateForm, self).clean()
