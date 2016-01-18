@@ -109,7 +109,7 @@ class TimeTrialStopwatchCreate(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        now = datetime.datetime.now()
+        now = timezone.now()
         tt = TimeTrial(profile=data['profile'],
                        result='',
                        start_time=data['start_time'],
