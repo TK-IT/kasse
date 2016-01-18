@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.encoding import force_str, force_text
 from django.utils.translation import ugettext_lazy as _
 from django.utils.dateparse import parse_duration
+from django.utils import timezone
 from django.forms.utils import from_current_timezone, to_current_timezone
 from django.forms.fields import BaseTemporalField, Field
 from django.forms.widgets import DateTimeInput, Textarea
@@ -28,13 +29,10 @@ class DateTimeDefaultTodayField(BaseTemporalField):
 
     def widget_attrs(self, widget):
         attrs = super(DateTimeDefaultTodayField, self).widget_attrs(widget)
-        now = datetime.datetime.now().replace(tzinfo=None)
-        date = now.date()
-        time = datetime.time(hour=21, minute=0)
-        d = datetime.datetime.combine(date, time)
+        now = timezone.now()
+        d = now.replace(hour=21, minute=0)
         if now < d:
-            date = date - datetime.timedelta(1)
-            d = datetime.datetime.combine(date, time)
+            d = d - datetime.timedelta(days=1)
         attrs.update({'placeholder': d.strftime('f.eks. %Y-%m-%d %H:%M')})
         return attrs
 
