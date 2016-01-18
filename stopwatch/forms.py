@@ -101,8 +101,9 @@ class StopwatchForm(forms.Form):
         start_time = cleaned_data['start_time']
         if start_time < 0:
             start_time += 2 ** 32
-        cleaned_data['start_time'] = to_current_timezone(
-            datetime.datetime.fromtimestamp(start_time))
+        cleaned_data['start_time'] = (
+            datetime.datetime.utcfromtimestamp(
+                start_time).replace(tzinfo=timezone.utc))
         return cleaned_data
 
 
