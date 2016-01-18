@@ -6,6 +6,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.utils.six.moves import urllib_parse
+from django.utils import timezone
 from django.http import (
     HttpResponse, HttpResponseRedirect,
     Http404,
@@ -76,7 +77,7 @@ class Home(TemplateView):
         qs = TimeTrial.objects.all()
         # qs = self.request.filter_association(qs)
         qs = qs.filter(result='')
-        now = datetime.datetime.now()
+        now = timezone.now()
         threshold = now - datetime.timedelta(hours=1)
         qs = qs.filter(start_time__gt=threshold)
         return list(qs)
