@@ -60,7 +60,7 @@ class TimeTrialCreate(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        now = datetime.datetime.now()
+        now = timezone.now()
         stopwatch = False
         if data['individual_times'] == 'individual':
             durations = data['durations']
