@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals, division
 import datetime
 
 from django import forms
-from django.forms.utils import to_current_timezone
+from django.utils import timezone
 
 from stopwatch.models import TimeTrial
 from stopwatch.fields import DateTimeDefaultTodayField, DurationListField
@@ -48,7 +48,7 @@ class TimeTrialCreateForm(forms.Form):
                 'start_time',
                 'Man kan ikke angive både starttidspunkt og ukendt.')
         elif not cleaned_data.get('start_time') and not unknown:
-            cleaned_data['start_time'] = datetime.datetime.now()
+            cleaned_data['start_time'] = timezone.now()
 
         individual_times = cleaned_data['individual_times']
         if cleaned_data['stopwatch']:
