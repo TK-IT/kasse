@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals, division
 import datetime
 import requests
 
+from django.utils import timezone
 from django.views.generic import View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -52,7 +53,7 @@ class FacebookLoginCallback(View):
             return JsonResponse(o)
         # token_type = o['token_type']
         seconds = o['expires_in']
-        expiry = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        expiry = timezone.now() + datetime.timedelta(seconds=seconds)
 
         app_access_token = requests.get(
             "https://graph.facebook.com/oauth/access_token" +
