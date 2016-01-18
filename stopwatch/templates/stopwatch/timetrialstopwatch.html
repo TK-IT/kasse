@@ -37,6 +37,21 @@ var time_attack = ((initial_state === null) ?
 document.createElement( "picture" );
 </script>
 <script src="{% static "picturefill.js" %}" async></script>
+<style>
+#id_legs {
+    width: 3em;
+}
+.list-item-with-checkbox {
+    list-style-type: none;
+}
+.list-item-with-checkbox input[type=radio] {
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px 6px 0.25em -20px;
+    width: 14px;
+    vertical-align: middle;
+}
+</style>
 {% endblock %}
 {% block content %}
 <h1>Stopur</h1>
@@ -71,7 +86,11 @@ document.createElement( "picture" );
     </p>
     <p>Total rest (cL): {{ form.residue }}</p>
     <p>Kommentar: {{ form.comment }}</p>
-    <p><label><input type="checkbox" name="dnf" /> DNF</label></p>
+    <ul>
+    {% for option in form.result %}
+    <li class="list-item-with-checkbox">{{ option }} {{ option.errors }}</li>
+    {% endfor %}
+    </ul>
     <p>
     <input type="submit" value="Indsend tid" class="submit-stopwatch" />
     </p>

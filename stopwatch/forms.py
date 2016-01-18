@@ -78,8 +78,15 @@ class TimeTrialLiveForm(forms.Form):
 
 
 class StopwatchForm(forms.Form):
+    CHOICES = (
+        ('f', 'Gyldig'),
+        ('dnf', 'DNF'),
+        ('irr', 'Ugyldig/diskvalificeret'),  # not accepted / irregular result
+    )
+
     start_time = forms.FloatField()
-    dnf = forms.BooleanField(required=False, label='DNF')
+    result = forms.ChoiceField(
+        choices=CHOICES, widget=forms.RadioSelect, initial='f')
     durations = DurationListField(
         required=False,
         widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
@@ -94,10 +101,6 @@ class StopwatchForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(StopwatchForm, self).clean()
-        if cleaned_data['dnf']:
-            cleaned_data['result'] = 'dnf'
-        else:
-            cleaned_data['result'] = 'f'
         start_time = cleaned_data['start_time']
         if start_time < 0:
             start_time += 2 ** 32
