@@ -8,6 +8,7 @@ import datetime
 from django.core.exceptions import FieldError
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils import timezone
 from django.db import OperationalError
 from django.utils.safestring import mark_safe
 from django.http import (
@@ -41,8 +42,8 @@ class TimeTrialCreate(FormView):
         for k, v in self.request.GET.items():
             initial[k] = v
         try:
-            initial['start_time'] = datetime.datetime.fromtimestamp(
-                float(initial['start_time']))
+            initial['start_time'] = datetime.datetime.utcfromtimestamp(
+                float(initial['start_time']).replace(tzinfo=timezone.utc))
         except KeyError:
             pass
         try:
