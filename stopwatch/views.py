@@ -254,7 +254,7 @@ class TimeTrialLiveUpdate(BaseFormView):
         elapsed_time = form.cleaned_data['elapsed_time']
         rt = form.cleaned_data['roundtrip_estimate']
         latency = datetime.timedelta(seconds=rt / 2)
-        timetrial.start_time = datetime.datetime.now() - latency - elapsed_time
+        timetrial.start_time = timezone.now() - latency - elapsed_time
 
         timetrial.save()
 
