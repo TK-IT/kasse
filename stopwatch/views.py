@@ -431,6 +431,10 @@ class Json(View):
     def get(self, request):
         data = []
         qs = TimeTrial.objects.all()
+        if self.kwargs.get('live'):
+            now = timezone.now()
+            threshold = now - datetime.timedelta(hours=1)
+            qs = qs.filter(result='', start_time__gt=threshold)
         for tt in qs:
             tt_data = {
                 'start_time': str(tt.start_time),

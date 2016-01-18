@@ -14,6 +14,8 @@ urlpatterns = [
         name='timetrial_list'),
     url(r'^json/$', Json.as_view(),
         name='timetrial_json'),
+    url(r'^json/live/$', Json.as_view(),
+        name='timetrial_json_live', kwargs={'live': True}),
     url(r'^best/$', TimeTrialAllBest.as_view(),
         name='timetrial_best', kwargs={'season': 'alltime'}),
     url(r'^best/(?P<legs>\d+)/$', TimeTrialBest.as_view(),
