@@ -159,8 +159,8 @@ class TimeTrialStateMixin(object):
         prev, time_attack = get_time_attack(o)
 
         if o.start_time:
-            now = datetime.datetime.now()
-            start_time = to_current_timezone(o.start_time)
+            now = timezone.now()
+            start_time = o.start_time
             elapsed = (now - start_time).total_seconds()
         else:
             elapsed = 0
