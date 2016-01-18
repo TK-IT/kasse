@@ -39,6 +39,7 @@ function home_init() {
 	}
 
 	var a = new Awesomplete(usernameinput, {
+		'autoFirst': true,
 		'list': names,
 		'minChars': 1,
 		'filter': filter

@@ -156,10 +156,6 @@ _.prototype = {
 	open: function () {
 		this.ul.removeAttribute("hidden");
 
-		if (this.autoFirst && this.index === -1) {
-			this.goto(0);
-		}
-
 		$.fire(this.input, "awesomplete-open");
 	},
 
@@ -198,7 +194,7 @@ _.prototype = {
 		if (!selected && this.input.value === '') {
 			return;
 		}
-		if (!selected) {
+		if (!selected && this.autoFirst) {
 			selected = this.ul.children[0];
 		}
 
