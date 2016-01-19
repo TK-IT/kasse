@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals, division
 
 from django.contrib import admin
-from stopwatch.models import TimeTrial, Leg
+from stopwatch.models import TimeTrial, Leg, Beverage
 
 
 class TimeTrialStateFilter(admin.SimpleListFilter):
@@ -68,3 +68,4 @@ class LegAdmin(admin.ModelAdmin):
 
 admin.site.register(TimeTrial, TimeTrialAdmin)
 admin.site.register(Leg, LegAdmin)
+admin.site.register(Beverage, admin.ModelAdmin)
