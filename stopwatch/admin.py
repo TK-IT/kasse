@@ -42,6 +42,7 @@ class TimeTrialAdmin(admin.ModelAdmin):
     )
     list_display = (
         'get_duration', 'get_leg_count', 'profile', 'result', 'state',
+        'beverage',
         'start_time', 'creator', 'created_time',
     )
 

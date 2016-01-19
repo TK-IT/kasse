@@ -54,4 +54,7 @@
 {% else %}
 <p>Total rest: {{ object.residue }} cL</p>
 {% endif %}
+{% if object.beverage %}
+<p>Ølmærke: {{ object.beverage }}</p>
+{% endif %}
 {% endblock %}

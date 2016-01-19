@@ -27,7 +27,7 @@ from stopwatch.forms import (
     TimeTrialCreateForm, TimeTrialForm,
     StopwatchForm, TimeTrialLiveForm,
 )
-from stopwatch.models import TimeTrial, Leg
+from stopwatch.models import TimeTrial, Leg, Beverage
 from kasse.views import Home
 
 logger = logging.getLogger('kasse')
@@ -204,6 +204,12 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
         return super(TimeTrialStopwatch, self).get_context_data(**kwargs)
 
     def form_valid(self, form):
+        if form.cleaned_data['beverage']:
+            beverage, created = Beverage.objects.get_or_create(
+                name=form.cleaned_data['beverage'])
+        else:
+            beverage = None
+        self.object.beverage = beverage
         self.object.result = form.cleaned_data['result']
         self.object.start_time = form.cleaned_data['start_time']
         self.object.residue = form.cleaned_data['residue']

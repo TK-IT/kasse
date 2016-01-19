@@ -93,6 +93,7 @@ class StopwatchForm(forms.Form):
 
     residue = forms.FloatField(required=False)
     comment = forms.CharField(required=False)
+    beverage = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.pop('instance')

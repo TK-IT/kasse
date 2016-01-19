@@ -48,6 +48,9 @@ class TimeTrial(models.Model):
         Profile, related_name='timetrial_creator_set')
     created_time = models.DateTimeField()
 
+    beverage = models.ForeignKey(
+        'Beverage', blank=True, null=True, on_delete=models.SET_NULL)
+
     def get_result_mark(self):
         if self.result == 'f':
             return '✓'
@@ -115,3 +118,15 @@ class Leg(models.Model):
 def move_profile(target, destination):
     TimeTrial.objects.filter(profile=target).update(profile=destination)
     TimeTrial.objects.filter(creator=target).update(creator=destination)
+
+
+@python_2_unicode_compatible
+class Beverage(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    popularity = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['popularity', 'name']
+
+    def __str__(self):
+        return self.name
