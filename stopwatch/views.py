@@ -20,6 +20,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import BaseFormView
 from django.forms.utils import to_current_timezone
+from django.shortcuts import get_object_or_404
 
 from stopwatch.forms import (
     TimeTrialCreateForm, TimeTrialForm,
@@ -232,6 +233,14 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
 
 class TimeTrialLiveUpdate(BaseFormView):
     form_class = TimeTrialLiveForm
+
+    def get(self, request, *args, **kwargs):
+        tt = get_object_or_404(TimeTrial.objects, pk=self.kwargs['pk'])
+        return HttpResponseRedirect(tt.get_absolute_url())
+
+    def form_invalid(self, form):
+        d = json.loads(form.errors.as_json())
+        return JsonResponse(d, status_code=400)
 
     def form_valid(self, form):
         timetrial = form.cleaned_data['timetrial']
