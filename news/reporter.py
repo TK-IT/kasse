@@ -261,23 +261,56 @@ def update_report(previous_report, current_events):
     indicating the new "most recent report" and
     what reporting action should be taken.
 
-    report_action will be either ("new", t), ("edit", t), ("comment", t)
-    or None, indicating that we should start a new report,
-    edit the latest report, comment on the latest report,
-    or do nothing.
+    report_action will be a list of
+    ("new", t), ("edit", p, t), ("comment", p, t)
+    indicating that we should start a new report,
+    edit Post p, comment on Post p, or do nothing.
     """
 
     if previous_report is None:
-        previous_report = CurrentEvents([], [], [])
+        previous_report = [], CurrentEvents([], [], [])
+    previous_posts, previous_events = previous_report
+
+    profiles = {
+        profile.id: post
+        for post in previous_posts
+        for profile in post.profiles.all()
+    }
 
     cur_info = filter_info_set(set(current_events.info()))
     cur_profiles = set(x[1].id for x in cur_info)
-    prev_info = filter_info_set(set(previous_report.info()))
-    prev_profiles = set(x[1].id for x in prev_info)
+    prev_info = filter_info_set(set(previous_events.info()))
+    prev_upcoming = set(i[1] for i in prev_info if i[0] == 'upcoming')
     prev_only_upcoming = all(i[0] == 'upcoming' for i in prev_info)
     new_info = sorted(cur_info - prev_info)
-    new_profiles = set(x[1].id for x in new_info)
-    same_profiles = new_profiles & prev_profiles
+    new_profiles = set(x[1].id for x in cur_info) - set(profiles.keys())
+    if prev_upcoming:
+        post = profiles[next(iter(prev_upcoming)).id]
+    else:
+        post = None
+    for profile in new_profiles:
+        profiles.setdefault(profile.id, post)
+
+    new_posts = []
+    edits = dict()
+    comments = dict()
+
+    for v in new_info:
+        if profiles[v[1].id]:
+            post = profiles[v[1].id]
+            comments.setdefault(post, []).append(v)
+        else:
+            new_posts.append(v)
+
+    return (
+        ([('new', describe_info(current_events, new_posts))]
+         if new_posts else []) +
+        [('edit', k, describe_info(current_events, v))
+         for k, v in edits.items()] +
+        [('comment', post, describe_info(current_events, v))
+         for post, v in comments.items()])
+
+    same_profiles = new_profiles & profiles.keys()
     if not new_info:
         return current_events, None
     text = describe_info(current_events, new_info)

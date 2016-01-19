@@ -38,6 +38,7 @@ class Post(models.Model):
     post_time = models.DateTimeField(auto_now_add=True)
     fbid = models.CharField(max_length=50)
     text = models.TextField(blank=True)
+    profiles = models.ManyToManyField(Profile)
 
 
 class Comment(models.Model):
