@@ -47,7 +47,9 @@ def display_duration_plain(duration):
     minutes, seconds = divmod(duration or 0, 60)
     hours, minutes = divmod(minutes, 60)
     if hours > 0:
-        return '%d:%02d:%05.2f' % (hours, minutes, seconds)
+        return '%d:%02d:%02.0f' % (hours, minutes, seconds)
+    elif minutes >= 10:
+        return '%d:%04.1f' % (minutes, seconds)
     else:
         return '%d:%05.2f' % (minutes, seconds)
 
