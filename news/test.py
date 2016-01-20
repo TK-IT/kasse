@@ -100,7 +100,7 @@ def main():
             qs = PastTimeTrialQuerySet(t)
             try:
                 events = get_current_events(qs, t)
-                report, action = update_report(report, events)
+                report, action = update_report(report, events, save=False)
             except TryAgainShortly as e:
                 my_print("%s: %s" % (t, e))
                 t += datetime.timedelta(seconds=e.suggested_wait + 1)

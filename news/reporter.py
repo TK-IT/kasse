@@ -254,7 +254,7 @@ def filter_info_set(info):
     return info
 
 
-def update_report(previous_report, current_events):
+def update_report(previous_report, current_events, save=True):
     """
     Given the most recent report and the latest CurrentEvents,
     return a tuple (new_report, report_action)
@@ -265,11 +265,14 @@ def update_report(previous_report, current_events):
     ("new", t), ("edit", p, t), ("comment", p, t)
     indicating that we should start a new report,
     edit Post p, comment on Post p, or do nothing.
+
+    previous_report is a list of posts, each of which
+    is a set of profiles and a list of infos.
     """
 
     if previous_report is None:
-        previous_report = [], CurrentEvents([], [], [])
-    previous_posts, previous_events = previous_report
+        previous_report = dict(), None, CurrentEvents([], [], [])
+    prev_posts, prev_events = previous_report
 
     profiles = {
         profile.id: post
