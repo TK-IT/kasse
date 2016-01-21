@@ -19,6 +19,18 @@ from stopwatch.models import TimeTrial
 from news.reporter import TryAgainShortly, get_current_events, update_report
 
 
+class TestDelivery(object):
+    def __init__(self):
+        self.i = 0
+
+    def new_post(self, text):
+        self.i += 1
+        return self.i
+
+    def comment_on_post(self, post, text):
+        return ()
+
+
 class PastTimeTrialQuerySet:
     def __init__(self, now):
         self.qs = TimeTrial.objects.all()

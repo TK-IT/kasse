@@ -35,31 +35,32 @@ class CurrentEvents(CurrentEventsBase):
             self._profiles = dict(self.iterprofiles())
             return self._profiles
 
-    def profile_info(self, profile, state, tt):
+    def profile_info(self, state, tt):
+        profile = tt.profile
         if state == 'upcoming':
-            yield ('upcoming', profile)
+            yield ('upcoming', tt)
             return
         if state == 'done':
             d = display_duration_plain(tt.duration)
             if tt.result == 'f':
-                yield ('time', profile, tt.leg_count, d)
+                yield ('time', tt, tt.leg_count, d)
             elif tt.result == 'dnf':
-                yield ('dnf', profile, tt.leg_count, d)
+                yield ('dnf', tt, tt.leg_count, d)
         elif state == 'ongoing' and tt.leg_count >= 5:
             d = display_duration_plain(tt.duration)
-            yield ('time', profile, tt.leg_count, d)
+            yield ('time', tt, tt.leg_count, d)
         else:
             assert state == 'ongoing' and tt.leg_count < 5
-            yield ('started', profile)
+            yield ('started', tt)
         if state == 'done':
             if tt.residue != None:  # noqa
-                yield ('residue', profile, tt.residue)
+                yield ('residue', tt, tt.residue)
             if tt.comment:
-                yield ('comment', profile, tt.comment)
+                yield ('comment', tt, tt.comment)
 
     def info(self):
         for profile_id, (state, tt) in self.iterprofiles():
-            for x in self.profile_info(tt.profile, state, tt):
+            for x in self.profile_info(state, tt):
                 yield x
 
 
@@ -204,16 +205,17 @@ def describe_info(current_events, new_info):
 
     texts = []
     all_profiles = []
-    started_profiles = []
+    started = []
     for key in 'time dnf residue comment started upcoming'.split():
         try:
             values = groups[key]
         except KeyError:
             continue
-        profiles = [x[0] for x in values]
+        tts = [x[0] for x in values]
+        profiles = [tt.profile for tt in tts]
         all_profiles += profiles
         if key == 'started':
-            started_profiles += profiles
+            started += tts
         if ('%s1' % key) in tpl:
             t = tpl['%s1' % key]
             parts = []
@@ -227,15 +229,12 @@ def describe_info(current_events, new_info):
                 texts.append(tpl[key] % v)
 
     all_profiles = set(all_profiles)
-    if len(started_profiles) == 1:
-        p = started_profiles[0].id
-        tt = current_events.profiles()[p][1]
+    if len(started) == 1:
+        tt = started[0]
         texts.append('http://tket.dk/5/%d' % tt.id)
-    elif len(started_profiles) > 1:
-        ps = current_events.profiles()
-        for p in started_profiles:
-            tt = ps[p.id][1]
-            texts.append('%s: http://tket.dk/5/%d' % (p, tt.id))
+    elif len(started) > 1:
+        for tt in started:
+            texts.append('%s: http://tket.dk/5/%d' % (tt.profile, tt.id))
     elif len(all_profiles) == 1:
         p = list(all_profiles)[0].id
         tt = current_events.profiles()[p][1]
@@ -254,7 +253,7 @@ def filter_info_set(info):
     return info
 
 
-def update_report(previous_report, current_events, save=True):
+def update_report(delivery, state, current_events):
     """
     Given the most recent report and the latest CurrentEvents,
     return a tuple (new_report, report_action)
@@ -266,33 +265,43 @@ def update_report(previous_report, current_events, save=True):
     indicating that we should start a new report,
     edit Post p, comment on Post p, or do nothing.
 
-    previous_report is a list of posts, each of which
-    is a set of profiles and a list of infos.
+    state is a list of (post, p, i) tuples,
+    where post is a post, p is a set of profiles, and i is a set of info.
     """
 
-    if previous_report is None:
-        previous_report = dict(), None, CurrentEvents([], [], [])
-    prev_posts, prev_events = previous_report
+    if state is None:
+        state = []
 
-    profiles = {
-        profile.id: post
-        for post in previous_posts
-        for profile in post.profiles.all()
+    try:
+        upcoming_post = next(
+            post
+            for post, profiles, infos in state
+            if all(i[0] == 'upcoming' for i in infos)
+        )
+    except StopIteration:
+        upcoming_post = None
+
+    prev_info = set(i for post, profiles, infos in state
+                      for i in infos)
+    profile_posts = {
+        profile: post
+        for post, profiles, infos in state
+        for profile in profiles
     }
 
     cur_info = filter_info_set(set(current_events.info()))
-    cur_profiles = set(x[1].id for x in cur_info)
-    prev_info = filter_info_set(set(previous_events.info()))
-    prev_upcoming = set(i[1] for i in prev_info if i[0] == 'upcoming')
-    prev_only_upcoming = all(i[0] == 'upcoming' for i in prev_info)
+    cur_profiles = set(x[1] for x in cur_info)
     new_info = sorted(cur_info - prev_info)
-    new_profiles = set(x[1].id for x in cur_info) - set(profiles.keys())
-    if prev_upcoming:
-        post = profiles[next(iter(prev_upcoming)).id]
-    else:
-        post = None
-    for profile in new_profiles:
-        profiles.setdefault(profile.id, post)
+    new_profiles = set(x[1] for x in cur_info) - set(profile_posts.keys())
+    new_post_info = dict()  # map from post (or None) to non-empty list of info
+    for i in new_info:
+        tt = i[1]
+        post = profile_posts.get(tt.profile)
+        new_post_info.setdefault(post, []).append(i)
+
+    result = []
+    for post, infos in new_post_info.items():
+        a
 
     new_posts = []
     edits = dict()

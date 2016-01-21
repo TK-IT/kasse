@@ -44,5 +44,13 @@ def main():
         time.sleep(15)
 
 
+class FacebookDelivery(object):
+    def new_post(self, text):
+        return new_post(text)
+
+    def comment_on_post(self, post, text):
+        return comment_on_post(post, text)
+
+
 if __name__ == "__main__":
     main()
