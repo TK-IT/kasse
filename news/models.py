@@ -1,4 +1,8 @@
+import sys
+
+
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 
 from kasse.models import Profile
@@ -34,14 +38,30 @@ class Config(models.Model):
     page_access_token = models.TextField(blank=True)
 
 
+@python_2_unicode_compatible
 class Post(models.Model):
     post_time = models.DateTimeField(auto_now_add=True)
     fbid = models.CharField(max_length=50)
     text = models.TextField(blank=True)
 
+    def __str__(self):
+        try:
+            page_id, post_id = self.fbid.split('_')
+            return 'http://fb.com/%s/posts/%s' % (page_id, post_id)
+        except:
+            return '<Post %r>' % (sys.exc_info()[1],)
 
+
+@python_2_unicode_compatible
 class Comment(models.Model):
     post = models.ForeignKey(Post)
     post_time = models.DateTimeField(auto_now_add=True)
     fbid = models.CharField(max_length=50)
     text = models.TextField(blank=True)
+
+    def __str__(self):
+        try:
+            post_id, comment_id = self.fbid.split('_')
+            return '%s?comment_id=%s' % (self.post, comment_id)
+        except:
+            return '<Comment %r>' % (sys.exc_info()[1],)
