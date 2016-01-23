@@ -10,58 +10,9 @@ from django.utils import timezone
 
 from kasse.templatetags.kasse_extras import display_duration_plain
 
-from stopwatch.models import TimeTrial
 
-
-CurrentEventsBase = collections.namedtuple(
-    'CurrentEvents', 'done ongoing upcoming'.split())
-
-
-@python_2_unicode_compatible
-class CurrentEvents(CurrentEventsBase):
-    def __str__(self):
-        return "CurrentEvents(done=%s, ongoing=%s, upcoming=%s)" % tuple(
-            "[%s]" % ', '.join("(%s, %s)" % x for x in y)
-            for y in (self.done, self.ongoing, self.upcoming))
-
-    def iterprofiles(self):
-        for field in 'done ongoing upcoming'.split():
-            for profile_id, tt in getattr(self, field):
-                yield (profile_id, (field, tt))
-
-    def profiles(self):
-        try:
-            return self._profiles
-        except AttributeError:
-            self._profiles = dict(self.iterprofiles())
-            return self._profiles
-
-    def profile_info(self, state, tt):
-        if state == 'upcoming':
-            yield ('upcoming', tt)
-            return
-        if state == 'done':
-            d = display_duration_plain(tt.duration)
-            if tt.result == 'f':
-                yield ('time', tt, tt.leg_count, d)
-            elif tt.result == 'dnf':
-                yield ('dnf', tt, tt.leg_count, d)
-        elif state == 'ongoing' and tt.leg_count >= 5:
-            d = display_duration_plain(tt.duration)
-            yield ('time', tt, tt.leg_count, d)
-        else:
-            assert state == 'ongoing' and tt.leg_count < 5
-            yield ('started', tt)
-        if state == 'done':
-            if tt.residue != None:  # noqa
-                yield ('residue', tt, tt.residue)
-            if tt.comment:
-                yield ('comment', tt, tt.comment)
-
-    def info(self):
-        for profile_id, (state, tt) in self.iterprofiles():
-            for x in self.profile_info(state, tt):
-                yield x
+def frozendict(**kwargs):
+    return collections.namedtuple('frozendict', kwargs.keys())(**kwargs)
 
 
 @python_2_unicode_compatible
@@ -87,39 +38,16 @@ def timetrial_tiebreaker(tt):
     )
 
 
-def info_tiebreaker(info):
-    """Tie breaker for info regarding the same profile:
-    lower means more relevant/recent.
-    Falsy means don't report."""
-
-    prio = 'dnf time started upcoming'.split()
-    try:
-        return 1 + prio.index(info[0])
-    except ValueError:
-        return None
-
-
-def info_tiebreak_filter(infos):
-    def key(i):
-        return i[1].profile
-
-    return set(
-        min(g, key=info_tiebreaker)
-        for profile, g in itertools.groupby(sorted(infos, key=key), key=key)
-    )
-
-
-def split(f, s):
-    t = set(filter(f, s))
-    return t, s - t
-
-
 def get_current_events(qs, now=None):
-    """
+    """Get a list of the recently active TimeTrials.
+
     Only consider TimeTrials that have been created within the last hour.
 
-    The current events are represented by a dict, mapping Profile pk
-    to an event description.
+    If two TimeTrials are recently active for the same profile,
+    decide which to use based on timetrial_tiebreaker.
+
+    If there was activity within the last moment, raise TryAgainShortly
+    indicating how long to wait before reporting anything.
     """
 
     if now is None:
@@ -133,49 +61,54 @@ def get_current_events(qs, now=None):
     qs = qs.order_by('profile_id')
     qs_groups = itertools.groupby(qs, key=lambda tt: tt.profile_id)
 
-    done = []
-    ongoing = []
-    upcoming = []
+    last_modified = now - hour
+
+    timetrials = []
     for profile_id, tts in qs_groups:
         tt = max(tts, key=timetrial_tiebreaker)
 
         if tt.result != '':
-            done.append((profile_id, tt))
+            pass
         elif tt.start_time != None and tt.state != 'initial':  # noqa
-            ongoing.append((profile_id, tt))
+            last_modified = max(last_modified, tt.start_time)
         else:
-            upcoming.append((profile_id, tt))
+            last_modified = max(last_modified, tt.created_time)
+        timetrials.append(tt)
 
-    grace_period = 0
+    age = (now - last_modified).total_seconds()
+    grace_seconds = 5
+    if age < grace_seconds:
+        raise TryAgainShortly(grace_seconds - age)
+    return timetrials
 
-    if ongoing:
-        ages = [
-            (now - tt2.start_time).total_seconds()
-            for _profile, tt2 in ongoing
-        ]
-        t = min(ages)
-        grace_seconds = 5
-        if t < grace_seconds:
-            # A TimeTrial started within the last 5 seconds
-            # It is unclear if the upcoming events are also starting now
-            grace_period = max(grace_period, grace_seconds - t)
-    if upcoming:
-        ages = [
-            (now - tt2.created_time).total_seconds()
-            for _profile, tt2 in upcoming
-        ]
-        t = min(ages)
-        grace_seconds = 5
-        if t < grace_seconds:
-            # A TimeTrial was created within the last 5 seconds
-            # It is unclear if other events are upcoming
-            grace_period = max(grace_period, grace_seconds - t)
 
-    if grace_period > 0:
-        raise TryAgainShortly(grace_period)
+def get_timetrial_state(tt):
+    if tt.result == '':
+        if tt.state == 'initial' or tt.start_time == None:  # noqa
+            return 'upcoming', frozendict()
+        elif tt.leg_count >= 5:
+            d = display_duration_plain(tt.duration)
+            return 'time', frozendict(leg_count=tt.leg_count, time=d)
+        else:
+            return 'started', frozendict()
+    else:
+        d = display_duration_plain(tt.duration)
+        args = frozendict(leg_count=tt.leg_count, time=d)
+        if tt.result == 'f':
+            return 'time', args
+        elif tt.result == 'dnf':
+            return 'dnf', args
 
-    res = CurrentEvents(done, ongoing, upcoming)
-    return res
+
+def iter_timetrial_comments(tt):
+    if tt.result != '' and tt.residue != None:  # noqa
+        yield ('residue', frozendict(residue=tt.residue))
+    if tt.result != '' and tt.comment:
+        yield ('comment', frozendict(comment=tt.comment))
+
+
+def get_timetrial_comments(tt):
+    return frozenset(iter_timetrial_comments(tt))
 
 
 def join_names(profiles):
@@ -203,73 +136,67 @@ def join_parts(sentences, ucfirst):
     return s + '.'
 
 
-def describe_info(new_info):
-    """Given a list of info as defined by CurrentEvents,
+def describe_timetrial_state(profiles):
+    """Given a dict of {profile: (st, args)},
+    with (st, args) reported by get_timetrial_state,
     return a text describing the info without a "read more" URL."""
 
-    groups = [('', [])]
-    for x in new_info:
-        if x[0] == groups[-1][0]:
-            groups[-1][1].append(x[1:])
-        else:
-            groups.append((x[0], [x[1:]]))
-    groups = groups[1:]  # Remove sentinel
-    groups = dict(groups)
+    groups = {}
+    for profile, (st, args) in profiles.items():
+        groups.setdefault(st, []).append((profile, args))
 
     tpl = {
         'upcoming+': '%s gør klar til at tage øl på tid.',
         'started+': '%s er begyndt at drikke!',
         'continues+': '%s er i gang med at drikke øl på tid.',
-        'time1': 'tiden for %s blev %s øl på %s',
-        'dnf': '%s lavede en DNF: %s øl på %s.',
-        'residue1': '%ss rest var %g cL',
-        'comment': '%ss kommentar: "%s".',
+        'time1': '%(profile)s har drukket %(leg_count)s øl på %(time)s',
+        'dnf':
+        '%(profile)s har lavet en DNF efter %(leg_count)s øl på %(time)s.',
     }
 
     texts = []
-    started = []
-    for key in 'time dnf residue comment started upcoming'.split():
+    for key in 'time dnf started upcoming'.split():
         try:
             values = groups[key]
         except KeyError:
             continue
-        values.sort(key=lambda v: v[0].profile.id)
-        tts = [v[0] for v in values]
-        profiles = [tt.profile for tt in tts]
-        values = [(v[0].profile,) + tuple(v[1:]) for v in values]
-        if key == 'started':
-            started += tts
+        values.sort(key=lambda v: v[0].id)
+        profiles = [profile for profile, args in values]
+        values = [(v[0],) + tuple(v[1:]) for v in values]
         if key == 'started' and ('time' in groups or 'dnf' in groups):
             key = 'continues'
         if ('%s1' % key) in tpl:
             t = tpl['%s1' % key]
             parts = []
             for v in values:
-                parts.append(t % v)
+                parts.append(t % dict(profile=v[0], **v[1]._asdict()))
             texts.append(join_parts(parts, ucfirst=(t[0] != '%')))
         elif ('%s+' % key) in tpl:
             texts.append(tpl['%s+' % key] % join_names(profiles))
         elif key in tpl:
             for v in values:
-                texts.append(tpl[key] % v)
+                texts.append(tpl[key] % dict(profile=v[0], **v[1]._asdict()))
 
     return '\n'.join(texts)
 
 
-def info_links(new_info):
-    pks = [i[1].id for i in new_info]
-    pks = sorted(set(pks))
+def comment_to_string(profile, comment):
+    kind, args = comment
+    tpl = {
+        'residue': '%(profile)ss rest var %(residue)g cL.',
+        'comment': '%(profile)ss kommentar: "%(comment)s".',
+    }
+    return tpl[kind] % dict(profile=profile, **args._asdict())
+
+
+def info_links(profiles):
+    pks = sorted(
+        tt.id
+        for profile, (tt, state, comments) in profiles.items()
+    )
     return (
         'Følg med: %s' %
         ', '.join('http://tket.dk/5/%d' % i for i in pks))
-
-
-def filter_info_set(info):
-    if len(info) == 1:
-        i = list(info)[0]
-        if i[0] == 'upcoming':
-            return set()
-    return info
 
 
 def update_report(delivery, state, current_events):
@@ -277,8 +204,10 @@ def update_report(delivery, state, current_events):
     Given a delivery agent, a state, and the latest CurrentEvents,
     report to the delivery agent and return the new state.
 
-    state is a dict of {post: (p, i)},
-    where post is a post, p is a set of profiles, and i is a set of info.
+    state is a dict of {post: {profile: (tt, state, comments)}},
+    where post is a post, profile is a profile, tt is a TimeTrial,
+    state is a state as reported by get_timetrial_state, comments
+    is a set of comments as reported by get_timetrial_comments.
     """
 
     if state is None:
@@ -287,43 +216,63 @@ def update_report(delivery, state, current_events):
     try:
         upcoming_post = next(
             post
-            for post, (profiles, infos) in state.items()
-            if all(i[0] == 'upcoming' for i in infos)
+            for post, profiles in state.items()
+            if all(state[0] == 'upcoming'
+                   for profile, (tt, state, comments) in profiles.items())
         )
     except StopIteration:
         upcoming_post = None
 
     profile_posts = {
         profile: post
-        for post, (profiles, infos) in state.items()
-        for profile in profiles
+        for post, profiles in state.items()
+        for profile in profiles.keys()
     }
 
     new_state = dict()
-    for i in current_events.info():
-        profile = i[1].profile
+    for tt in current_events:
+        profile = tt.profile
         k = profile_posts.get(profile, upcoming_post)
-        new_state.setdefault(k, (set(), set()))
-        new_state[k][0].add(profile)
-        new_state[k][1].add(i)
+        if k not in new_state:
+            new_state[k] = {
+                profile: stuff
+                for profile, stuff in state.get(k, dict()).items()
+            }
+        new_state[k][profile] = (
+            tt, get_timetrial_state(tt), get_timetrial_comments(tt))
 
     the_new_post = None
 
-    for post, (profiles, infos) in new_state.items():
-        prev_profiles, prev_infos = state.get(post, (set(), set()))
+    def get_post_comments(profiles):
+        return set(
+            (profile, comment)
+            for profile, (tt, state, comments) in profiles.items()
+            for comment in comments
+        )
 
-        if post is None:
-            if not filter_info_set(infos):
+    def get_post_state(profiles):
+        return {
+            profile: state
+            for profile, (tt, state, comments) in profiles.items()
+        }
+
+    for post, profiles in new_state.items():
+        if post is None and len(profiles) == 1:
+            (tt, state_, comments), = profiles.values()
+            if state_[0] == 'upcoming':
+                # Only a single upcoming TimeTrial -- don't create this post
                 continue
 
-        post_info, comment_info = split(info_tiebreaker, infos)
-        post_info = info_tiebreak_filter(post_info)
-        p_post_info, p_comment_info = split(info_tiebreaker, prev_infos)
-        p_post_info = info_tiebreak_filter(p_post_info)
-        if post_info - p_post_info:
-            post_info = info_tiebreak_filter(post_info)
-            post_text = describe_info(post_info)
-            post_links = info_links(post_info)
+        prev_profiles = state.get(post, dict())
+        prev_comments = get_post_comments(prev_profiles)
+        cur_comments = get_post_comments(profiles)
+        new_comments = cur_comments - prev_comments
+
+        prev_post_state = get_post_state(prev_profiles)
+        cur_post_state = get_post_state(profiles)
+        if prev_post_state != cur_post_state:
+            post_text = describe_timetrial_state(cur_post_state)
+            post_links = info_links(profiles)
             if post_links:
                 post_text += '\n' + post_links
 
@@ -331,9 +280,11 @@ def update_report(delivery, state, current_events):
                 the_new_post = delivery.new_post(post_text)
             else:
                 delivery.edit_post(post, post_text)
-        new_comments = comment_info - p_comment_info
+
         if new_comments:
-            comment_text = describe_info(new_comments)
+            comment_text = '\n'.join(
+                comment_to_string(profile, comment)
+                for profile, comment in new_comments)
             delivery.comment_on_post(post, comment_text)
 
     if the_new_post is not None:
