@@ -48,6 +48,8 @@ def get_current_events(qs, now=None):
 
     If there was activity within the last moment, raise TryAgainShortly
     indicating how long to wait before reporting anything.
+
+    The queryset may be a Django QuerySet or a news.test.PastTimeTrialQuerySet.
     """
 
     if now is None:
@@ -83,6 +85,8 @@ def get_current_events(qs, now=None):
 
 
 def get_timetrial_state(tt):
+    """Returns a tuple (kind, args) indicating what to report."""
+
     if tt.result == '':
         if tt.state == 'initial' or tt.start_time == None:  # noqa
             return 'upcoming', frozendict()
@@ -211,6 +215,17 @@ def update_report(delivery, state, current_events):
     where post is a post, profile is a profile, tt is a TimeTrial,
     state is a state as reported by get_timetrial_state, comments
     is a set of comments as reported by get_timetrial_comments.
+
+    The delivery agent must support the three methods:
+    - new_post(text), returning a post object
+    - comment_on_post(post, text), returning a comment object
+    - edit_post(text)
+    where the post objects and comment objects may be of any hashable type
+    (this function treats them as opaque objects).
+    See implementations news.daemon.FacebookDelivery
+    and news.test.TestDelivery.
+
+    The calling function should treat the state returned opaquely.
     """
 
     if state is None:
