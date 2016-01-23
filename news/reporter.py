@@ -6,6 +6,7 @@ import itertools
 import collections
 
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils import timezone
 
 from kasse.templatetags.kasse_extras import display_duration_plain
 
@@ -122,15 +123,7 @@ def get_current_events(qs, now=None):
     """
 
     if now is None:
-        now = datetime.datetime.utcnow()
-
-    # Hack to ensure that we are not mixing naive and aware datetimes
-    tt_ = TimeTrial.objects.filter(start_time__isnull=False)[0]
-    if tt_.start_time.tzinfo != now.tzinfo:
-        # Assert that the database is in UTC
-        assert ('%s' % (tt_.start_time.tzinfo,)) == '<UTC>'
-        # Assume that any argument 'now' was a naive UTC datetime
-        now = now.replace(tzinfo=tt_.start_time.tzinfo)
+        now = timezone.now()
 
     hour = datetime.timedelta(hours=1)
     qs = qs.exclude(result='f', state='initial')
