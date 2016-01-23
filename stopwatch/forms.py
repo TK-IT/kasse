@@ -81,7 +81,7 @@ class StopwatchForm(forms.Form):
     CHOICES = (
         ('f', 'Gyldig'),
         ('dnf', 'DNF'),
-        ('irr', 'Ugyldig/diskvalificeret'),  # not accepted / irregular result
+        ('irr', 'Ugyldig/uregelmæssig'),  # not accepted / irregular result
     )
 
     start_time = forms.FloatField()
