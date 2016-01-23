@@ -5,6 +5,7 @@ from __future__ import (
 import os
 import sys
 import codecs
+import logging
 import argparse
 import datetime
 import itertools
@@ -23,31 +24,18 @@ from news.reporter import (  # noqa
 
 class TestDelivery(object):
     def __init__(self):
-        self.i = 0
-        self.fp = None
-        self.now = None
+        self.comment_count = []
 
     def new_post(self, text):
-        self.i += 1
-        self.my_print((' Post %d: %s ' % (self. i, self.now)).center(79, '='))
-        self.my_print(text)
-        return self.i
+        self.comment_count.append(0)
+        return len(self.comment_count)
 
     def comment_on_post(self, post, text):
-        self.my_print("Comment on %d:" % post)
-        self.my_print(text)
-        return ()
+        self.comment_count[post - 1] += 1
+        return (post, self.comment_count[post - 1])
 
     def edit_post(self, post, text):
-        self.my_print("Edit %d to say:" % post)
-        self.my_print(text)
-
-    def my_print(self, text):
-        print(text)
-        sys.stdout.flush()
-        if self.fp:
-            print(text, file=self.fp)
-            self.fp.flush()
+        pass
 
 
 class PastTimeTrialQuerySet:
@@ -93,27 +81,31 @@ class PastTimeTrialQuerySet:
             yield res
 
 
+def get_logger(output):
+    logger = logging.getLogger('news.test')
+    handlers = []
+    handlers.append(logging.StreamHandler(None))
+    if output:
+        handlers.append(logging.FileHandler(output, 'a'))
+    fmt = '[%(asctime)s %(levelname)s] %(message)s'
+    datefmt = None
+    formatter = logging.Formatter(fmt, datefmt)
+    for handler in handlers:
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+    return logger
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', '-o')
     args = parser.parse_args()
 
     delivery = TestDelivery()
+    logger = get_logger(args.output)
 
-    if args.output:
-        fp = codecs.open(args.output, 'wb', encoding='utf8')
-        delivery.fp = fp
-
-        def my_print(s):
-            print(s)
-            sys.stdout.flush()
-            print(s, file=fp)
-            fp.flush()
-
-    else:
-        def my_print(s):
-            print(s)
-            sys.stdout.flush()
+    my_print = logger.info
 
     created_times = TimeTrial.objects.filter(
         created_time__gte=datetime.date(2016, 1, 19))
@@ -123,7 +115,7 @@ def main():
         min(t)
         for _, t in itertools.groupby(created_times, key=lambda dt: dt.date())
     ]
-    my_print(created_times)
+    my_print("%s", created_times)
     sec = datetime.timedelta(seconds=1)
     state = None
     for t in created_times:
@@ -135,9 +127,9 @@ def main():
             delivery.now = t
             try:
                 events = get_current_events(qs, t)
-                state = update_report(delivery, state, events)
+                state = update_report(delivery, state, events, logger)
             except TryAgainShortly as e:
-                my_print("%s: %s" % (t, e))
+                my_print("%s: %s", t, e)
                 t += datetime.timedelta(seconds=e.suggested_wait + 1)
                 continue
             t += 15 * sec

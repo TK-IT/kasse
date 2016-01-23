@@ -25,12 +25,12 @@ def main():
     delivery = FacebookDelivery()
     events = get_current_events(qs)
     state = None
-    state = update_report(delivery, state, events)
+    state = update_report(delivery, state, events, logger)
 
     while True:
         try:
             events = get_current_events(qs.all())
-            state = update_report(delivery, state, events)
+            state = update_report(delivery, state, events, logger)
         except TryAgainShortly as e:
             logger.debug("Try again in %s", e.suggested_wait)
             time.sleep(e.suggested_wait)

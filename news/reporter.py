@@ -206,7 +206,7 @@ def info_links(profiles):
         ', '.join('http://tket.dk/5/%d' % i for i in pks))
 
 
-def update_report(delivery, state, current_events):
+def update_report(delivery, state, current_events, logger):
     """
     Given a delivery agent, a state, and the latest CurrentEvents,
     report to the delivery agent and return the new state.
@@ -274,6 +274,12 @@ def update_report(delivery, state, current_events):
             for profile, (tt, state, comments) in profiles.items()
         }
 
+    def post_state_repr(post_state):
+        return "dict(%s)" % ', '.join(
+            '%d=%r' % (profile.id, stuff)
+            for profile, stuff in post_state.items()
+        )
+
     for post, profiles in new_state.items():
         if post is None and len(profiles) == 1:
             (tt, state_, comments), = profiles.values()
@@ -284,7 +290,7 @@ def update_report(delivery, state, current_events):
         prev_profiles = state.get(post, dict())
         prev_comments = get_post_comments(prev_profiles)
         cur_comments = get_post_comments(profiles)
-        new_comments = cur_comments - prev_comments
+        new_comments = sorted(cur_comments - prev_comments)
 
         prev_post_state = get_post_state(prev_profiles)
         cur_post_state = get_post_state(profiles)
@@ -296,14 +302,21 @@ def update_report(delivery, state, current_events):
 
             if post is None:
                 the_new_post = delivery.new_post(post_text)
+                logger.info(
+                    "New post %s: %s",
+                    the_new_post, post_state_repr(cur_post_state))
             else:
                 delivery.edit_post(post, post_text)
+                logger.info(
+                    "Edit post %s: %s",
+                    post, post_state_repr(cur_post_state))
 
         if new_comments:
             comment_text = '\n'.join(
                 comment_to_string(profile, comment)
                 for profile, comment in new_comments)
-            delivery.comment_on_post(post, comment_text)
+            comment = delivery.comment_on_post(post, comment_text)
+            logger.info("Comment %s: %r", comment, new_comments)
 
     if the_new_post is not None:
         new_state[the_new_post] = new_state.pop(None)
