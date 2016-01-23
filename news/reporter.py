@@ -35,31 +35,31 @@ class CurrentEvents(CurrentEventsBase):
             self._profiles = dict(self.iterprofiles())
             return self._profiles
 
-    def profile_info(self, profile, state, tt):
+    def profile_info(self, state, tt):
         if state == 'upcoming':
-            yield ('upcoming', profile)
+            yield ('upcoming', tt)
             return
         if state == 'done':
             d = display_duration_plain(tt.duration)
             if tt.result == 'f':
-                yield ('time', profile, tt.leg_count, d)
+                yield ('time', tt, tt.leg_count, d)
             elif tt.result == 'dnf':
-                yield ('dnf', profile, tt.leg_count, d)
+                yield ('dnf', tt, tt.leg_count, d)
         elif state == 'ongoing' and tt.leg_count >= 5:
             d = display_duration_plain(tt.duration)
-            yield ('time', profile, tt.leg_count, d)
+            yield ('time', tt, tt.leg_count, d)
         else:
             assert state == 'ongoing' and tt.leg_count < 5
-            yield ('started', profile)
+            yield ('started', tt)
         if state == 'done':
             if tt.residue != None:  # noqa
-                yield ('residue', profile, tt.residue)
+                yield ('residue', tt, tt.residue)
             if tt.comment:
-                yield ('comment', profile, tt.comment)
+                yield ('comment', tt, tt.comment)
 
     def info(self):
         for profile_id, (state, tt) in self.iterprofiles():
-            for x in self.profile_info(tt.profile, state, tt):
+            for x in self.profile_info(state, tt):
                 yield x
 
 
@@ -86,6 +86,33 @@ def timetrial_tiebreaker(tt):
     )
 
 
+def info_tiebreaker(info):
+    """Tie breaker for info regarding the same profile:
+    lower means more relevant/recent.
+    Falsy means don't report."""
+
+    prio = 'dnf time started upcoming'.split()
+    try:
+        return 1 + prio.index(info[0])
+    except ValueError:
+        return None
+
+
+def info_tiebreak_filter(infos):
+    def key(i):
+        return i[1].profile
+
+    return set(
+        min(g, key=info_tiebreaker)
+        for profile, g in itertools.groupby(sorted(infos, key=key), key=key)
+    )
+
+
+def split(f, s):
+    t = set(filter(f, s))
+    return t, s - t
+
+
 def get_current_events(qs, now=None):
     """
     Only consider TimeTrials that have been created within the last hour.
@@ -101,7 +128,7 @@ def get_current_events(qs, now=None):
     tt_ = TimeTrial.objects.filter(start_time__isnull=False)[0]
     if tt_.start_time.tzinfo != now.tzinfo:
         # Assert that the database is in UTC
-        assert unicode(tt_.start_time.tzinfo) == '<UTC>'
+        assert ('%s' % (tt_.start_time.tzinfo,)) == '<UTC>'
         # Assume that any argument 'now' was a naive UTC datetime
         now = now.replace(tzinfo=tt_.start_time.tzinfo)
 
@@ -162,10 +189,10 @@ def join_names(profiles):
     if not profiles:
         return 'Ingen'
     if len(profiles) == 1:
-        return unicode(profiles[0])
+        return '%s' % (profiles[0],)
     else:
         return '%s og %s' % (
-            ', '.join(map(unicode, profiles[:-1])), profiles[-1])
+            ', '.join('%s' % (p,) for p in profiles[:-1]), profiles[-1])
 
 
 def join_parts(sentences, ucfirst):
@@ -183,7 +210,10 @@ def join_parts(sentences, ucfirst):
     return s + '.'
 
 
-def describe_info(current_events, new_info):
+def describe_info(new_info):
+    """Given a list of info as defined by CurrentEvents,
+    return a text describing the info without a "read more" URL."""
+
     groups = [('', [])]
     for x in new_info:
         if x[0] == groups[-1][0]:
@@ -196,24 +226,28 @@ def describe_info(current_events, new_info):
     tpl = {
         'upcoming+': '%s gør klar til at tage øl på tid.',
         'started+': '%s er begyndt at drikke!',
+        'continues+': '%s er i gang med at drikke øl på tid.',
         'time1': 'tiden for %s blev %s øl på %s',
         'dnf': '%s lavede en DNF: %s øl på %s.',
-        'residue1': '%ss rest var %s cL',
+        'residue1': '%ss rest var %g cL',
         'comment': '%ss kommentar: "%s".',
     }
 
     texts = []
-    all_profiles = []
-    started_profiles = []
+    started = []
     for key in 'time dnf residue comment started upcoming'.split():
         try:
             values = groups[key]
         except KeyError:
             continue
-        profiles = [x[0] for x in values]
-        all_profiles += profiles
+        values.sort(key=lambda v: v[0].profile.id)
+        tts = [v[0] for v in values]
+        profiles = [tt.profile for tt in tts]
+        values = [(v[0].profile,) + tuple(v[1:]) for v in values]
         if key == 'started':
-            started_profiles += profiles
+            started += tts
+        if key == 'started' and ('time' in groups or 'dnf' in groups):
+            key = 'continues'
         if ('%s1' % key) in tpl:
             t = tpl['%s1' % key]
             parts = []
@@ -226,24 +260,15 @@ def describe_info(current_events, new_info):
             for v in values:
                 texts.append(tpl[key] % v)
 
-    all_profiles = set(all_profiles)
-    if len(started_profiles) == 1:
-        p = started_profiles[0].id
-        tt = current_events.profiles()[p][1]
-        texts.append('http://tket.dk/5/%d' % tt.id)
-    elif len(started_profiles) > 1:
-        ps = current_events.profiles()
-        for p in started_profiles:
-            tt = ps[p.id][1]
-            texts.append('%s: http://tket.dk/5/%d' % (p, tt.id))
-    elif len(all_profiles) == 1:
-        p = list(all_profiles)[0].id
-        tt = current_events.profiles()[p][1]
-        texts.append('http://tket.dk/5/%d' % tt.id)
-    else:
-        texts.append('http://enkasseienfestforening.dk')
-
     return '\n'.join(texts)
+
+
+def info_links(new_info):
+    pks = [i[1].id for i in new_info]
+    pks = sorted(set(pks))
+    return (
+        'Følg med: %s' %
+        ', '.join('http://tket.dk/5/%d' % i for i in pks))
 
 
 def filter_info_set(info):
@@ -254,34 +279,72 @@ def filter_info_set(info):
     return info
 
 
-def update_report(previous_report, current_events):
+def update_report(delivery, state, current_events):
     """
-    Given the most recent report and the latest CurrentEvents,
-    return a tuple (new_report, report_action)
-    indicating the new "most recent report" and
-    what reporting action should be taken.
+    Given a delivery agent, a state, and the latest CurrentEvents,
+    report to the delivery agent and return the new state.
 
-    report_action will be either ("new", t), ("edit", t), ("comment", t)
-    or None, indicating that we should start a new report,
-    edit the latest report, comment on the latest report,
-    or do nothing.
+    state is a dict of {post: (p, i)},
+    where post is a post, p is a set of profiles, and i is a set of info.
     """
 
-    if previous_report is None:
-        previous_report = CurrentEvents([], [], [])
+    if state is None:
+        state = dict()
 
-    cur_info = filter_info_set(set(current_events.info()))
-    cur_profiles = set(x[1].id for x in cur_info)
-    prev_info = filter_info_set(set(previous_report.info()))
-    prev_profiles = set(x[1].id for x in prev_info)
-    prev_only_upcoming = all(i[0] == 'upcoming' for i in prev_info)
-    new_info = sorted(cur_info - prev_info)
-    new_profiles = set(x[1].id for x in new_info)
-    same_profiles = new_profiles & prev_profiles
-    if not new_info:
-        return current_events, None
-    text = describe_info(current_events, new_info)
-    if same_profiles or (prev_info and prev_only_upcoming):
-        return current_events, ('comment', text)
+    try:
+        upcoming_post = next(
+            post
+            for post, (profiles, infos) in state.items()
+            if all(i[0] == 'upcoming' for i in infos)
+        )
+    except StopIteration:
+        upcoming_post = None
+
+    profile_posts = {
+        profile: post
+        for post, (profiles, infos) in state.items()
+        for profile in profiles
+    }
+
+    new_state = dict()
+    for i in current_events.info():
+        profile = i[1].profile
+        k = profile_posts.get(profile, upcoming_post)
+        new_state.setdefault(k, (set(), set()))
+        new_state[k][0].add(profile)
+        new_state[k][1].add(i)
+
+    the_new_post = None
+
+    for post, (profiles, infos) in new_state.items():
+        prev_profiles, prev_infos = state.get(post, (set(), set()))
+
+        if post is None:
+            if not filter_info_set(infos):
+                continue
+
+        post_info, comment_info = split(info_tiebreaker, infos)
+        post_info = info_tiebreak_filter(post_info)
+        p_post_info, p_comment_info = split(info_tiebreaker, prev_infos)
+        p_post_info = info_tiebreak_filter(p_post_info)
+        if post_info - p_post_info:
+            post_info = info_tiebreak_filter(post_info)
+            post_text = describe_info(post_info)
+            post_links = info_links(post_info)
+            if post_links:
+                post_text += '\n' + post_links
+
+            if post is None:
+                the_new_post = delivery.new_post(post_text)
+            else:
+                delivery.edit_post(post, post_text)
+        new_comments = comment_info - p_comment_info
+        if new_comments:
+            comment_text = describe_info(new_comments)
+            delivery.comment_on_post(post, comment_text)
+
+    if the_new_post is not None:
+        new_state[the_new_post] = new_state.pop(None)
     else:
-        return current_events, ('new', text)
+        new_state.pop(None, None)
+    return new_state

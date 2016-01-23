@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 from stopwatch.models import TimeTrial
 from news.reporter import TryAgainShortly, get_current_events, update_report
-from news.facebook import new_post, comment_on_latest_post
+from news.facebook import new_post, comment_on_post, edit_post
 
 
 logger = logging.getLogger('news')
@@ -22,25 +22,31 @@ logger = logging.getLogger('news')
 
 def main():
     qs = TimeTrial.objects.all()
+    delivery = FacebookDelivery()
     events = get_current_events(qs)
-    report, action = update_report(None, events)
+    state = None
+    state = update_report(delivery, state, events)
 
     while True:
         try:
             events = get_current_events(qs.all())
-            report, action = update_report(report, events)
+            state = update_report(delivery, state, events)
         except TryAgainShortly as e:
             logger.debug("Try again in %s", e.suggested_wait)
             time.sleep(e.suggested_wait)
             continue
-        if action is not None:
-            action, text = action
-            if action == 'new':
-                p = new_post(text)
-            elif action == 'comment':
-                p = comment_on_latest_post(text)
-            logger.debug("Posted to Facebook: %s", p)
         time.sleep(15)
+
+
+class FacebookDelivery(object):
+    def new_post(self, text):
+        return new_post(text)
+
+    def comment_on_post(self, post, text):
+        return comment_on_post(post, text)
+
+    def edit_post(self, post, text):
+        edit_post(post, text)
 
 
 if __name__ == "__main__":

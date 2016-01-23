@@ -1,5 +1,6 @@
 # vim: set fileencoding=utf8:
-from __future__ import absolute_import, unicode_literals, division, print_function
+from __future__ import (
+    absolute_import, unicode_literals, division, print_function)
 
 import os
 import sys
@@ -15,8 +16,38 @@ if __name__ == "__main__":
 
     django.setup()
 
-from stopwatch.models import TimeTrial
-from news.reporter import TryAgainShortly, get_current_events, update_report
+from stopwatch.models import TimeTrial  # noqa
+from news.reporter import (  # noqa
+    TryAgainShortly, get_current_events, update_report)
+
+
+class TestDelivery(object):
+    def __init__(self):
+        self.i = 0
+        self.fp = None
+        self.now = None
+
+    def new_post(self, text):
+        self.i += 1
+        self.my_print((' Post %d: %s ' % (self. i, self.now)).center(79, '='))
+        self.my_print(text)
+        return self.i
+
+    def comment_on_post(self, post, text):
+        self.my_print("Comment on %d:" % post)
+        self.my_print(text)
+        return ()
+
+    def edit_post(self, post, text):
+        self.my_print("Edit %d to say:" % post)
+        self.my_print(text)
+
+    def my_print(self, text):
+        print(text)
+        sys.stdout.flush()
+        if self.fp:
+            print(text, file=self.fp)
+            self.fp.flush()
 
 
 class PastTimeTrialQuerySet:
@@ -67,8 +98,11 @@ def main():
     parser.add_argument('--output', '-o')
     args = parser.parse_args()
 
+    delivery = TestDelivery()
+
     if args.output:
         fp = codecs.open(args.output, 'wb', encoding='utf8')
+        delivery.fp = fp
 
         def my_print(s):
             print(s)
@@ -91,27 +125,21 @@ def main():
     ]
     my_print(created_times)
     sec = datetime.timedelta(seconds=1)
-    report = None
+    state = None
     for t in created_times:
         stop = t + datetime.timedelta(days=1)
         stop = stop.replace(hour=0, minute=0, second=0)
         t = t - 7 * sec
         while t < stop:
             qs = PastTimeTrialQuerySet(t)
+            delivery.now = t
             try:
                 events = get_current_events(qs, t)
-                report, action = update_report(report, events)
+                state = update_report(delivery, state, events)
             except TryAgainShortly as e:
                 my_print("%s: %s" % (t, e))
                 t += datetime.timedelta(seconds=e.suggested_wait + 1)
                 continue
-            if action is not None:
-                action, text = action
-                if action == 'new':
-                    my_print((' %s ' % t).center(79, '='))
-                else:
-                    my_print("\n%s %s:" % (action, t))
-                my_print(text)
             t += 15 * sec
 
 

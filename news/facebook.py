@@ -2,7 +2,6 @@ from __future__ import absolute_import, unicode_literals, division
 
 
 import facebook
-import requests
 import logging
 
 logger = logging.getLogger('news')
@@ -44,3 +43,13 @@ def comment_on_post(post, text):
 def comment_on_latest_post(text):
     p = Post.objects.all().order_by('-post_time')[0]
     return comment_on_post(p, text)
+
+
+def edit_post(post, text):
+    graph = access_page()
+    graph.request(
+        graph.version + '/' + post.fbid,
+        post_args={'message': text},
+        method='POST')
+    post.text = text
+    post.save()
