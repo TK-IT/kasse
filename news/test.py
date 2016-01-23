@@ -116,7 +116,7 @@ def main():
             sys.stdout.flush()
 
     created_times = TimeTrial.objects.filter(
-        created_time__gte=datetime.date(2016, 1, 16))
+        created_time__gte=datetime.date(2016, 1, 19))
     created_times = created_times.values_list('created_time', flat=True)
     created_times = sorted(created_times)
     created_times = [
