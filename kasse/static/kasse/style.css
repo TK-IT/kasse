@@ -104,7 +104,12 @@ a.adminlink, a.adminlink:link, a.adminlink:visited {
 }
 .hint {
     font-size: 14px;
-    font-style: italic;
+    color: #777;
+}
+input, select {
+    font-size: 18px;
+    border-radius: 5px;
+    border: 1px solid #555;
 }
 .ttl_all .ttl_new_date > td {
     padding-top: 10px;
