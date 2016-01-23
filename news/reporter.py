@@ -98,6 +98,8 @@ def get_timetrial_state(tt):
             return 'time', args
         elif tt.result == 'dnf':
             return 'dnf', args
+        else:
+            return 'unknown', frozendict()
 
 
 def iter_timetrial_comments(tt):
@@ -143,6 +145,7 @@ def describe_timetrial_state(profiles):
 
     groups = {}
     for profile, (st, args) in profiles.items():
+        # st may be "unknown", which we silently ignore
         groups.setdefault(st, []).append((profile, args))
 
     tpl = {
