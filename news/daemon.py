@@ -40,7 +40,8 @@ def main():
 
 class FacebookDelivery(object):
     def new_post(self, text):
-        return new_post(text)
+        post = new_post(text)
+        return post
 
     def comment_on_post(self, post, text):
         return comment_on_post(post, text)
