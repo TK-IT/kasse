@@ -18,6 +18,9 @@
 <p>Sammenligner med:
 <a href="{% url 'timetrial_detail' prev.pk %}">{{ prev_person }}</a></p>
 {% endif %}
+{% for post in object.post_set.all %}
+<p><a href="{{ post }}">Læs og skriv kommentarer på Facebook</a></p>
+{% endfor %}
 {% if user.is_superuser %}
 <p>
 <a href="{% url "timetrial_update" pk=object.pk %}" class="adminlink">Rediger forsøg</a>
