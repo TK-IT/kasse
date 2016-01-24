@@ -26,7 +26,7 @@ class TestDelivery(object):
     def __init__(self):
         self.comment_count = []
 
-    def new_post(self, text):
+    def new_post(self, text, timetrials):
         self.comment_count.append(0)
         return len(self.comment_count)
 
@@ -34,7 +34,7 @@ class TestDelivery(object):
         self.comment_count[post - 1] += 1
         return (post, self.comment_count[post - 1])
 
-    def edit_post(self, post, text):
+    def edit_post(self, post, text, timetrials):
         pass
 
 

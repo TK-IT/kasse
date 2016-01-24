@@ -299,12 +299,12 @@ def update_report(delivery, state, current_events, logger):
                 post_text += '\n' + post_links
 
             if post is None:
-                the_new_post = delivery.new_post(post_text)
+                the_new_post = delivery.new_post(post_text, tts)
                 logger.info(
                     "New post %s: %s",
                     the_new_post, post_state_repr(cur_post_state))
             else:
-                delivery.edit_post(post, post_text)
+                delivery.edit_post(post, post_text, tts)
                 logger.info(
                     "Edit post %s: %s",
                     post, post_state_repr(cur_post_state))

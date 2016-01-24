@@ -39,15 +39,17 @@ def main():
 
 
 class FacebookDelivery(object):
-    def new_post(self, text):
+    def new_post(self, text, timetrials):
         post = new_post(text)
+        post.timetrials.set(timetrials)
         return post
 
     def comment_on_post(self, post, text):
         return comment_on_post(post, text)
 
-    def edit_post(self, post, text):
+    def edit_post(self, post, text, timetrials):
         edit_post(post, text)
+        post.timetrials.set(timetrials)
 
 
 if __name__ == "__main__":
