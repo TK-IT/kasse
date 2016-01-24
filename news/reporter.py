@@ -196,11 +196,8 @@ def comment_to_string(profile, comment):
     return tpl[kind] % dict(profile=profile, **args._asdict())
 
 
-def info_links(profiles):
-    pks = sorted(
-        tt.id
-        for profile, (tt, state, comments) in profiles.items()
-    )
+def info_links(tts):
+    pks = sorted(tt.id for tt in tts)
     return (
         'Følg med: %s' %
         ', '.join('http://tket.dk/5/%d' % i for i in pks))
@@ -296,7 +293,8 @@ def update_report(delivery, state, current_events, logger):
         cur_post_state = get_post_state(profiles)
         if prev_post_state != cur_post_state:
             post_text = describe_timetrial_state(cur_post_state)
-            post_links = info_links(profiles)
+            tts = [tt for profile, (tt, state, comments) in profiles.items()]
+            post_links = info_links(tts)
             if post_links:
                 post_text += '\n' + post_links
 
