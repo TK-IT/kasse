@@ -6,6 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 
 from kasse.models import Profile
+from stopwatch.models import TimeTrial
 
 
 class NewsProfile(models.Model):
@@ -43,6 +44,7 @@ class Post(models.Model):
     post_time = models.DateTimeField(auto_now_add=True)
     fbid = models.CharField(max_length=50)
     text = models.TextField(blank=True)
+    timetrials = models.ManyToManyField(TimeTrial)
 
     def __str__(self):
         try:
