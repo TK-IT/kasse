@@ -39,6 +39,10 @@ except ImportError:
     from urllib import urlencode
 
 
+FACEBOOK_GRAPH_URL = "https://graph.facebook.com/"
+FACEBOOK_OAUTH_DIALOG_URL = "https://www.facebook.com/dialog/oauth?"
+
+
 class GraphAPI(object):
     """A client for the Facebook Graph API.
 
@@ -190,7 +194,7 @@ class GraphAPI(object):
         try:
             response = requests.request(
                 "GET",
-                "https://graph.facebook.com/" + self.version + "/me",
+                FACEBOOK_GRAPH_URL + self.version + "/me",
                 params=args,
                 timeout=self.timeout,
                 proxies=self.proxies,
@@ -228,7 +232,7 @@ class GraphAPI(object):
         try:
             response = requests.request(
                 method or "GET",
-                "https://graph.facebook.com/" + path,
+                FACEBOOK_GRAPH_URL + path,
                 timeout=self.timeout,
                 params=args,
                 data=post_args,
@@ -436,7 +440,7 @@ def parse_signed_request(signed_request, app_secret):
 
 
 def auth_url(app_id, canvas_url, perms=None, **kwargs):
-    url = "https://www.facebook.com/dialog/oauth?"
+    url = FACEBOOK_OAUTH_DIALOG_URL
     kvps = {"client_id": app_id, "redirect_uri": canvas_url}
     if perms:
         kvps["scope"] = ",".join(perms)
