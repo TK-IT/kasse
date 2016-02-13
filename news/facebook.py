@@ -32,9 +32,10 @@ def new_post(text):
 
 def comment_on_post(post, text):
     graph = access_page()
-    o = graph.put_comment(
+    kwargs = dict(
         object_id=post.fbid,
         message=text)
+    o = graph.put_comment(**kwargs)
     p = Comment(post=post, fbid=o['id'], text=text)
     p.save()
     return p
