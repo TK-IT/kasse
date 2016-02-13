@@ -318,7 +318,7 @@ def update_report(delivery, state, current_events, logger):
             comment_texts = []
             for profile, (kind, args) in new_comments:
                 if kind == 'attachment':
-                    attachments.append(args['url'])
+                    attachments.append(args.url)
                 else:
                     comment_texts.append(
                         comment_to_string(profile, (kind, args)))
