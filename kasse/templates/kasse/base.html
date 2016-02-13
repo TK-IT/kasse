@@ -8,6 +8,9 @@ content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" 
 <title>
 {% block fulltitle %}{% block title %}{% endblock %} - En kasse i en festforening{% endblock %}
 </title>
+<link rel="apple-touch-icon-precomposed" href="{% static "kasse/favicon-152.png" %}" />
+<meta name="msapplication-TileColor" content="#FFFFFF" />
+<meta name="msapplication-TileImage" content="{% static "kasse/favicon-152.png" %}" />
 <link rel="stylesheet" href="{% static "kasse/style.css" %}" />
 {% block head %}
 {% endblock %}
