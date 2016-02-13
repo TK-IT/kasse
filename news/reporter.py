@@ -170,7 +170,25 @@ def describe_timetrial_state(profiles):
     }
 
     texts = []
+    done_tpl = {
+        'time': '* %(profile)s: %(leg_count)s øl på %(time)s.',
+        'dnf': '* %(profile)s: DNF efter %(leg_count)s øl på %(time)s.',
+        'irr': '* %(profile)s: %(leg_count)s øl på %(time)s, ' +
+               'men tiden er erklæret ugyldig.',
+    }
+    done = [(k, profile, args)
+            for k in done_tpl.keys()
+            for profile, args in groups.get(k, [])]
+    list_mode = False
+    if len(done) >= 4:
+        list_mode = True
+        done.sort(key=lambda v: v[2].time)
+        texts.append("Tiderne blev:")
+        for k, profile, args in done:
+            texts.append(done_tpl[k] % dict(profile=profile, **args._asdict()))
     for key in 'time irr dnf started upcoming'.split():
+        if list_mode and key in done_tpl.keys():
+            continue
         try:
             values = groups[key]
         except KeyError:
@@ -178,7 +196,7 @@ def describe_timetrial_state(profiles):
         values.sort(key=lambda v: v[0].id)
         profiles = [profile for profile, args in values]
         values = [(v[0],) + tuple(v[1:]) for v in values]
-        if key == 'started' and ('time' in groups or 'dnf' in groups):
+        if key == 'started' and done:
             key = 'continues'
         if ('%s1' % key) in tpl:
             t = tpl['%s1' % key]
