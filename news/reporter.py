@@ -151,7 +151,44 @@ def join_parts(sentences, ucfirst):
 def describe_timetrial_state(profiles):
     """Given a dict of {profile: (st, args)},
     with (st, args) reported by get_timetrial_state,
-    return a text describing the info without a "read more" URL."""
+    return a text describing the info without a "read more" URL.
+
+    >>> def p(i): return frozendict(id=i)
+    >>> print(describe_timetrial_state({
+    ...     p(1): ('upcoming', frozendict()),
+    ...     p(2): ('upcoming', frozendict()),
+    ... }))
+    frozendict(id=1) og frozendict(id=2) gør klar til at tage øl på tid.
+    >>> print(describe_timetrial_state({
+    ...     p(1): ('started', frozendict()),
+    ...     p(2): ('started', frozendict()),
+    ... }))
+    frozendict(id=1) og frozendict(id=2) er begyndt at drikke!
+    >>> print(describe_timetrial_state({
+    ...     p(1): ('irr', frozendict(leg_count=3, time=42)),
+    ...     p(2): ('started', frozendict()),
+    ... }))
+    frozendict(id=1) har drukket 3 øl på 42, men tiden er erklæret ugyldig.
+    frozendict(id=2) er i gang med at drikke øl på tid.
+    >>> print(describe_timetrial_state({
+    ...     p(5): ('time', frozendict(leg_count=1, time=10)),
+    ...     p(4): ('time', frozendict(leg_count=2, time=30)),
+    ...     p(3): ('irr', frozendict(leg_count=3, time=60)),
+    ...     p(2): ('time', frozendict(leg_count=4, time=100)),
+    ...     p(1): ('dnf', frozendict(leg_count=5, time=150)),
+    ...     p(6): ('started', frozendict()),
+    ...     p(7): ('started', frozendict()),
+    ...     p(8): ('upcoming', frozendict()),
+    ... }))
+    Tiderne blev:
+    * frozendict(id=5): 1 øl på 10.
+    * frozendict(id=4): 2 øl på 30.
+    * frozendict(id=3): 3 øl på 60, men tiden er erklæret ugyldig.
+    * frozendict(id=2): 4 øl på 100.
+    * frozendict(id=1): DNF efter 5 øl på 150.
+    frozendict(id=6) og frozendict(id=7) er i gang med at drikke øl på tid.
+    frozendict(id=8) gør klar til at tage øl på tid.
+    """
 
     groups = {}
     for profile, (st, args) in profiles.items():
