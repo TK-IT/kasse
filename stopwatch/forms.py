@@ -6,6 +6,8 @@ import datetime
 from django import forms
 from django.utils import timezone
 
+from multiupload.fields import MultiFileField
+
 from stopwatch.models import TimeTrial
 from stopwatch.fields import DateTimeDefaultTodayField, DurationListField
 from kasse.forms import ProfileModelChoiceField
@@ -94,6 +96,8 @@ class StopwatchForm(forms.Form):
     residue = forms.FloatField(required=False)
     comment = forms.CharField(required=False)
     beverage = forms.CharField(required=False)
+
+    images = MultiFileField(required=False)
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.pop('instance')

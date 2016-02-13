@@ -74,7 +74,8 @@ document.createElement( "picture" );
 <div id="laps"></div>
 </div>
 {% if object %}
-<form method="post" id="stopwatch_form">{% csrf_token %}
+<form method="post" id="stopwatch_form" enctype="multipart/form-data">
+{% csrf_token %}
 {% else %}
 <form method="get" id="stopwatch_form" action="{% url 'timetrial_create' %}">
 {% endif %}

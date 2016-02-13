@@ -4,3 +4,4 @@ django-ipware==1.1.3
 wsgiref==0.1.2
 requests==2.9.1
 https://github.com/pythonforfacebook/facebook-sdk/archive/master.zip#egg=facebook-sdk
+django-multiupload==0.5
