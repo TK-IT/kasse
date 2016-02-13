@@ -7,6 +7,8 @@ from __future__ import absolute_import, unicode_literals, division
 
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 
 from kasse.views import (
     Home, Log, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
@@ -53,3 +55,7 @@ urlpatterns = [
     url(r'^association/$', Association.as_view(),
         name='association'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
