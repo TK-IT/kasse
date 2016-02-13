@@ -30,12 +30,12 @@ def new_post(text):
     return p
 
 
-def comment_on_post(post, text):
+def comment_on_post(post, text, attachment=None):
     graph = access_page()
-    kwargs = dict(
-        object_id=post.fbid,
-        message=text)
-    o = graph.put_comment(**kwargs)
+    data = dict(message=text)
+    if attachment is not None:
+        data['attachment_url'] = attachment
+    o = graph.put_object(post.fbid, 'comments', **data)
     p = Comment(post=post, fbid=o['id'], text=text)
     p.save()
     return p
