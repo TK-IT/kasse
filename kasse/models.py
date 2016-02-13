@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals, division
 
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils import six
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -151,3 +152,10 @@ class Profile(models.Model):
             return '%s' % (self.name,)
         else:
             return '(anonymous %s)' % (self.pk,)
+
+    def __repr__(self):
+        s = '<Profile %s>' % self
+        if six.PY2:
+            return s.encode('ascii', 'replace')
+        else:
+            return s
