@@ -226,6 +226,8 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
         self.object.leg_set.all().delete()
         self.object.set_legs(
             [d.total_seconds() for d in form.cleaned_data['durations']])
+        for image in form.cleaned_data['images']:
+            self.object.image_set.create(image=image)
 
         timetrial = TimeTrial.objects.get(pk=self.object.pk)
         durations = [l.duration for l in timetrial.leg_set.all()]

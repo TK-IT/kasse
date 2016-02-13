@@ -130,3 +130,19 @@ class Beverage(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@python_2_unicode_compatible
+class Image(models.Model):
+    timetrial = models.ForeignKey(TimeTrial, models.CASCADE)
+    image = models.ImageField(
+        upload_to='timetrial',
+        height_field='height',
+        width_field='width',
+    )
+    height = models.PositiveIntegerField()
+    width = models.PositiveIntegerField()
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return "%s" % (self.image,)
