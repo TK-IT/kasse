@@ -102,6 +102,8 @@ def get_timetrial_state(tt):
             return 'time', args
         elif tt.result == 'dnf':
             return 'dnf', args
+        elif tt.result == 'irr':
+            return 'irr', args
         else:
             return 'unknown', frozendict()
 
@@ -163,10 +165,12 @@ def describe_timetrial_state(profiles):
         'time1': '%(profile)s har drukket %(leg_count)s øl på %(time)s',
         'dnf':
         '%(profile)s har lavet en DNF efter %(leg_count)s øl på %(time)s.',
+        'irr': '%(profile)s har drukket %(leg_count)s øl på %(time)s, ' +
+               'men tiden er erklæret ugyldig.',
     }
 
     texts = []
-    for key in 'time dnf started upcoming'.split():
+    for key in 'time irr dnf started upcoming'.split():
         try:
             values = groups[key]
         except KeyError:
