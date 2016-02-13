@@ -92,6 +92,10 @@ document.createElement( "picture" );
     {% endfor %}
     </ul>
     <p>Ølmærke: {{ form.beverage }}</p>
+{% if object %}
+    <p>Billede: <input type="file" id="take-picture" accept="image/*" name="images" multiple /></p>
+    <div id="pictures"></div>
+{% endif %}
     <p>
     <input type="submit" value="Indsend tid" class="submit-stopwatch" />
     </p>

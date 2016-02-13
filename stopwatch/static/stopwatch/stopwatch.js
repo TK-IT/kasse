@@ -350,6 +350,28 @@ function update_state(state) {
     if (btn) btn.textContent = button_label;
 }
 
+function takePictureChange(ev) {
+    function showError(s) {
+        div_pictures.textContent = s;
+    }
+
+    var div_pictures = document.getElementById('pictures');
+    if (!div_pictures) return console.log("No #pictures");
+    if (typeof URL === 'undefined') return showError('No File API support');
+    if (!ev.target.files) console.log("No ev.target.files");
+    var files = ev.target.files || [];
+    if (files.length === 0) console.log("files is empty");
+    div_pictures.innerHTML = '';
+    for (var i = 0, l = files.length; i < l; ++i) {
+        var file = files[i];
+        var imgURL = URL.createObjectURL(file);
+        var img = document.createElement('img');
+        img.src = imgURL;
+        URL.revokeObjectURL(imgURL);
+        div_pictures.appendChild(img);
+    }
+}
+
 function init() {
     div_stopwatch = document.getElementById('stopwatch');
     div_time = document.getElementById('time');
@@ -383,6 +405,12 @@ function init() {
         fetch_interval = setInterval(fetch_state, 2000);
     }
     window.addEventListener('touchstart', window_click, false);
+
+    var takePicture = document.getElementById('take-picture');
+    if (takePicture !== null) {
+        takePicture.addEventListener('change', takePictureChange, false);
+        takePictureChange({target: takePicture});
+    }
 }
 
 window.addEventListener('load', init, false);
