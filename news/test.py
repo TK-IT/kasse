@@ -30,7 +30,7 @@ class TestDelivery(object):
         self.comment_count.append(0)
         return len(self.comment_count)
 
-    def comment_on_post(self, post, text):
+    def comment_on_post(self, post, text, attachment):
         self.comment_count[post - 1] += 1
         return (post, self.comment_count[post - 1])
 

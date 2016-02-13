@@ -44,8 +44,8 @@ class FacebookDelivery(object):
         post.timetrials.set(timetrials)
         return post
 
-    def comment_on_post(self, post, text):
-        return comment_on_post(post, text)
+    def comment_on_post(self, post, text, attachment):
+        return comment_on_post(post, text, attachment=attachment)
 
     def edit_post(self, post, text, timetrials):
         edit_post(post, text)
