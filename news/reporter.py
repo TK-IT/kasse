@@ -114,9 +114,7 @@ def iter_timetrial_comments(tt):
     if tt.result != '' and tt.comment:
         yield ('comment', frozendict(comment=tt.comment))
     for image in tt.image_set.all():
-        path = image.image.url
-        url = 'http://enkasseienfestforening.dk%s' % path
-        yield ('attachment', frozendict(url=url))
+        yield ('attachment', frozendict(url=image.image.url))
 
 
 def get_timetrial_comments(tt):
