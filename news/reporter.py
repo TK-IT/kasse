@@ -354,7 +354,7 @@ def update_report(delivery, state, current_events, logger):
         cur_post_state = get_post_state(profiles)
         if prev_post_state != cur_post_state:
             post_text = describe_timetrial_state(cur_post_state)
-            tts = [tt for profile, (tt, state, comments) in profiles.items()]
+            tts = [tt for profile, (tt, state_, comments) in profiles.items()]
             post_links = info_links(tts)
             if post_links:
                 post_text += '\n' + post_links
