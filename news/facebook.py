@@ -31,11 +31,18 @@ def new_post(text):
 
 
 def comment_on_post(post, text, attachment=None):
+    if not text:
+        raise ValueError("Text must be non-empty")
     graph = access_page()
     data = dict(message=text)
     if attachment is not None:
         data['attachment_url'] = attachment
-    o = graph.put_object(post.fbid, 'comments', **data)
+    try:
+        o = graph.put_object(post.fbid, 'comments', **data)
+    except facebook.GraphAPIError:
+        logger.exception("GraphAPIError while posting to /%s/comments %r",
+                         post.fbid, data)
+        raise
     p = Comment(post=post, fbid=o['id'], text=text)
     p.save()
     return p
