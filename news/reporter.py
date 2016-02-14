@@ -375,18 +375,19 @@ def update_report(delivery, state, current_events, logger):
             comment_texts = []
             for profile, (kind, args) in new_comments:
                 if kind == 'attachment':
-                    attachments.append(args.url)
+                    attachments.append((profile, args.url))
                 else:
                     comment_texts.append(
                         comment_to_string(profile, (kind, args)))
             comment_text = '\n'.join(comment_texts)
-            attachment = attachments[0] if attachments else None
+            attachment = attachments[0][1] if attachments else None
             comment = delivery.comment_on_post(post, comment_text, attachment)
             logger.info("Comment %s: %r attachment=%r",
                         comment, new_comments, attachment)
-            for a in attachments[1:]:
-                comment = delivery.comment_on_post(post, "", a)
-                logger.info("Attachment comment %s: %r", comment, a)
+            for profile, url in attachments[1:]:
+                comment = delivery.comment_on_post(
+                    post, "%s har tilføjet et billede." % profile, url)
+                logger.info("Attachment comment %s: %r", comment, url)
 
     if the_new_post is not None:
         new_state[the_new_post] = new_state.pop(None)
