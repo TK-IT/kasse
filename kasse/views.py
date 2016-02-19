@@ -26,7 +26,7 @@ from kasse.forms import (
     ProfileEditForm, UserCreationForm,
     AssociationForm, ProfileMergeForm,
 )
-from kasse.models import Profile
+from kasse.models import Profile, Contest
 
 import stopwatch.models
 import iou.models
@@ -95,6 +95,7 @@ class Home(TemplateView):
         context_data['association_form'] = AssociationForm(
             initial={'association': self.request.association}
         )
+        context_data['contests'] = Contest.objects.all().reverse()
         return context_data
 
 
