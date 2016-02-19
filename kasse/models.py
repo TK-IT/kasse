@@ -3,7 +3,9 @@ from __future__ import absolute_import, unicode_literals, division
 
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils import six
+from django.utils import formats, six
+from django.utils.safestring import mark_safe
+from django.utils.dateparse import parse_duration
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -159,3 +161,48 @@ class Profile(models.Model):
             return s.encode('ascii', 'replace')
         else:
             return s
+
+
+def ucfirst(s):
+    if not s:
+        return s
+    return s[0].upper() + s[1:]
+
+
+@python_2_unicode_compatible
+class Contest(models.Model):
+    event_time = models.DateTimeField()
+    tk = models.CharField(max_length=200)
+    alkymia = models.CharField(max_length=200)
+
+    def __str__(self):
+        return ("Contest(event_time=%r, tk=%r, alkymia=%r)" %
+                (self.event_time, self.tk, self.alkymia))
+
+    def as_p(self):
+        s = '\n'.join(
+            ['<h3>%s</h3>' % formats.date_format(self.event_time, "Y"),
+             '<p>%s</p>' %
+             ucfirst(formats.date_format(self.event_time, "l j. F Y")),
+             '<p>TÅGEKAMMERET: %s</p>' % self.tk,
+             '<p>@lkymia: %s</p>' % self.alkymia,
+             '<p>Tillykke til <strong>%s!</strong></p>' % self.winner()])
+        return mark_safe(s)
+
+    @staticmethod
+    def parse_duration(s):
+        if s == 'DNF':
+            return float('inf')
+        else:
+            return parse_duration(s).total_seconds()
+
+    def winner(self):
+        tk = self.parse_duration(self.tk)
+        alkymia = self.parse_duration(self.alkymia)
+        if tk < alkymia:
+            return 'TÅGEKAMMERET'
+        elif alkymia < tk:
+            return '@lkymia'
+
+    class Meta:
+        ordering = ['event_time']
