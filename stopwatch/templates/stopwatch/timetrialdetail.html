@@ -68,11 +68,12 @@ document.createElement( "picture" );
 {% endif %}
 <ul id="pictures">
 {% for image in object.image_set.all %}
-{% thumbnail image.image "640x800" as im640 %}
-{% thumbnail image.image "1280x1600" as im1280 %}
-<li><img sizes="(min-width: 640px) 640px, 100vw" srcset="
+{% thumbnail image.image "640" as im640 %}
+{% thumbnail image.image "1280" as im1280 %}
+<li><a href="{{ image.image.url }}">
+<img sizes="(min-width: 640px) 640px, 100vw" srcset="
 {{ im640.url }} 640w,
-{{ im1280.url }} 1280w" /></li>
+{{ im1280.url }} 1280w" /></a></li>
 {% endthumbnail %}
 {% endthumbnail %}
 {% endfor %}
