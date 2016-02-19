@@ -3,10 +3,11 @@ from __future__ import absolute_import, unicode_literals, division
 
 from django.core.exceptions import ValidationError
 from django import forms
-from django.utils import six
+from django.utils import six, timezone
+from django.utils.dateparse import parse_duration
 from django.contrib.auth.forms import UserCreationForm as AdminUserCreationForm
 
-from kasse.models import Profile, Association
+from kasse.models import Profile, Association, Contest
 from kasse.fields import TKPeriodField, APeriodField
 
 
@@ -158,3 +159,28 @@ class AssociationForm(forms.Form):
 
 class ProfileMergeForm(forms.Form):
     destination = ProfileModelChoiceField()
+
+
+class ContestForm(forms.ModelForm):
+    class Meta:
+        model = Contest
+        fields = ['event_time', 'tk', 'alkymia']
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('initial', {}).setdefault(
+            'event_time', self.get_initial_event_time())
+        super(ContestForm, self).__init__(*args, **kwargs)
+
+    def get_initial_event_time(self):
+        dt = timezone.localtime(timezone.now())
+        return dt.replace(hour=17, minute=0, second=0, microsecond=0)
+
+    def clean_tk(self):
+        value = self.cleaned_data['tk']
+        parse_duration(value)
+        return value
+
+    def clean_alkymia(self):
+        value = self.cleaned_data['alkymia']
+        parse_duration(value)
+        return value

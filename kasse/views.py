@@ -12,7 +12,7 @@ from django.http import (
     Http404,
 )
 from django.views.generic import (
-    View, TemplateView, FormView, DetailView, UpdateView, ListView,
+    View, TemplateView, FormView, DetailView, UpdateView, ListView, CreateView,
 )
 from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
@@ -25,6 +25,7 @@ from kasse.forms import (
     LoginForm, ProfileCreateForm,
     ProfileEditForm, UserCreationForm,
     AssociationForm, ProfileMergeForm,
+    ContestForm,
 )
 from kasse.models import Profile, Contest
 
@@ -399,3 +400,16 @@ class Association(FormView):
         context_data = super(Association, self).get_context_data(**kwargs)
         context_data['association'] = self.request.association
         return context_data
+
+
+class ContestCreate(CreateView):
+    form_class = ContestForm
+    template_name = 'kasse/contestform.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            return permission_denied(request)
+        return super(ContestCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('home')
