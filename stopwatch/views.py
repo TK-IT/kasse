@@ -27,7 +27,7 @@ from stopwatch.forms import (
     TimeTrialCreateForm, TimeTrialForm,
     StopwatchForm, TimeTrialLiveForm,
 )
-from stopwatch.models import TimeTrial, Leg, Beverage
+from stopwatch.models import TimeTrial, Leg, Beverage, Image
 from kasse.views import Home
 
 logger = logging.getLogger('kasse')
@@ -458,3 +458,10 @@ class Json(View):
         response = JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
         response['Access-Control-Allow-Origin'] = '*'
         return response
+
+
+class ImageList(ListView):
+    model = Image
+    template_name = 'stopwatch/image_list.html'
+    # paginate_by = 30
+    ordering = ['-created_time']

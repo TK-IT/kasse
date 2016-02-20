@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals, division
 from django.conf.urls import url
 
 from stopwatch.views import (
-    Json,
+    Json, ImageList,
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
     TimeTrialAllBest, TimeTrialStopwatch, TimeTrialUpdate,
     TimeTrialStopwatchCreate, TimeTrialStopwatchLive, TimeTrialLiveUpdate,
@@ -38,4 +38,6 @@ urlpatterns = [
         name='timetrial_stopwatch_create'),
     url(r'^(?P<pk>\d+)/stopwatch/$', TimeTrialStopwatch.as_view(),
         name='timetrial_stopwatch'),
+    url(r'^gallery/(?P<page>\d+)/$', ImageList.as_view(),
+        name='image_list'),
 ]
