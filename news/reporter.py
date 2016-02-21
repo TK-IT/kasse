@@ -261,7 +261,7 @@ def info_links(tts):
     pks = sorted(tt.id for tt in tts)
     return (
         'Følg med: %s' %
-        ', '.join('http://tket.dk/5/%d' % i for i in pks))
+        ', '.join('https://tket.dk/5/%d' % i for i in pks))
 
 
 def update_report(delivery, state, current_events, logger):
