@@ -1,0 +1,40 @@
+# Create a file named kasse/settings/__init__.py containing something like:
+
+# vim:set fileencoding=utf8:
+
+import os
+
+from kasse.settings.common import *  # NOQA
+
+DEBUG = True
+
+DATABASES['default'] = {
+    'ENGINE': 'django.db.backends.mysql',
+    'NAME': 'kasse',
+    'USER': 'kasse',
+    'PASSWORD': enter password here,
+    'HOST': '',
+    'PORT': '',
+}
+
+SECRET_KEY = generate with pwgen -sy 50 1
+
+STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+
+ALLOWED_HOSTS = [
+    'enkasseienfestforening.dk', 'www.enkasseienfestforening.dk', '127.0.0.1'
+]
+
+ADMINS = (
+    ('Mathias Rav', 'mathiasrav@gmail.com'),
+)
+
+MEDIA_ROOT = os.path.join(BASE_DIR, '../uploads')
+MEDIA_URL = 'http://%s/uploads/' % ALLOWED_HOSTS[0]
+
+# Settings for HTTPS-only domains:
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# 3600 = one hour. 31536000 = one year.
+# SECURE_HSTS_SECONDS = 3600
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
