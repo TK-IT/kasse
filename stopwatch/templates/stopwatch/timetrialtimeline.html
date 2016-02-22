@@ -1,0 +1,35 @@
+{% extends "kasse/base.html" %}
+{% load staticfiles %}
+{% load kasse_extras %}
+{% block head %}
+<link rel="stylesheet" href="{% static "stopwatch/stopwatch.css" %}" />
+<style>
+.timelinerow {
+	display: flex;
+}
+.timelinerow > *:nth-child(even) {
+	background-color: #ccc;
+}
+.timelinerow > *:last-child {
+	border-right: 1px solid black;
+}
+</style>
+{% endblock %}
+{% block content %}
+<h1>Tidslinje</h1>
+{% for object in object_list %}
+<div class="timelinerow">
+<div style="width: 200px">
+<a href="{{ object.get_absolute_url }}">
+{{ object.profile }}
+</a>
+</div>
+{% for leg in object.leg_set.all %}
+<div style="width: {% widthratio leg.duration duration 500 %}px; text-align: right"
+title="Øl {{ leg.order }} færdig efter {{ leg.duration_prefix_sum }} s">
+{{ leg.order }}
+</div>
+{% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

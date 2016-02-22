@@ -349,6 +349,24 @@ class TimeTrialDetail(DetailView):
         return context_data
 
 
+class TimeTrialTimeline(DetailView):
+    model = TimeTrial
+    template_name = 'stopwatch/timetrialtimeline.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = (
+            super(TimeTrialTimeline, self).get_context_data(**kwargs))
+        o = context_data['object']
+        window = datetime.timedelta(seconds=30)
+        timetrials = TimeTrial.objects.filter(
+            start_time__gt=o.start_time - window,
+            start_time__lt=o.start_time + window)
+        timetrials = timetrials.order_by('duration')
+        context_data['object_list'] = timetrials
+        context_data['duration'] = max(tt.duration for tt in timetrials)
+        return context_data
+
+
 class TimeTrialList(ListView):
     template_name = 'stopwatch/timetriallist.html'
 

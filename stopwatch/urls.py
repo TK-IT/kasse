@@ -7,6 +7,7 @@ from stopwatch.views import (
     TimeTrialCreate, TimeTrialDetail, TimeTrialList, TimeTrialBest,
     TimeTrialAllBest, TimeTrialStopwatch, TimeTrialUpdate,
     TimeTrialStopwatchCreate, TimeTrialStopwatchLive, TimeTrialLiveUpdate,
+    TimeTrialTimeline,
 )
 
 urlpatterns = [
@@ -28,6 +29,8 @@ urlpatterns = [
         name='timetrial_create'),
     url(r'^(?P<pk>\d+)/$', TimeTrialDetail.as_view(),
         name='timetrial_detail'),
+    url(r'^(?P<pk>\d+)/timeline/$', TimeTrialTimeline.as_view(),
+        name='timetrial_timeline'),
     url(r'^(?P<pk>\d+)/edit/$', TimeTrialUpdate.as_view(),
         name='timetrial_update'),
     url(r'^(?P<pk>\d+)/live/$', TimeTrialStopwatchLive.as_view(),
