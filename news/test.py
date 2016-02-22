@@ -43,12 +43,12 @@ class PastTimeTrialQuerySet:
         self.qs = TimeTrial.objects.all()
         self.now = now
 
-    def exclude(self, **kwargs):
-        self.qs = self.qs.exclude(**kwargs)
+    def exclude(self, *args, **kwargs):
+        self.qs = self.qs.exclude(*args, **kwargs)
         return self
 
-    def filter(self, **kwargs):
-        self.qs = self.qs.filter(**kwargs)
+    def filter(self, *args, **kwargs):
+        self.qs = self.qs.filter(*args, **kwargs)
         return self
 
     def order_by(self, k):
