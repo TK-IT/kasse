@@ -7,6 +7,7 @@ import collections
 
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import timezone
+from django.db.models import Q
 
 from kasse.templatetags.kasse_extras import display_duration_plain
 
@@ -56,7 +57,7 @@ def get_current_events(qs, now=None):
         now = timezone.now()
 
     hour = datetime.timedelta(hours=1)
-    qs = qs.exclude(result='f', state='initial')
+    qs = qs.exclude(Q(state='initial') & ~Q(result=''))
     qs = qs.exclude(profile__newsprofile__ignore=True)
     qs = qs.filter(created_time__gt=now - hour)
 
