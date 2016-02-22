@@ -43,7 +43,7 @@ class TimeTrialCreate(FormView):
             initial[k] = v
         try:
             initial['start_time'] = datetime.datetime.utcfromtimestamp(
-                float(initial['start_time']).replace(tzinfo=timezone.utc))
+                float(initial['start_time'])).replace(tzinfo=timezone.utc)
         except KeyError:
             pass
         try:
