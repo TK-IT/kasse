@@ -125,6 +125,17 @@ LOGGING = {
                        '%(message)s'),
         },
     },
+    'filters': {
+        'allowed_hosts': {
+            '()': 'kasse.log.AllowedHosts',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'DEBUG',
@@ -138,8 +149,25 @@ LOGGING = {
             'filename': '/home/rav/enkasseienfestforening.dk/news.log',
             'formatter': 'news',
         },
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': [
+                'require_debug_false',
+                'allowed_hosts',
+            ],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
     },
     'loggers': {
+        'django': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        },
         'kasse': {
             'handlers': ['file'],
             'level': 'DEBUG',
