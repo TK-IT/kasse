@@ -15,7 +15,7 @@ class FacebookLogin(View):
     @staticmethod
     def get_redirect_uri():
         redirect_uri = (
-            'http://enkasseienfestforening.dk' +
+            'https://enkasseienfestforening.dk' +
             reverse('news_login_callback'))
         return redirect_uri
 
