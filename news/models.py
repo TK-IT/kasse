@@ -49,7 +49,7 @@ class Post(models.Model):
     def __str__(self):
         try:
             page_id, post_id = self.fbid.split('_')
-            return 'http://fb.com/%s/posts/%s' % (page_id, post_id)
+            return 'https://fb.com/%s/posts/%s' % (page_id, post_id)
         except:
             return '<Post %r>' % (sys.exc_info()[1],)
 
