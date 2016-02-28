@@ -10,7 +10,7 @@ from django.db import migrations
 def set_post_timetrials(TimeTrial, post):
     text = '\n'.join([post.text] + [c.text for c in post.comment_set.all()])
     pks = []
-    for mo in re.finditer(r'http://tket.dk/5/(\d+)', text):
+    for mo in re.finditer(r'https?://tket.dk/5/(\d+)', text):
         pks.append(int(mo.group(1)))
     pks = sorted(set(pks))
     tts = TimeTrial.objects.filter(pk__in=pks)
