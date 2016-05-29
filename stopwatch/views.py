@@ -256,6 +256,8 @@ class TimeTrialLiveUpdate(BaseFormView):
         if timetrial.creator != self.request.profile:
             return HttpResponseForbidden(
                 'Access denied (only creator can update)')
+        old_legs = [l.duration for l in timetrial.leg_set.all()]
+        legs = [d.total_seconds() for d in form.cleaned_data['durations']]
         timetrial.result = ''
         timetrial.state = form.cleaned_data['state']
 
@@ -266,15 +268,12 @@ class TimeTrialLiveUpdate(BaseFormView):
 
         timetrial.save()
 
-        legs = [d.total_seconds() for d in form.cleaned_data['durations']]
-        if not legs:
-            old_legs = [l.duration for l in timetrial.leg_set.all()]
-            if old_legs:
-                logger.info("%s %s reset by %s",
-                            timetrial,
-                            ' '.join(map(str, old_legs)),
-                            self.request.profile,
-                            extra=self.request.log_data)
+        if not legs and old_legs:
+            logger.info("%s %s reset by %s",
+                        timetrial,
+                        ' '.join(map(str, old_legs)),
+                        self.request.profile,
+                        extra=self.request.log_data)
         timetrial.set_legs(legs)
         return HttpResponse('OK')
 
