@@ -85,13 +85,21 @@ def get_current_events(qs, now=None):
     return timetrials
 
 
+def tt_kasse_i_kass(timetrial):
+    return timetrial.id == 335
+
+
+def profile_kass(profile):
+    return profile.id == 164
+
+
 def get_timetrial_state(tt):
     """Returns a tuple (kind, args) indicating what to report."""
 
     if tt.result == '':
         if tt.state == 'initial' or tt.start_time == None:  # noqa
             return 'upcoming', frozendict()
-        elif tt.leg_count >= 5:
+        elif tt.leg_count >= 5 or tt_kasse_i_kass(tt):
             d = display_duration_plain(tt.duration)
             return 'time', frozendict(leg_count=tt.leg_count, time=d)
         else:
@@ -110,6 +118,11 @@ def get_timetrial_state(tt):
 
 
 def iter_timetrial_comments(tt):
+    if tt_kasse_i_kass(tt) and tt.start_time is not None:
+        t = tt.start_time
+        for i, leg in enumerate(tt.leg_set.all()):
+            t += datetime.timedelta(seconds=leg.duration)
+            yield ('kasstime', frozendict(i=i + 1, time=t))
     if tt.result != '' and tt.residue != None:  # noqa
         yield ('residue', frozendict(residue=tt.residue))
     if tt.result != '' and tt.comment:
@@ -251,11 +264,16 @@ def describe_timetrial_state(profiles):
 
 def comment_to_string(profile, comment):
     kind, args = comment
+    args = args._asdict()
+    for k in args:
+        if isinstance(args[k], datetime.datetime):
+            args[k] = timezone.localtime(args[k]).strftime('%H:%M')
     tpl = {
+        'kasstime': '%(time)s: %(profile)s har drukket den %(i)s. øl.',
         'residue': '%(profile)ss rest var %(residue)g cL.',
         'comment': '%(profile)ss kommentar: "%(comment)s".',
     }
-    return tpl[kind] % dict(profile=profile, **args._asdict())
+    return tpl[kind] % dict(profile=profile, **args)
 
 
 def info_links(tts):
@@ -342,7 +360,7 @@ def update_report(delivery, state, current_events, logger):
     for post, profiles in new_state.items():
         if post is None and len(profiles) == 1:
             (tt, state_, comments), = profiles.values()
-            if state_[0] == 'upcoming':
+            if state_[0] == 'upcoming' and not tt_kasse_i_kass(tt):
                 # Only a single upcoming TimeTrial -- don't create this post
                 continue
 
