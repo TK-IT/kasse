@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals, division
 
 import datetime
 import requests
+import logging
 
 from django.utils import timezone
 from django.views.generic import View
@@ -9,6 +10,9 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
 from news.models import Config
+
+
+logger = logging.getLogger('news')
 
 
 class FacebookLogin(View):
@@ -52,7 +56,12 @@ class FacebookLoginCallback(View):
             o['kassenews'] = 1
             return JsonResponse(o)
         # token_type = o['token_type']
-        seconds = o['expires_in']
+	try:
+            seconds = o['expires_in']
+        except KeyError:
+            logger.exception("No expires_in!")
+            logger.debug('Response: %r', o)
+            seconds = 0
         expiry = timezone.now() + datetime.timedelta(seconds=seconds)
 
         app_access_token = requests.get(
