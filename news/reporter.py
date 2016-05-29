@@ -42,7 +42,7 @@ def timetrial_tiebreaker(tt):
 def get_current_events(qs, now=None):
     """Get a list of the recently active TimeTrials.
 
-    Only consider TimeTrials that have been created within the last hour.
+    Only consider TimeTrials that have been created recently.
 
     If two TimeTrials are recently active for the same profile,
     decide which to use based on timetrial_tiebreaker.
@@ -56,15 +56,15 @@ def get_current_events(qs, now=None):
     if now is None:
         now = timezone.now()
 
-    hour = datetime.timedelta(hours=1)
+    day = datetime.timedelta(hours=24)
     qs = qs.exclude(Q(state='initial') & ~Q(result=''))
     qs = qs.exclude(profile__newsprofile__ignore=True)
-    qs = qs.filter(created_time__gt=now - hour)
+    qs = qs.filter(created_time__gt=now - day)
 
     qs = qs.order_by('profile_id')
     qs_groups = itertools.groupby(qs, key=lambda tt: tt.profile_id)
 
-    last_modified = now - hour
+    last_modified = now - day
 
     timetrials = []
     for profile_id, tts in qs_groups:
