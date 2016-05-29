@@ -29,7 +29,7 @@ class FacebookLogin(View):
             "https://www.facebook.com/dialog/oauth" +
             "?client_id=%s" % c.client_id +
             "&redirect_uri=%s" % self.get_redirect_uri() +
-            "&response_type=code&scope=manage_pages,publish_pages")
+            "&response_type=code&scope=manage_pages,publish_pages,publish_actions,user_events")
 
 
 class FacebookLoginCallback(View):
