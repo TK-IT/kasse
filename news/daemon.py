@@ -45,6 +45,7 @@ class FacebookDelivery(object):
         return post
 
     def comment_on_post(self, post, text, attachment):
+        attachment = None  # Facebook seems to dislike our photos
         return comment_on_post(post, text, attachment=attachment)
 
     def edit_post(self, post, text, timetrials):
