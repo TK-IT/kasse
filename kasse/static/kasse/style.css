@@ -111,9 +111,22 @@ input, select {
     border-radius: 5px;
     border: 1px solid #555;
 }
+.ttl_table table {
+    border-collapse: collapse;
+    border-top: 1px solid #eee;
+}
+.ttl_table td, .ttl_table th {
+    border-bottom: 1px solid #eee;
+    padding: 6px;
+}
+.ttl_table tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+/*
 .ttl_all .ttl_new_date > td {
     padding-top: 10px;
 }
+*/
 .ttl_result {
     width: 24px;
     text-align: center;
