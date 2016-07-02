@@ -56,7 +56,7 @@ class FacebookLoginCallback(View):
             o['kassenews'] = 1
             return JsonResponse(o)
         # token_type = o['token_type']
-	try:
+        try:
             seconds = o['expires_in']
         except KeyError:
             logger.exception("No expires_in!")
