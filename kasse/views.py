@@ -376,7 +376,7 @@ class Log(View):
 
     def get(self, request):
         filename = settings.LOGGING['handlers']['file']['filename']
-        with open(filename) as fp:
+        with open(filename, encoding='utf8') as fp:
             s = fp.read()
         return HttpResponse(s, content_type='text/plain; charset=utf8')
 
