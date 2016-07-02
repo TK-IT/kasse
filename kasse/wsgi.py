@@ -13,7 +13,7 @@ import site
 
 prev_sys_path = list(sys.path)
 site.addsitedir(
-    '/home/rav/enkasseienfestforening.dk/venv/lib/python2.7/site-packages')
+    '/home/rav/enkasseienfestforening.dk/venv/lib/python3.4/site-packages')
 sys.path.append('/home/rav/enkasseienfestforening.dk/kasse')
 # reorder sys.path so new directories from the addsitedir show up first
 new_sys_path = [p for p in sys.path if p not in prev_sys_path]
