@@ -3,9 +3,11 @@ from __future__ import absolute_import, unicode_literals, division
 
 import logging
 import datetime
+import functools
 
 from django.core.urlresolvers import reverse
 from django.utils.six.moves import urllib_parse
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.http import (
     HttpResponse, HttpResponseRedirect,
@@ -34,6 +36,20 @@ import iou.models
 from stopwatch.models import TimeTrial
 
 logger = logging.getLogger('kasse')
+
+
+def dispatch_superuser_required(function):
+    @functools.wraps(function)
+    def dispatch(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return permission_denied(request, exception=None)
+        return function(request, *args, **kwargs)
+
+    return dispatch
+
+
+superuser_required = method_decorator(
+    dispatch_superuser_required, name='dispatch')
 
 
 class Home(TemplateView):
@@ -214,14 +230,10 @@ class ProfileList(ListView):
         return qs
 
 
+@superuser_required
 class ProfileMerge(FormView):
     template_name = 'kasse/profile_merge.html'
     form_class = ProfileMergeForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return permission_denied(request)
-        return super(ProfileMerge, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context_data = super(ProfileMerge, self).get_context_data(**kwargs)
@@ -278,12 +290,8 @@ class ProfileEdit(ProfileEditBase):
         return response
 
 
+@superuser_required
 class ProfileEditAdmin(ProfileEditBase):
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return permission_denied(request)
-        return super(ProfileEditAdmin, self).dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
         response = super(ProfileEditAdmin, self).form_valid(form)
         logger.info("Admin %s edited profile of %s",
@@ -368,12 +376,8 @@ class UserCreate(TemplateView):
         return self.render_to_response(context_data)
 
 
+@superuser_required
 class Log(View):
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return permission_denied(request)
-        return super(Log, self).dispatch(request, *args, **kwargs)
-
     def get(self, request):
         filename = settings.LOGGING['handlers']['file']['filename']
         with open(filename, encoding='utf8') as fp:
@@ -402,14 +406,10 @@ class Association(FormView):
         return context_data
 
 
+@superuser_required
 class ContestCreate(CreateView):
     form_class = ContestForm
     template_name = 'kasse/contestform.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            return permission_denied(request)
-        return super(ContestCreate, self).dispatch(request, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('home')
