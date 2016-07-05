@@ -50,23 +50,61 @@ class LoginForm(forms.Form):
     next = forms.CharField(widget=forms.HiddenInput)
 
 
+class PeriodFieldMixin:
+    def get_period_field(self, association):
+        if association is not None:
+            if association.name == 'TÅGEKAMMERET':
+                return TKPeriodField(required=False)
+            elif association.name == '@lkymia':
+                return APeriodField(required=False)
+
+    def clean_association(self):
+        a = self.cleaned_data['association']
+        self.did_clean_association = True
+        return a
+
+    def clean_period(self):
+        if not self.did_clean_association:
+            raise ValidationError("Cleaned fields in the wrong order")
+        p = self.cleaned_data['period']
+        field = self.get_period_field(self.cleaned_data['association'])
+        if not field:
+            return p
+        p = field.clean(p)
+        if p and not isinstance(p, six.integer_types):
+            raise ValidationError(
+                "Period is %r, not an int; field is %s" %
+                (p, type(self.fields['period'])))
+        return p
+
+
 @label_placeholder
-class ProfileCreateForm(forms.Form):
+class ProfileCreateForm(forms.Form, PeriodFieldMixin):
     name = forms.CharField(required=False, label='Navn')
     title = forms.CharField(required=False, label='Titel')
-    period = forms.IntegerField(required=False, label='År/semester')
     association = AssociationModelChoiceField(
         required=False, empty_label='Forening')
+    period = forms.CharField(required=False, label='År/semester')
 
     def clean(self):
+        self.did_clean_association = False
         cleaned_data = super(ProfileCreateForm, self).clean()
-        name = cleaned_data['name']
-        title = cleaned_data['title']
-        association = cleaned_data['association']
+
+        association = cleaned_data.get('association')
+        period = cleaned_data.get('period')
+        if cleaned_data.get('title'):
+            if 'association' in cleaned_data and not association:
+                self.add_error(
+                    'association',
+                    'Tilknytning er påkrævet når titel er oplyst')
+        elif 'period' in cleaned_data and period is not None:
+            self.add_error('title', 'Titel er påkrævet når periode er oplyst')
+
+        name = cleaned_data.get('name')
+        title = cleaned_data.get('title')
         if not name and not title:
             self.add_error('name', 'Navn er påkrævet.')
-        if title and not association:
-            self.add_error('association', 'Titel kræver en tilknytning.')
+        return cleaned_data
 
     def save(self, instance):
         instance.name = self.cleaned_data['name']
@@ -82,42 +120,15 @@ class UserCreationForm(AdminUserCreationForm):
 
 
 @label_placeholder
-class ProfileEditForm(forms.ModelForm):
+class ProfileEditForm(forms.ModelForm, PeriodFieldMixin):
     class Meta:
         model = Profile
         fields = ['name', 'favorite_drink', 'association']
 
     title = forms.CharField(required=False, label='Titel')
-    association = forms.ModelChoiceField(
-        Association.objects.all(), required=False,
-        empty_label=Association.none_string(), label='Tilknytning')
+    association = AssociationModelChoiceField(
+        required=False, empty_label='Forening')
     period = forms.CharField(required=False, label='Periode')
-
-    def set_period_field(self, association):
-        self.fields['period'] = forms.IntegerField(required=False)
-        if association is not None:
-            if association.name == 'TÅGEKAMMERET':
-                self.fields['period'] = TKPeriodField(required=False)
-            elif association.name == '@lkymia':
-                self.fields['period'] = APeriodField(required=False)
-
-    def clean_association(self):
-        a = self.cleaned_data['association']
-        self.set_period_field(a)
-        self.did_clean_association = True
-        return a
-
-    def clean_period(self):
-        if not self.did_clean_association:
-            raise ValidationError("Cleaned fields in the wrong order")
-        p = self.cleaned_data['period']
-        p = self.fields['period'].clean(p)
-        if not p:
-            return None
-        if not isinstance(p, six.integer_types):
-            raise ValidationError("Period is %r, not an int; field is %s" %
-                (p, type(self.fields['period'])))
-        return p
 
     def clean(self):
         self.did_clean_association = False
