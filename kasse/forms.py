@@ -150,8 +150,6 @@ class ProfileEditForm(forms.ModelForm, PeriodFieldMixin):
             kwargs['initial']['title'] = instance.title.title
             kwargs['initial']['period'] = instance.title.period
         super(ProfileEditForm, self).__init__(*args, **kwargs)
-        if not self.is_bound:
-            self.set_period_field(instance.association)
 
     def save(self):
         instance = super(ProfileEditForm, self).save(commit=False)
