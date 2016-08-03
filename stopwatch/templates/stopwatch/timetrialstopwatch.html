@@ -1,9 +1,9 @@
 {% extends "kasse/base.html" %}
 {% load staticfiles %}
 {% load kasse_extras %}
+{% load assets %}
 {% block title %}Stopur{% endblock %}
 {% block head %}
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <link rel="stylesheet" href="{% static "stopwatch/stopwatch.css" %}" />
 <script>
 function reverse(name, pk) {
@@ -31,12 +31,14 @@ var fetch_pk = null;
 var time_attack = ((initial_state === null) ?
 	null : initial_state['time_attack']);
 </script>
-<script src="{% static "stopwatch/stopwatch.js" %}"></script>
 <script>
 // Picture element HTML5 shiv
 document.createElement( "picture" );
 </script>
-<script src="{% static "picturefill.js" %}" async></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+{% assets "stopwatch" %}
+<script type="text/javascript" src="{{ ASSET_URL }}" async></script>
+{% endassets %}
 <style>
 #id_legs {
     width: 3em;

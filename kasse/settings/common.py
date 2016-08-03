@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sorl.thumbnail',
+    'django_assets',
     'kasse.apps.KasseConfig',
     'stopwatch.apps.StopwatchConfig',
     'iou.apps.IouConfig',
@@ -110,6 +111,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'django_assets.finders.AssetsFinder',
+]
+
+ASSETS_ROOT = BASE_DIR
 
 
 LOGGING = {
