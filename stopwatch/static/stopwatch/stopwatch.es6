@@ -217,9 +217,7 @@ function reset(ev) {
     add_possible_lap("Reset");
     start_time = null;
     laps = [];
-    for (let i = 0; i < possible_laps.length; i += 1) {
-        possible_laps[i].lap = false;
-    }
+    for (const l of possible_laps) l.lap = false;
     update_laps();
     div_stopwatch.className = 'initial';
     update_div_time(0, 2);
@@ -242,19 +240,13 @@ function window_click(ev) {
 
 // getCookie from https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/
 function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+    const cookies = (document.cookie || '').split(';').map(String.trim);
+    for (const cookie of cookies) {
+        // Does this cookie string begin with the name we want?
+        if (cookie.substring(0, name.length + 1) === (name + '='))
+            return decodeURIComponent(cookie.substring(name.length + 1));
     }
-    return cookieValue;
+    return null;
 }
 const csrftoken = getCookie('csrftoken');
 
@@ -308,9 +300,8 @@ function update_state(state) {
 
     laps = [];
     let p = 0;
-    for (let i = 0; i < state['durations'].length; ++i) {
-        const l = (1000 * state['durations'][i])|0;
-        p += l;
+    for (const duration of state['durations']) {
+        p += (1000 * duration)|0;
         laps.push(p);
     }
     update_laps();
@@ -362,8 +353,7 @@ function takePictureChange(ev) {
     const files = ev.target.files || [];
     if (files.length === 0) console.log("files is empty");
     div_pictures.innerHTML = '';
-    for (let i = 0; i < files.length; ++i) {
-        const file = files[i];
+    for (const file of files) {
         const imgURL = URL.createObjectURL(file);
         const img = document.createElement('img');
         img.src = imgURL;
