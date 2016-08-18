@@ -56,15 +56,15 @@ def get_current_events(qs, now=None):
     if now is None:
         now = timezone.now()
 
-    day = datetime.timedelta(hours=24)
+    threshold = datetime.timedelta(hours=24)
     qs = qs.exclude(Q(state='initial') & ~Q(result=''))
     qs = qs.exclude(profile__newsprofile__ignore=True)
-    qs = qs.filter(created_time__gt=now - day)
+    qs = qs.filter(created_time__gt=now - threshold)
 
     qs = qs.order_by('profile_id')
     qs_groups = itertools.groupby(qs, key=lambda tt: tt.profile_id)
 
-    last_modified = now - day
+    last_modified = now - threshold
 
     timetrials = []
     for profile_id, tts in qs_groups:
