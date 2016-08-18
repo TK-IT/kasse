@@ -367,7 +367,7 @@ def update_report(delivery, state, current_events, logger):
         prev_profiles = state.get(post, dict())
         prev_comments = get_post_comments(prev_profiles)
         cur_comments = get_post_comments(profiles)
-        new_comments = sorted(cur_comments - prev_comments)
+        new_comments = sorted(cur_comments - prev_comments, key=str)
 
         prev_post_state = get_post_state(prev_profiles)
         cur_post_state = get_post_state(profiles)
