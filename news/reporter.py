@@ -56,7 +56,7 @@ def get_current_events(qs, now=None):
     if now is None:
         now = timezone.now()
 
-    threshold = datetime.timedelta(hours=24)
+    threshold = datetime.timedelta(hours=12)
     qs = qs.exclude(Q(state='initial') & ~Q(result=''))
     qs = qs.exclude(profile__newsprofile__ignore=True)
     qs = qs.filter(created_time__gt=now - threshold)
