@@ -312,8 +312,8 @@ def update_report(delivery, state, current_events, logger):
         upcoming_post = next(
             post
             for post, profiles in state.items()
-            if all(state[0] == 'upcoming'
-                   for profile, (tt, state, comments) in profiles.items())
+            if all(st[0] == 'upcoming'
+                   for profile, (tt, st, comments) in profiles.items())
         )
     except StopIteration:
         upcoming_post = None
