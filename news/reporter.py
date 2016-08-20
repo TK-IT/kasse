@@ -283,6 +283,29 @@ def info_links(tts):
         ', '.join('https://tket.dk/5/%d' % i for i in pks))
 
 
+def reconstruct_state(timetrials):
+    """
+    timetrials[tt] == post means tt is associated with post.
+
+    >>> from kasse.models import Profile
+    >>> p1, p2, p3 = Profile(pk=1), Profile(pk=2), Profile(pk=3)
+    >>> tt1 = TimeTrial(profile=p1), tt2 = TimeTrial(profile=p2)
+    >>> tt3 = TimeTrial(profile=p3)
+    >>> st = reconstruct_state({tt1: 'a', tt2: 'a', tt3: 'b'})
+    >>> sorted(st)
+    ['a', 'b']
+    >>> set(st['a']), set(st['b']) == set([p1, p2]), set([p3])
+    True
+    >>> st['a'][p1][0] == tt1
+    True
+    """
+    posts = set(timetrials.values())
+    return {post: {tt.profile: (tt, None, [])
+                   if post == post_
+                   for tt, post_ in timetrials.items()}
+            for post in posts}
+
+
 def update_report(delivery, state, current_events, logger):
     """
     Given a delivery agent, a state, and the latest CurrentEvents,
