@@ -297,12 +297,9 @@ def update_report(delivery, state, current_events, logger):
     - new_post(text), returning a post object
     - comment_on_post(post, text, attachment), returning a comment object
     - edit_post(text)
-    where the post objects and comment objects may be of any hashable type
-    (this function treats them as opaque objects).
+    where the post objects and comment objects may be of any hashable type.
     See implementations news.daemon.FacebookDelivery
     and news.test.TestDelivery.
-
-    The calling function should treat the state returned opaquely.
     """
 
     if state is None:
