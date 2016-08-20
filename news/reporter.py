@@ -288,9 +288,9 @@ def update_report(delivery, state, current_events, logger):
     Given a delivery agent, a state, and the latest CurrentEvents,
     report to the delivery agent and return the new state.
 
-    state is a dict of {post: {profile: (tt, state, comments)}},
+    state is a dict of {post: {profile: (tt, st, comments)}},
     where post is a post, profile is a profile, tt is a TimeTrial,
-    state is a state as reported by get_timetrial_state, comments
+    st is a state as reported by get_timetrial_state, comments
     is a set of comments as reported by get_timetrial_comments.
 
     The delivery agent must support the three methods:
@@ -309,6 +309,7 @@ def update_report(delivery, state, current_events, logger):
         state = dict()
 
     try:
+        # Find an existing post where all states are "upcoming".
         upcoming_post = next(
             post
             for post, profiles in state.items()
@@ -318,6 +319,7 @@ def update_report(delivery, state, current_events, logger):
     except StopIteration:
         upcoming_post = None
 
+    # If profile_posts[profile] == post, then profile is a key in state[post].
     profile_posts = {
         profile: post
         for post, profiles in state.items()
@@ -341,14 +343,14 @@ def update_report(delivery, state, current_events, logger):
     def get_post_comments(profiles):
         return set(
             (profile, comment)
-            for profile, (tt, state, comments) in profiles.items()
+            for profile, (tt, st, comments) in profiles.items()
             for comment in comments
         )
 
     def get_post_state(profiles):
         return {
-            profile: state
-            for profile, (tt, state, comments) in profiles.items()
+            profile: st
+            for profile, (tt, st, comments) in profiles.items()
         }
 
     def post_state_repr(post_state):
@@ -359,8 +361,8 @@ def update_report(delivery, state, current_events, logger):
 
     for post, profiles in new_state.items():
         if post is None and len(profiles) == 1:
-            (tt, state_, comments), = profiles.values()
-            if state_[0] == 'upcoming' and not tt_kasse_i_kass(tt):
+            (tt, st, comments), = profiles.values()
+            if st[0] == 'upcoming' and not tt_kasse_i_kass(tt):
                 # Only a single upcoming TimeTrial -- don't create this post
                 continue
 
@@ -373,7 +375,7 @@ def update_report(delivery, state, current_events, logger):
         cur_post_state = get_post_state(profiles)
         if prev_post_state != cur_post_state:
             post_text = describe_timetrial_state(cur_post_state)
-            tts = [tt for profile, (tt, state_, comments) in profiles.items()]
+            tts = [tt for profile, (tt, st, comments) in profiles.items()]
             post_links = info_links(tts)
             if post_links:
                 post_text += '\n' + post_links
