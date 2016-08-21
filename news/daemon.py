@@ -23,21 +23,26 @@ from news.facebook import new_post, comment_on_post, edit_post
 logger = logging.getLogger('news')
 
 
-def main():
-    qs = TimeTrial.objects.all()
-    delivery = FacebookDelivery()
-    events = get_current_events(qs)
-    state = reconstruct_state(events)
-    state = update_report(delivery, state, events, logger)
-
+def get_current_events_wait():
     while True:
         try:
-            events = get_current_events(qs.all())
-            state = update_report(delivery, state, events, logger)
+            events = get_current_events(TimeTrial.objects.all())
         except TryAgainShortly as e:
             logger.debug("Try again in %s", e.suggested_wait)
             time.sleep(e.suggested_wait)
             continue
+        return events
+
+
+def main():
+    delivery = FacebookDelivery()
+    events = get_current_events_wait()
+    state = reconstruct_state(events)
+    state = update_report(delivery, state, events, logger)
+
+    while True:
+        events = get_current_events_wait()
+        state = update_report(delivery, state, events, logger)
         time.sleep(15)
 
 
