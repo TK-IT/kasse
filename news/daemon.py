@@ -13,7 +13,10 @@ if __name__ == "__main__":
     django.setup()
 
 from stopwatch.models import TimeTrial
-from news.reporter import TryAgainShortly, get_current_events, update_report
+from news.reporter import (
+    TryAgainShortly, get_current_events, update_report,
+    reconstruct_state,
+)
 from news.facebook import new_post, comment_on_post, edit_post
 
 
@@ -24,7 +27,7 @@ def main():
     qs = TimeTrial.objects.all()
     delivery = FacebookDelivery()
     events = get_current_events(qs)
-    state = None
+    state = reconstruct_state(events)
     state = update_report(delivery, state, events, logger)
 
     while True:
