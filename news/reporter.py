@@ -39,7 +39,7 @@ def timetrial_tiebreaker(tt):
     )
 
 
-def get_current_events(qs, now=None):
+def get_current_events(qs, now=None, grace_seconds=5):
     """Get a list of the recently active TimeTrials.
 
     Only consider TimeTrials that have been created recently.
@@ -79,7 +79,6 @@ def get_current_events(qs, now=None):
         timetrials.append(tt)
 
     age = (now - last_modified).total_seconds()
-    grace_seconds = 5
     if age < grace_seconds:
         raise TryAgainShortly(grace_seconds - age)
     return timetrials
