@@ -282,7 +282,7 @@ def info_links(tts):
         ', '.join('https://tket.dk/5/%d' % i for i in pks))
 
 
-def reconstruct_state(timetrials):
+def reconstruct_state_help(timetrials):
     """
     timetrials[tt] == post means tt is associated with post.
 
@@ -290,7 +290,7 @@ def reconstruct_state(timetrials):
     >>> p1, p2, p3 = Profile(pk=1), Profile(pk=2), Profile(pk=3)
     >>> tt1 = TimeTrial(profile=p1), tt2 = TimeTrial(profile=p2)
     >>> tt3 = TimeTrial(profile=p3)
-    >>> st = reconstruct_state({tt1: 'a', tt2: 'a', tt3: 'b'})
+    >>> st = reconstruct_state_help({tt1: 'a', tt2: 'a', tt3: 'b'})
     >>> sorted(st)
     ['a', 'b']
     >>> set(st['a']), set(st['b']) == set([p1, p2]), set([p3])
@@ -303,6 +303,16 @@ def reconstruct_state(timetrials):
                    if post == post_
                    for tt, post_ in timetrials.items()}
             for post in posts}
+
+
+def reconstruct_state(timetrials):
+    d = {}
+    for tt in timetrials:
+        try:
+            d[tt] = tt.post_set.all()[0]
+        except IndexError:
+            pass  # Don't insert tt
+    return reconstruct_state(d)
 
 
 def update_report(delivery, state, current_events, logger):
