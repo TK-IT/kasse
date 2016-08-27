@@ -1,7 +1,8 @@
 import contextlib
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 
@@ -31,10 +32,17 @@ class MyTest(StaticLiveServerTestCase):
     def test_login(self):
         self.browser.get(self.live_server_url)
 
-        username_input = self.browser.find_element_by_name("username")
-        username_input.send_keys('luser')
+        username_input = self.browser.find_element_by_id("profile_text")
+        username_input.click()
+        username_input.send_keys('bru', Keys.TAB)
         password_input = self.browser.find_element_by_name("password")
         password_input.send_keys('hunter2')
-        self.submit_by_xpath('//input[@value="Login"]')
-        self.assertEquals(self.browser.title, "Lokaleplaner")
-        self.submit_by_xpath('//input[@value="Opret ny"]')
+        self.submit_by_xpath('//input[@value="Log ind"]')
+        self.assertEquals(self.browser.title, "En kasse i en festforening")
+
+        self.browser.get(self.live_server_url + '/timetrial/stopwatch/')
+        profile_input = self.browser.find_element_by_name('profile')
+        profile_select = Select(profile_input)
+        profile_select.select_by_value('1')
+        self.submit_by_xpath('//input[@value="Åbn stopur nu!"]')
+        self.assertIn("Stopur", self.browser.title)
