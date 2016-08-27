@@ -13,7 +13,7 @@ from django.conf.urls.static import static
 from kasse.views import (
     Home, Log, Login, Logout, ProfileCreate, ChangePassword, ProfileView,
     ProfileEdit, ProfileEditAdmin, UserCreate, Association, ProfileList,
-    ProfileMerge, ContestCreate,
+    ProfileMerge, ContestCreate, AssociationPeriodUpdate,
 )
 import stopwatch.urls
 import iou.urls
@@ -54,6 +54,8 @@ urlpatterns = [
 
     url(r'^association/$', Association.as_view(),
         name='association'),
+    url(r'^gf/$', AssociationPeriodUpdate.as_view(),
+        name='association_period_update'),
     url(r'^result/$', ContestCreate.as_view(),
         name='contest_create'),
 ]

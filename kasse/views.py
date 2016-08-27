@@ -27,9 +27,10 @@ from kasse.forms import (
     LoginForm, ProfileCreateForm,
     ProfileEditForm, UserCreationForm,
     AssociationForm, ProfileMergeForm,
-    ContestForm,
+    ContestForm, AssociationPeriodForm,
 )
 from kasse.models import Profile, Contest
+import kasse.models
 
 import stopwatch.models
 import iou.models
@@ -413,3 +414,45 @@ class ContestCreate(CreateView):
 
     def get_success_url(self):
         return reverse('home')
+
+
+@superuser_required
+class AssociationPeriodUpdate(FormView):
+    form_class = AssociationPeriodForm
+    template_name = 'kasse/associationperiodform.html'
+
+    def get_association(self):
+        return kasse.models.Association.objects.get(pk=1)
+
+    def get_period(self):
+        d = datetime.date.today()
+        return d.year
+
+    def get_titles(self):
+        titles = 'CERM FORM INKA KA$$ NF PR SEKR VC'.split()
+        return [(title.replace('$', 'S'), title) for title in titles]
+
+    def get_form_kwargs(self, **kwargs):
+        data = super(AssociationPeriodUpdate, self).get_form_kwargs(**kwargs)
+        data['titles'] = self.get_titles()
+        qs = Profile.all_named().filter(association=self.get_association())
+        qs = qs.order_by('display_name')
+        data['profiles'] = qs
+        return data
+
+    def get_context_data(self, **kwargs):
+        data = super(AssociationPeriodUpdate, self).get_context_data(**kwargs)
+        data['period'] = self.get_period()
+        data['association'] = self.get_association()
+        return data
+
+    def form_valid(self, form):
+        association = self.get_association()
+        association.current_period = self.get_period()
+        association.save()
+        for key, title in self.get_titles():
+            if form.cleaned_data[key]:
+                form.cleaned_data[key].set_title(title, self.get_period())
+                form.cleaned_data[key].save()
+        context_data = self.get_context_data(form=form, message='Gemt!')
+        return self.render_to_response(context_data)

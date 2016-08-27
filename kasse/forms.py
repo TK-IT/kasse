@@ -193,3 +193,13 @@ class ContestForm(forms.ModelForm):
         value = self.cleaned_data['alkymia']
         parse_duration(value)
         return value
+
+
+class AssociationPeriodForm(forms.Form):
+    def __init__(self, **kwargs):
+        self.titles = kwargs.pop('titles')
+        profiles = kwargs.pop('profiles')
+        super(AssociationPeriodForm, self).__init__(**kwargs)
+        for key, label in self.titles:
+            self.fields[key] = forms.ModelChoiceField(
+                queryset=profiles, required=False, label=label)
