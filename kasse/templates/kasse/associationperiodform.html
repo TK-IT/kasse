@@ -8,6 +8,7 @@
 {% endif %}
 <form method="post">{% csrf_token %}
 {{ form.as_p }}
+<p>Nuværende bestyrelsesår: {{ association.current_period }}</p>
 <input type="submit" value="Opdatér bestyrelsesåret til {{ period }}" />
 </form>
 {% endblock %}
