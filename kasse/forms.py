@@ -91,13 +91,12 @@ class ProfileCreateForm(forms.Form, PeriodFieldMixin):
         cleaned_data = super(ProfileCreateForm, self).clean()
 
         association = cleaned_data.get('association')
-        period = cleaned_data.get('period')
         if cleaned_data.get('title'):
             if 'association' in cleaned_data and not association:
                 self.add_error(
                     'association',
                     'Tilknytning er påkrævet når titel er oplyst')
-        elif 'period' in cleaned_data and period is not None:
+        elif cleaned_data.get('period'):
             self.add_error('title', 'Titel er påkrævet når periode er oplyst')
 
         name = cleaned_data.get('name')
@@ -134,13 +133,12 @@ class ProfileEditForm(forms.ModelForm, PeriodFieldMixin):
         self.did_clean_association = False
         cleaned_data = super(ProfileEditForm, self).clean()
         association = cleaned_data.get('association')
-        period = cleaned_data.get('period')
         if cleaned_data.get('title'):
             if 'association' in cleaned_data and not association:
                 self.add_error(
                     'association',
                     'Tilknytning er påkrævet når titel er oplyst')
-        elif 'period' in cleaned_data and period is not None:
+        elif cleaned_data.get('period'):
             self.add_error('title', 'Titel er påkrævet når periode er oplyst')
         return cleaned_data
 
