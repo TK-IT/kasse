@@ -75,12 +75,19 @@ class GraphAPI(object):
     """
 
     def __init__(
-        self, access_token=None, timeout=None, version=None, proxies=None, session=None
+        self,
+        access_token=None,
+        timeout=None,
+        version=None,
+        proxies=None,
+        session=None,
+        app_secret=None,
     ):
         self.access_token = access_token
         self.timeout = timeout
         self.proxies = proxies
         self.session = session or requests.Session()
+        self.app_secret_hmac = None
 
         if version:
             version_regex = re.compile("^\d\.\d{1,2}$")
@@ -94,6 +101,13 @@ class GraphAPI(object):
                 )
         else:
             raise GraphAPIError("Version is required")
+
+        if app_secret and access_token:
+            self.app_secret_hmac = hmac.new(
+                app_secret.encode("ascii"),
+                msg=access_token.encode("ascii"),
+                digestmod=hashlib.sha256,
+            ).hexdigest()
 
     def get_permissions(self, user_id):
         """Fetches the permissions object from the graph."""
@@ -237,15 +251,20 @@ class GraphAPI(object):
         if post_args is not None:
             method = "POST"
 
-        # Add `access_token` to post_args or args if it has not already been
-        # included.
-        if self.access_token:
+        # Add `access_token` and app secret proof (`app_secret_hmac`) to
+        # post_args or args if they exist and have not already been included.
+        def _add_to_post_args_or_args(arg_name, arg_value):
             # If post_args exists, we assume that args either does not exists
-            # or it does not need `access_token`.
-            if post_args and "access_token" not in post_args:
-                post_args["access_token"] = self.access_token
-            elif "access_token" not in args:
-                args["access_token"] = self.access_token
+            # or it does not need updating.
+            if post_args and arg_name not in post_args:
+                post_args[arg_name] = arg_value
+            elif arg_name not in args:
+                args[arg_name] = arg_value
+
+        if self.access_token:
+            _add_to_post_args_or_args("access_token", self.access_token)
+        if self.app_secret_hmac:
+            _add_to_post_args_or_args("appsecret_proof", self.app_secret_hmac)
 
         try:
             response = self.session.request(
