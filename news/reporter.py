@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from kasse.templatetags.kasse_extras import display_duration_plain
+from news.facebook import ServiceUnavailable
 
 
 def frozendict(**kwargs):
@@ -400,13 +401,17 @@ def update_report(delivery, state, current_events, logger):
                         comment_to_string(profile, (kind, args)))
             comment_text = '\n'.join(comment_texts)
             attachment = attachments[0][1] if attachments else None
-            comment = delivery.comment_on_post(post, comment_text, attachment)
-            logger.info("Comment %s: %r attachment=%r",
-                        comment, new_comments, attachment)
-            for profile, url in attachments[1:]:
+            try:
                 comment = delivery.comment_on_post(
-                    post, "%s har tilføjet et billede." % profile, url)
-                logger.info("Attachment comment %s: %r", comment, url)
+                    post, comment_text, attachment)
+                logger.info("Comment %s: %r attachment=%r",
+                            comment, new_comments, attachment)
+                for profile, url in attachments[1:]:
+                    comment = delivery.comment_on_post(
+                        post, "%s har tilføjet et billede." % profile, url)
+                    logger.info("Attachment comment %s: %r", comment, url)
+            except ServiceUnavailable:
+                logger.exception("Service unavailable when posting comment")
 
     if the_new_post is not None:
         new_state[the_new_post] = new_state.pop(None)
