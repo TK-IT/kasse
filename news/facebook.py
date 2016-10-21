@@ -10,6 +10,11 @@ logger = logging.getLogger('news')
 from news.models import Config, Post, Comment
 
 
+class ServiceUnavailable(Exception):
+    def __init__(self):
+        super().__init__("Service temporarily unavailable")
+
+
 def access_page():
     c = Config.objects.get()
     return facebook.GraphAPI(c.page_access_token, version='2.5')
@@ -39,10 +44,13 @@ def comment_on_post(post, text, attachment=None):
         data['attachment_url'] = attachment
     try:
         o = graph.put_object(post.fbid, 'comments', **data)
-    except facebook.GraphAPIError:
-        logger.exception("GraphAPIError while posting to /%s/comments %r",
-                         post.fbid, data)
-        raise
+    except facebook.GraphAPIError as exn:
+        if str(exn) == '(#2) Service temporarily unavailable':
+            raise ServiceUnavailable() from exn
+        else:
+            logger.exception("GraphAPIError while posting to /%s/comments %r",
+                             post.fbid, data)
+            raise
     p = Comment(post=post, fbid=o['id'], text=text)
     p.save()
     return p
