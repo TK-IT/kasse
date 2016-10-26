@@ -287,7 +287,9 @@ class GraphAPI(object):
                 "client_secret": app_secret,
             }
 
-            return self.request("oauth/access_token", args=args)["access_token"]
+            return self.request(self.version + "/" + "oauth/access_token", args=args)[
+                "access_token"
+            ]
 
     def get_access_token_from_code(self, code, redirect_uri, app_id, app_secret):
         """Get an access token from the "code" returned from an OAuth dialog.
@@ -303,7 +305,7 @@ class GraphAPI(object):
             "client_secret": app_secret,
         }
 
-        return self.request("oauth/access_token", args)
+        return self.request(self.version + "/" + "oauth/access_token", args)
 
     def extend_access_token(self, app_id, app_secret):
         """
@@ -319,7 +321,7 @@ class GraphAPI(object):
             "fb_exchange_token": self.access_token,
         }
 
-        return self.request("oauth/access_token", args=args)
+        return self.request(self.version + "/" + "oauth/access_token", args=args)
 
     def debug_access_token(self, token, app_id, app_secret):
         """
@@ -336,7 +338,7 @@ class GraphAPI(object):
             "input_token": token,
             "access_token": "{0}|{1}".format(app_id, app_secret),
         }
-        return self.request("/debug_token", args=args)
+        return self.request(self.version + "/" + "debug_token", args=args)
 
 
 class GraphAPIError(Exception):
