@@ -92,7 +92,7 @@ class GraphAPI(object):
 
     def get_object(self, id, **args):
         """Fetches the given object from the graph."""
-        return self.request(self.version + "/" + id, args)
+        return self.request("{0}/{1}".format(self.version, id), args)
 
     def get_objects(self, ids, **args):
         """Fetches all of the given object from the graph.
@@ -105,7 +105,9 @@ class GraphAPI(object):
 
     def get_connections(self, id, connection_name, **args):
         """Fetches the connections for given object."""
-        return self.request("%s/%s/%s" % (self.version, id, connection_name), args)
+        return self.request(
+            "{0}/{1}/{2}".format(self.version, id, connection_name), args
+        )
 
     def put_object(self, parent_object, connection_name, **data):
         """Writes the given object to the graph, connected to the given parent.
@@ -128,7 +130,7 @@ class GraphAPI(object):
         """
         assert self.access_token, "Write operations require an access token"
         return self.request(
-            self.version + "/" + parent_object + "/" + connection_name,
+            "{0}/{1}/{2}".format(self.version, parent_object, connection_name),
             post_args=data,
             method="POST",
         )
@@ -161,11 +163,11 @@ class GraphAPI(object):
 
     def delete_object(self, id):
         """Deletes the object with the given ID from the graph."""
-        self.request(self.version + "/" + id, method="DELETE")
+        self.request("{0}/{1}".format(self.version, id), method="DELETE")
 
     def delete_request(self, user_id, request_id):
         """Deletes the Request with the given ID for the given user."""
-        self.request("%s_%s" % (request_id, user_id), method="DELETE")
+        self.request("{0}_{1}".format(request_id, user_id), method="DELETE")
 
     def put_photo(self, image, album_path="me/photos", **kwargs):
         """
@@ -176,7 +178,7 @@ class GraphAPI(object):
 
         """
         return self.request(
-            self.version + "/" + album_path,
+            "{0}/{1}".format(self.version, album_path),
             post_args=kwargs,
             files={"source": image},
             method="POST",
@@ -275,7 +277,7 @@ class GraphAPI(object):
         access-tokens#apptokens>
         """
         if offline:
-            return "%s|%s" % (app_id, app_secret)
+            return "{0}|{1}".format(app_id, app_secret)
         else:
             args = {
                 "grant_type": "client_credentials",
@@ -328,7 +330,10 @@ class GraphAPI(object):
         facebook-login/access-tokens#apptokens>
 
         """
-        args = {"input_token": token, "access_token": "%s|%s" % (app_id, app_secret)}
+        args = {
+            "input_token": token,
+            "access_token": "{0}|{1}".format(app_id, app_secret),
+        }
         return self.request("/debug_token", args=args)
 
 
