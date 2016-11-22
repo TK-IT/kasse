@@ -1,0 +1,14 @@
+[Unit]
+Description=Post updates to fb.com/enkasseienfestforening.dk
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+ExecStart=/home/rav/enkasseienfestforening.dk/venv/bin/python -m news.daemon
+Restart=on-failure
+RestartSec=5hours
+WorkingDirectory=/home/rav/enkasseienfestforening.dk/kasse
+User=rav
+Group=rav
+Environment=PYTHONPATH=. VIRTUAL_ENV=/home/rav/enkasseienfestforening.dk/venv PATH=/home/rav/enkasseienfestforening.dk/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
