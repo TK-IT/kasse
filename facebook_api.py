@@ -225,7 +225,7 @@ class GraphAPI(object):
         except Exception:
             raise GraphAPIError("API version number not available")
 
-    def request(self, path, args=dict(), post_args=None, files=None, method=None):
+    def request(self, path, args=None, post_args=None, files=None, method=None):
         """Fetches the given path in the Graph API.
 
         We translate args to a valid query string. If post_args is
@@ -233,7 +233,8 @@ class GraphAPI(object):
         arguments.
 
         """
-
+        if args is None:
+            args = dict()
         if post_args is not None:
             method = "POST"
 
