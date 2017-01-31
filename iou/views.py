@@ -15,6 +15,7 @@ class BalanceList(ListView):
         qs = ExpenceProfile.all_named()
         if self.request.association:
             qs = qs.filter(association=self.request.association)
+        qs = [p for p in qs if p.balance]
         return sorted(qs, key=lambda p: p.balance)
 
 
