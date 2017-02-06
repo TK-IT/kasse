@@ -259,6 +259,7 @@ class TimeTrialLiveUpdate(BaseFormView):
         old_legs = [l.duration for l in timetrial.leg_set.all()]
         legs = [d.total_seconds() for d in form.cleaned_data['durations']]
         timetrial.result = ''
+        timetrial.possible_laps = form.cleaned_data['possible_laps']
         timetrial.state = form.cleaned_data['state']
 
         elapsed_time = form.cleaned_data['elapsed_time']

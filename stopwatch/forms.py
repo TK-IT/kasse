@@ -76,6 +76,9 @@ class TimeTrialLiveForm(forms.Form):
     durations = DurationListField(required=False)
     elapsed_time = forms.DurationField()
     roundtrip_estimate = forms.FloatField(initial=0)
+    possible_laps = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': '5', 'cols': '20'}))
     state = forms.ChoiceField(choices=STATES)
 
 
@@ -119,7 +122,7 @@ class TimeTrialForm(forms.ModelForm):
     class Meta:
         model = TimeTrial
         fields = ('profile', 'state', 'result', 'start_time',
-                  'comment', 'residue')
+                  'comment', 'residue', 'possible_laps')
 
     durations = DurationListField(
         required=False,

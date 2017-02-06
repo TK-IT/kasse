@@ -273,6 +273,7 @@ function post_live_update() {
         'durations': form.durations.value,
         'elapsed_time': n / 1000,
         'roundtrip_estimate': roundtrip_estimate / 1000,
+        'possible_laps': JSON.stringify(possible_laps),
         'state': div_stopwatch.className
     };
     function measure_roundtrip() {

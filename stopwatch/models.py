@@ -51,6 +51,8 @@ class TimeTrial(models.Model):
     beverage = models.ForeignKey(
         'Beverage', blank=True, null=True, on_delete=models.SET_NULL)
 
+    possible_laps = models.TextField(blank=True)
+
     def get_result_mark(self):
         if self.result == 'f':
             return '✓'
