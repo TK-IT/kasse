@@ -122,7 +122,7 @@ class TimeTrialForm(forms.ModelForm):
     class Meta:
         model = TimeTrial
         fields = ('profile', 'state', 'result', 'start_time',
-                  'comment', 'residue', 'possible_laps')
+                  'comment', 'residue')
 
     durations = DurationListField(
         required=False,

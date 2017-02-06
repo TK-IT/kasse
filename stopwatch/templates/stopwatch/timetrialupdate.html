@@ -8,4 +8,17 @@
 {{ form.as_p }}
 <input type="submit" />
 </form>
+
+{% if possible_laps %}
+<p>Mulige lap-tider:</p>
+<table>
+<tbody>
+{% for lap in possible_laps %}
+<tr><td align=right>{{ lap.seconds|floatformat:3 }}</td>
+<td>{{ lap.comment }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+
 {% endblock %}

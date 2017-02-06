@@ -5,7 +5,7 @@ import json
 import logging
 import datetime
 
-from django.core.exceptions import FieldError
+from django.core.exceptions import FieldError, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
@@ -388,6 +388,15 @@ class TimeTrialUpdate(UpdateView):
         if not self.request.user.is_superuser:
             return permission_denied(request, exception=None)
         return super(TimeTrialUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        timetrial = context_data['object']
+        try:
+            context_data['possible_laps'] = timetrial.parse_possible_laps()
+        except ValidationError:
+            pass
+        return context_data
 
 
 class TimeTrialAllBest(TemplateView):
