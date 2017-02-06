@@ -1,6 +1,9 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
+import json
+
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
@@ -52,6 +55,25 @@ class TimeTrial(models.Model):
         'Beverage', blank=True, null=True, on_delete=models.SET_NULL)
 
     possible_laps = models.TextField(blank=True)
+
+    def parse_possible_laps(self):
+        if not self.possible_laps:
+            return []
+        try:
+            laps = json.loads(self.possible_laps)
+        except json.JSONDecodeError:
+            raise ValidationError('possible_laps is not valid JSON')
+
+        def parse_lap(lap):
+            if not isinstance(lap, dict):
+                raise ValidationError('lap is not a dict')
+            if lap.keys() != {'time', 'lap', 'comment'}:
+                raise ValidationError('lap has wrong keys')
+            return dict(seconds=lap['time'] / 1000,
+                        lap=lap['lap'],
+                        comment=lap['comment'])
+
+        return [parse_lap(o) for o in laps]
 
     def get_result_mark(self):
         if self.result == 'f':
