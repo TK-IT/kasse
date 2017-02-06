@@ -386,7 +386,7 @@ class TimeTrialUpdate(UpdateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_superuser:
-            return permission_denied(request)
+            return permission_denied(request, exception=None)
         return super(TimeTrialUpdate, self).dispatch(request, *args, **kwargs)
 
 
