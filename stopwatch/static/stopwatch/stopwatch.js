@@ -174,7 +174,6 @@ function add_possible_lap(comment) {
         'lap': false,
         'comment': comment
     });
-    console.log(possible_laps);
 }
 
 function try_add_lap(d) {
