@@ -7,11 +7,14 @@
 .timelinerow {
 	display: flex;
 }
-.timelinerow > *:nth-child(even) {
+.timelinerow div > div:nth-child(odd) {
 	background-color: #ccc;
 }
-.timelinerow > *:last-child {
+.timelinerow div > div:last-child {
 	border-right: 1px solid black;
+}
+.timelinerow > div {
+	display: flex;
 }
 </style>
 {% endblock %}
@@ -24,12 +27,14 @@
 {{ object.profile }}
 </a>
 </div>
+<div style="width: 500px">
 {% for leg in object.leg_set.all %}
-<div style="width: {% widthratio leg.duration duration 500 %}px; text-align: right"
+<div style="width: {{ leg.duration|pct:duration }}%; text-align: right"
 title="Øl {{ leg.order }} færdig efter {{ leg.duration_prefix_sum }} s">
 {{ leg.order }}
 </div>
 {% endfor %}
+</div>
 </div>
 {% endfor %}
 {% endblock %}

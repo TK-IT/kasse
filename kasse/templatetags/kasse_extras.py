@@ -72,3 +72,11 @@ def strip_space_after_tag(o, autoescape=True):
     else:
         s = '%s' % (o,)
     return mark_safe(s.replace("> ", ">", 1))
+
+
+@register.filter
+def pct(value, arg):
+    try:
+        return '{0:.5g}'.format(value / arg * 100)
+    except (ValueError, ZeroDivisionError):
+        return None
