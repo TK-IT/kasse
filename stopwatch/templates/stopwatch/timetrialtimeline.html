@@ -4,16 +4,14 @@
 {% block head %}
 <link rel="stylesheet" href="{% static "stopwatch/stopwatch.css" %}" />
 <style>
-.timelinerow {
-	display: flex;
-}
-.timelinerow > div {
-	display: flex;
-}
-.timelinerow > div > div:nth-child(odd) {
+.timelinerow { display: flex; }
+.timelinerow > .name { display: flex; width: 200px; }
+.timelinerow > .legs { display: flex; width: 500px; }
+.timelinerow > .legs > .leg { text-align: right }
+.timelinerow > .legs > .leg:nth-child(odd) {
 	background-color: #ccc;
 }
-.timelinerow > div > div:last-child {
+.timelinerow > .legs > .leg:last-child {
 	border-right: 1px solid black;
 }
 </style>
@@ -22,14 +20,14 @@
 <h1>Tidslinje</h1>
 {% for object in object_list %}
 <div class="timelinerow">
-<div style="width: 200px">
+<div class="name">
 <a href="{{ object.get_absolute_url }}">
 {{ object.profile }}
 </a>
 </div>
-<div style="width: 500px">
+<div class="legs">
 {% for leg in object.leg_set.all %}
-<div style="width: {{ leg.duration|pct:duration }}%; text-align: right"
+<div class="leg" style="width: {{ leg.duration|pct:duration }}%"
 title="Øl {{ leg.order }} færdig efter {{ leg.duration_prefix_sum }} s">
 {{ leg.order }}
 </div>
