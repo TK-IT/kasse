@@ -12,6 +12,7 @@ if __name__ == "__main__":
 
     django.setup()
 
+import django.db
 from stopwatch.models import TimeTrial
 from news.reporter import TryAgainShortly, get_current_events, update_report
 from news.facebook import new_post, comment_on_post, edit_post
@@ -35,6 +36,9 @@ def main():
             logger.debug("Try again in %s", e.suggested_wait)
             time.sleep(e.suggested_wait)
             continue
+        # Close connection before sleeping
+        # https://code.djangoproject.com/ticket/21597#comment:29
+        django.db.connection.close()
         time.sleep(15)
 
 
