@@ -27,7 +27,7 @@
 </div>
 <div class="legs">
 {% for leg in object.leg_set.all %}
-<div class="leg" style="width: {{ leg.duration|pct:duration }}%"
+<div class="leg" style="width: {% ratio leg.duration duration 100 %}%"
 title="Øl {{ leg.order }} færdig efter {{ leg.duration_prefix_sum }} s">
 {{ leg.order }}
 </div>

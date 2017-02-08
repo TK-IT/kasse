@@ -74,9 +74,9 @@ def strip_space_after_tag(o, autoescape=True):
     return mark_safe(s.replace("> ", ">", 1))
 
 
-@register.filter
-def pct(value, arg):
+@register.simple_tag
+def ratio(value, max_value, max_width):
     try:
-        return '{0:.5g}'.format(value / arg * 100)
+        return '{0:.5g}'.format((value / max_value) * max_width)
     except (ValueError, ZeroDivisionError):
         return None
