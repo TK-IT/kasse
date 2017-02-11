@@ -19,10 +19,12 @@ Seks personer en kasse?
 <p>
 <a class="nav" href="{% url 'timetrial_stopwatch_create' %}" style='font-size: uendeligpx'>Åbn stopuret!</a>
 </p>
+<!--
 <p>
 Næste dyst er <a href="https://www.facebook.com/events/1704470553197763/">
 d. 10. februar 2017</a>, så sæt kryds i kalenderen og kom og hep på dit yndlingshold!
 </p>
+-->
 {% if user.is_authenticated %}
 <form method="post" action="{% url "logout" %}" style="margin: 1em 0">{% csrf_token %}
     <span style="white-space: nowrap">
