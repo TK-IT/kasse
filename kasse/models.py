@@ -172,8 +172,9 @@ def ucfirst(s):
 @python_2_unicode_compatible
 class Contest(models.Model):
     event_time = models.DateTimeField()
-    tk = models.CharField(max_length=200)
-    alkymia = models.CharField(max_length=200)
+    tk = models.CharField(blank=True, null=True, max_length=200)
+    alkymia = models.CharField(blank=True, null=True, max_length=200)
+    hyperlink = models.CharField(blank=True, null=True, max_length=200)
 
     def __str__(self):
         return ("Contest(event_time=%r, tk=%r, alkymia=%r)" %
