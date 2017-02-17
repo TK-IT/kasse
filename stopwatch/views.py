@@ -464,7 +464,7 @@ class IndentJSONEncoder(DjangoJSONEncoder):
 
 
 class Json(View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         data = []
         qs = TimeTrial.objects.all()
         if self.kwargs.get('live'):
