@@ -9,7 +9,6 @@ from django.core.exceptions import FieldError, ValidationError
 from django.core.urlresolvers import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
-from django.db import OperationalError
 from django.utils.safestring import mark_safe
 from django.http import (
     HttpResponse, JsonResponse, HttpResponseRedirect,
@@ -214,16 +213,7 @@ class TimeTrialStopwatch(UpdateView, TimeTrialStateMixin):
         self.object.start_time = form.cleaned_data['start_time']
         self.object.residue = form.cleaned_data['residue']
         self.object.comment = form.cleaned_data['comment']
-        try:
-            self.object.save()
-        except OperationalError:
-            # Work around bug in SQLite
-            # Related to: https://code.djangoproject.com/ticket/18580
-            TimeTrial.objects.filter(pk=self.object.pk).values('id').update(
-                result=form.cleaned_data['result'],
-                start_time=form.cleaned_data['start_time'],
-            )
-        self.object.leg_set.all().delete()
+        self.object.save_robust()
         self.object.set_legs(
             [d.total_seconds() for d in form.cleaned_data['durations']])
         for image in form.cleaned_data['images']:
