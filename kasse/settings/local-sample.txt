@@ -42,3 +42,8 @@ MEDIA_URL = 'http://%s/uploads/' % ALLOWED_HOSTS[0]
 # 3600 = one hour. 31536000 = one year.
 # SECURE_HSTS_SECONDS = 3600
 # SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+ASSETS_CACHE = False
+ASSETS_ROOT = STATIC_ROOT
+ASSETS_MANIFEST = 'file:' + os.path.join(
+    BASE_DIR, 'webassets-manifest')
