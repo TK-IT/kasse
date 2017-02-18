@@ -8,14 +8,18 @@ from kasse.settings.common import *  # NOQA
 
 DEBUG = True
 
-DATABASES['default'] = {
-    'ENGINE': 'django.db.backends.mysql',
-    'NAME': 'kasse',
-    'USER': 'kasse',
-    'PASSWORD': enter password here,
-    'HOST': '',
-    'PORT': '',
-}
+#DATABASES['default'] = {
+#    'ENGINE': 'django.db.backends.mysql',
+#    'NAME': 'kasse',
+#    'USER': 'kasse',
+#    'PASSWORD': enter password here,
+#    'HOST': '',
+#    'PORT': '',
+#}
+
+for h in LOGGING['handlers'].values():
+    if 'filename' in h:
+        h['filename'] = os.path.join(BASE_DIR, 'log.txt')
 
 SECRET_KEY = generate with pwgen -sy 50 1
 
