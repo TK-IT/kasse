@@ -3,18 +3,18 @@ from dukpy.webassets import CompileLess
 from dukpy.webassets import BabelJS
 
 
-js = Bundle('kasse/static/awesomplete/awesomplete.js',
-            'kasse/static/kasse/awesomplete.js',
+js = Bundle('awesomplete/awesomplete.js',
+            'kasse/awesomplete.js',
             filters='jsmin', output='gen/awesomplete.js')
 register('awesomplete', js)
 
-js = Bundle('stopwatch/static/stopwatch/stopwatch.es6',
-            'stopwatch/static/picturefill.js',
+js = Bundle('stopwatch/stopwatch.es6',
+            'picturefill.js',
             filters=(BabelJS, 'jsmin'), output='gen/stopwatch.js')
 register('stopwatch', js)
 
 
-css = Bundle('kasse/static/kasse/style.css',
+css = Bundle('kasse/style.css',
              filters=(CompileLess,), output='gen/kasse.css')
 register('kassestyle', css)
 
