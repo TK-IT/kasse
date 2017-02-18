@@ -1,5 +1,6 @@
 from django_assets import Bundle, register
 from dukpy.webassets import CompileLess
+from dukpy.webassets import BabelJS
 
 
 js = Bundle('kasse/static/awesomplete/awesomplete.js',
@@ -7,9 +8,9 @@ js = Bundle('kasse/static/awesomplete/awesomplete.js',
             filters='jsmin', output='gen/awesomplete.js')
 register('awesomplete', js)
 
-js = Bundle('stopwatch/static/stopwatch/stopwatch.js',
+js = Bundle('stopwatch/static/stopwatch/stopwatch.es6',
             'stopwatch/static/picturefill.js',
-            filters='jsmin', output='gen/stopwatch.js')
+            filters=(BabelJS, 'jsmin'), output='gen/stopwatch.js')
 register('stopwatch', js)
 
 
