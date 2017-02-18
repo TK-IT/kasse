@@ -134,7 +134,8 @@ class TimeTrialForm(forms.ModelForm):
         super(TimeTrialForm, self).__init__(*args, **kwargs)
 
     def save(self):
-        instance = super(TimeTrialForm, self).save(commit=True)
+        instance = super(TimeTrialForm, self).save(commit=False)
+        instance.save_robust()
         instance.set_legs(
             [d.total_seconds() for d in self.cleaned_data['durations']])
         return instance
