@@ -1,4 +1,5 @@
 from django_assets import Bundle, register
+from dukpy.webassets import CompileLess
 
 
 js = Bundle('kasse/static/awesomplete/awesomplete.js',
@@ -12,21 +13,8 @@ js = Bundle('stopwatch/static/stopwatch/stopwatch.js',
 register('stopwatch', js)
 
 
-def less(in_, out, **kwargs):
-    from dukpy.evaljs import evaljs
-    return evaljs(
-        '''
-        var render = require('less/index.js').render;
-        res = null;
-        render(dukpy.less_input, function (err, output) {
-            res = {err: err, output: output};
-        });
-        ''',
-        less_input=in_.read())
-
-
 css = Bundle('kasse/static/kasse/style.css',
-             filters=(less,), output='gen/kasse.css')
+             filters=(CompileLess,), output='gen/kasse.css')
 register('kassestyle', css)
 
 
