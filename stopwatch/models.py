@@ -6,7 +6,7 @@ import json
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.utils.encoding import python_2_unicode_compatible
-from django.db import models
+from django.db import models, OperationalError
 from django.db.models import Sum
 
 from kasse.models import Profile
@@ -119,6 +119,25 @@ class TimeTrial(models.Model):
 
     def get_absolute_url(self):
         return reverse('timetrial_detail', kwargs={'pk': self.pk})
+
+    def save_robust(self):
+        try:
+            self.save()
+        except OperationalError:
+            # Work around bug in SQLite
+            # Related to: https://code.djangoproject.com/ticket/18580
+            TimeTrial.objects.filter(pk=self.pk).values('id').update(
+                profile=self.profile,
+                state=self.state,
+                result=self.result,
+                start_time=self.start_time,
+                comment=self.comment,
+                residue=self.residue,
+                creator=self.creator,
+                created_time=self.created_time,
+                beverage=self.beverage,
+                possible_laps=self.possible_laps,
+            )
 
     class Meta:
         ordering = ['-created_time']
