@@ -258,7 +258,7 @@ class TimeTrialLiveUpdate(BaseFormView):
         if not (old_legs and legs[:len(old_legs)] == old_legs):
             timetrial.start_time = timezone.now() - latency - elapsed_time
 
-        timetrial.save()
+        timetrial.save_robust()
 
         if not legs and old_legs:
             logger.info("%s %s reset by %s",
