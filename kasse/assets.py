@@ -1,19 +1,18 @@
-from django_assets import Bundle, register
+from django_assets import register
 from dukpy.webassets import CompileLess
 from dukpy.webassets import BabelJS
 
 
-js = Bundle('awesomplete/awesomplete.js',
-            'kasse/awesomplete.js',
-            filters='jsmin', output='gen/awesomplete.js')
-register('awesomplete', js)
+register('awesomplete',
+         'awesomplete/awesomplete.js',
+         'kasse/awesomplete.js',
+         filters='jsmin', output='gen/awesomplete-%(version)s.js')
 
-js = Bundle('stopwatch/stopwatch.es6',
-            'picturefill.js',
-            filters=(BabelJS, 'jsmin'), output='gen/stopwatch.js')
-register('stopwatch', js)
+register('stopwatch',
+         'stopwatch/stopwatch.es6',
+         'picturefill.js',
+         filters=(BabelJS, 'jsmin'), output='gen/stopwatch-%(version)s.js')
 
-
-css = Bundle('kasse/style.css',
-             filters=(CompileLess,), output='gen/kasse.css')
-register('kassestyle', css)
+register('kassestyle',
+         'kasse/style.css',
+         filters=CompileLess, output='gen/kasse-%(version)s.css')
