@@ -11,7 +11,6 @@ from multiupload.fields import MultiFileField
 from stopwatch.models import TimeTrial
 from stopwatch.fields import DateTimeDefaultTodayField, DurationListField
 from kasse.forms import ProfileModelChoiceField
-from kasse.models import Profile
 
 
 class TimeTrialCreateForm(forms.Form):
