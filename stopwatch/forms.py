@@ -109,12 +109,13 @@ class StopwatchForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(StopwatchForm, self).clean()
-        start_time = cleaned_data['start_time']
-        if start_time < 0:
-            start_time += 2 ** 32
-        cleaned_data['start_time'] = (
-            datetime.datetime.utcfromtimestamp(
-                start_time).replace(tzinfo=timezone.utc))
+        if 'start_time' in cleaned_data:
+            start_time = cleaned_data['start_time']
+            if start_time < 0:
+                start_time += 2 ** 32
+            cleaned_data['start_time'] = (
+                datetime.datetime.utcfromtimestamp(
+                    start_time).replace(tzinfo=timezone.utc))
         return cleaned_data
 
 
