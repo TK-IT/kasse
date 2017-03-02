@@ -239,7 +239,7 @@ function window_click(ev) {
 
 // getCookie from https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/
 function getCookie(name) {
-    const cookies = (document.cookie || '').split(';').map(String.trim);
+    const cookies = (document.cookie || '').split(';').map((s) => s.trim());
     for (const cookie of cookies) {
         // Does this cookie string begin with the name we want?
         if (cookie.substring(0, name.length + 1) === (name + '='))
