@@ -6,13 +6,13 @@ from dukpy.webassets import BabelJS
 register('awesomplete',
          'awesomplete/awesomplete.js',
          'kasse/awesomplete.js',
-         filters='jsmin', output='gen/awesomplete-%(version)s.js')
+         filters='jsmin', output='gen/awesomplete.js')
 
 register('stopwatch',
          'stopwatch/stopwatch.es6',
          'picturefill.js',
-         filters=(BabelJS, 'jsmin'), output='gen/stopwatch-%(version)s.js')
+         filters=(BabelJS, 'jsmin'), output='gen/stopwatch.js')
 
 register('kassestyle',
          'kasse/style.css',
-         filters=CompileLess, output='gen/kasse-%(version)s.css')
+         filters=CompileLess, output='gen/kasse.css')
