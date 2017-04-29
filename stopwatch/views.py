@@ -44,6 +44,10 @@ class TimeTrialCreate(FormView):
             initial['start_time'] = datetime.datetime.utcfromtimestamp(
                 float(initial['start_time'])).replace(tzinfo=timezone.utc)
         except KeyError:
+            # No initial start_time given
+            pass
+        except ValueError:
+            # Given start_time is not formatted as a float
             pass
         try:
             initial['durations'] = '\n'.join(initial['durations'].split())
