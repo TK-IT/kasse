@@ -56,11 +56,14 @@ document.createElement( "picture" );
 </style>
 {% endblock %}
 {% block content %}
-<h1>Stopur</h1>
-{% if object %}
-<p>{{ object.profile|display_profile }}</p>
-{% endif %}
 <div id="stopwatch" class="initial">
+<h1>
+{% if object %}
+{{ object.profile|display_profile }}
+{% else %}
+Stopur
+{% endif %}
+</h1>
 <div id="time">0:00:00.00</div>
 {% if not do_fetch %}
 <div id="buttons">

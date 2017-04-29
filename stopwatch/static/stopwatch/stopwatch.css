@@ -1,14 +1,27 @@
 /* vim:set sw=4 et: */
 #stopwatch {
     width: 624px;
+    margin-top: 8px;
+    min-height: 500px;
     background-color: #218c00;
     display: flex;
     display: -webkit-flex;
     flex-direction: column;
     -webkit-flex-direction: column;
 }
-#stopwatch #time {
+#stopwatch h1 {
     order: 1;
+    -webkit-order: 1;
+    font-size: 100%;
+    background-color: rgba(100%, 100%, 100%, 0.2);
+    border-bottom: 2px solid rgba(0%, 0%, 0%, 0.2);
+    margin: 0;
+    padding: 0.5em;
+    color: white;
+}
+#stopwatch #time {
+    order: 2;
+    -webkit-order: 2;
     font-size: 60px;
     text-align: center;
     color: white;
@@ -20,8 +33,8 @@
     display: -webkit-flex;
     flex-direction: row;
     -webkit-flex-direction: row;
-    order: 2;
-    -webkit-order: 2;
+    order: 3;
+    -webkit-order: 3;
     justify-content: space-between;
 }
 #stopwatch button {
@@ -68,9 +81,8 @@
     background-color: #B00000;
 }
 #stopwatch #laps {
-    order: 3;
-    -webkit-order: 3;
-    min-height: 200px;
+    order: 4;
+    -webkit-order: 4;
 }
 
 #stopwatch.initial #reset, #stopwatch.initial #start {
@@ -151,12 +163,30 @@
 }
 
 @media screen and (max-width: 640px) {
+    body {
+        margin-top: 0;
+        display: flex;
+        display: -webkit-flex;
+        flex-direction: column;
+        -webkit-flex-direction: column;
+    }
+    body > .container {
+        order: 1;
+        -webkit-order: 1;
+        width: 100%;
+    }
+    body > nav {
+        order: 2;
+        -webkit-order: 2;
+    }
     #pictures {
         width: auto;
         margin-left: -8px;
         margin-right: -8px;
     }
     #stopwatch {
+        height: 100vh;
+        margin-top: 0;
         width: auto;
         margin-left: -8px;
         margin-right: -8px;
