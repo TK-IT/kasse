@@ -74,7 +74,8 @@ function lap_element(index, duration, total, difference) {
     return o;
 }
 
-function update_laps() {
+function update_laps(scroll) {
+    let prevScroll = div_laps.scrollTop;
     div_laps.innerHTML = '';
     let prev = 0;
     let ta_cumsum = 0;
@@ -113,6 +114,8 @@ function update_laps() {
         div_laps.appendChild(o);
         ta_current = document.getElementById('ta_current');
     }
+    div_laps.scrollTop = scroll ? div_laps.scrollHeight : prevScroll;
+    console.log(div_laps.scrollTop);
 
     if (btn_lap !== null) {
         btn_lap.textContent = 'Færdig med øl '+(1 + laps.length);
@@ -147,7 +150,7 @@ function start(ev) {
     div_stopwatch.className = 'running';
     window.requestAnimationFrame(update_time);
     if (btn_lap) btn_lap.focus();
-    update_laps();
+    update_laps(false);
     post_live_update();
 }
 
@@ -193,7 +196,7 @@ function try_add_lap(d) {
             'comment': "Tilføjet som Øl " + (1 + laps.length),
         });
         laps.push(d);
-        update_laps();
+        update_laps(true);
         post_live_update();
     }
 }
@@ -217,7 +220,7 @@ function reset(ev) {
     start_time = null;
     laps = [];
     for (const l of possible_laps) l.lap = false;
-    update_laps();
+    update_laps(true);
     div_stopwatch.className = 'initial';
     update_div_time(0, 2);
     post_live_update();
@@ -298,13 +301,14 @@ function update_state(state) {
     const elapsed = (state['elapsed_time'] * 1000)|0;
     start_time = new Date().getTime() - elapsed;
 
+    let scroll = state['durations'].length != laps.length;
     laps = [];
     let p = 0;
     for (const duration of state['durations']) {
         p += (1000 * duration)|0;
         laps.push(p);
     }
-    update_laps();
+    update_laps(scroll);
 
     let button_label = 'Live';
     div_stopwatch.className = state['state'];
