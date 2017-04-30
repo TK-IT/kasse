@@ -26,7 +26,7 @@
     text-align: center;
     color: white;
     white-space: nowrap;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 #stopwatch #buttons {
     display: flex;
@@ -186,15 +186,26 @@
     }
     #stopwatch {
         height: 100vh;
+        min-height: 0px;
         margin-top: 0;
         width: auto;
         margin-left: -8px;
         margin-right: -8px;
     }
+    #stopwatch #laps {
+        overflow: auto;
+        flex: 1;
+    }
     #residual-guide {
         width: auto;
         margin-left: -8px;
         margin-right: -8px;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .lapDuration, .lapDiff {
+        display: none;
     }
 }
 
