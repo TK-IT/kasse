@@ -32,6 +32,11 @@ document.createElement( "picture" );
 <a href="{% url "timetrial_update" pk=object.pk %}" class="adminlink">Rediger forsøg</a>
 </p>
 {% endif %}
+{% if object.pk == 792 %}
+<p style="color: orange; font-weight: bold;">✔️ Official Verified Video Proof</p>
+{% else %}
+<p style="color: gray;">Pending verification</p>
+{% endif %}
 <div id="stopwatch" class="initial">
     <div id="time">{{ object.duration|display_duration }}</div>
     <div id="buttons">
