@@ -87,11 +87,14 @@ def get_current_events(qs, now=None):
 
 
 def tt_kasse_i_kass(timetrial):
-    return timetrial.id == 335
+    k2016 = timetrial.id == 335
+    k2017 = (timetrial.profile_id == 424 and
+             timetrial.start_time.date() == datetime.date(2017, 5, 27))
+    return k2016 or k2017
 
 
 def profile_kass(profile):
-    return profile.id == 164
+    return profile.id in (164, 424)
 
 
 def get_timetrial_state(tt):
