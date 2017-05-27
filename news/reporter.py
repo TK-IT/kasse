@@ -287,6 +287,23 @@ def info_links(tts):
         ', '.join('https://tket.dk/5/%d' % i for i in pks))
 
 
+def reconstruct_state(current_events):
+    state = {}
+    for tt in current_events:
+        if tt.post:
+            # Ideally tt.post should contain info
+            # on what state is actually reflected in the post and comments
+            # so we know whether something interesting happened when
+            # the news daemon was restarted. Let's just assume that the
+            # post for this TimeTrial is fully up-to-date. This means
+            # that we might miss posting some comments that should have
+            # been posted.
+            state.setdefault(tt.post, {})[tt.profile] = (
+                tt, get_timetrial_state(tt),
+                get_timetrial_comments(tt))
+    return state
+
+
 def update_report(delivery, state, current_events, logger):
     """
     Given a delivery agent, a state, and the latest CurrentEvents,
@@ -311,7 +328,7 @@ def update_report(delivery, state, current_events, logger):
     """
 
     if state is None:
-        state = dict()
+        state = reconstruct_state(current_events)
 
     try:
         upcoming_post = next(
