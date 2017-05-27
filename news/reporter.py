@@ -293,9 +293,10 @@ def update_report(delivery, state, current_events, logger):
     report to the delivery agent and return the new state.
 
     state is a dict of {post: {profile: (tt, state, comments)}},
-    where post is a post, profile is a profile, tt is a TimeTrial,
-    state is a state as reported by get_timetrial_state, comments
-    is a set of comments as reported by get_timetrial_comments.
+    where post is a news.Post, profile is a kasse.Profile,
+    tt is a stopwatch.TimeTrial,
+    state is a state as reported by get_timetrial_state,
+    comments is a set of comments as reported by get_timetrial_comments.
 
     The delivery agent must support the three methods:
     - new_post(text), returning a post object
