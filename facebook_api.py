@@ -82,7 +82,7 @@ class GraphAPI(object):
         self.session = session or requests.Session()
 
         if version:
-            version_regex = re.compile("^\d\.\d$")
+            version_regex = re.compile("^\d\.\d{1,2}$")
             match = version_regex.search(str(version))
             if match is not None:
                 self.version = "v" + str(version)
@@ -223,7 +223,7 @@ class GraphAPI(object):
         try:
             headers = response.headers
             version = headers["facebook-api-version"].replace("v", "")
-            return float(version)
+            return str(version)
         except Exception:
             raise GraphAPIError("API version number not available")
 
