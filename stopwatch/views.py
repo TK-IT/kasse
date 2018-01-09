@@ -467,6 +467,7 @@ class Json(View):
             qs = qs.filter(result='', start_time__gt=threshold)
         for tt in qs:
             tt_data = {
+                'id': tt.id,
                 'start_time': str(tt.start_time),
                 'profile_id': tt.profile_id,
                 'profile': str(tt.profile),
