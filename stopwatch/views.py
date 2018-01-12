@@ -28,7 +28,7 @@ from stopwatch.forms import (
 )
 from stopwatch.models import TimeTrial, Leg, Beverage, Image
 from kasse.views import Home
-from kasse.models import Profile
+from kasse.models import Profile, Title, Association
 
 logger = logging.getLogger('kasse')
 
@@ -472,16 +472,21 @@ class Json(View):
 
         profile_qs = profile_qs.order_by()
         profile_qs = profile_qs.values_list(
-            'id', 'title', 'name', 'association_id')
+            'id', 'title__period', 'title__title', 'name', 'association_id', 'association__current_period', 'association__name')
         names = {}
         associations = {}
-        for profile_id, title, name, association_id in profile_qs:
+        for profile_id, title_period, title, name, a_id, a_period, a_name in profile_qs:
             dummy = Profile()
             dummy.pk = profile_id
-            dummy.title = title
+            dummy_a = Association()
+            dummy_a.pk = a_id
+            dummy_a.name = a_name
+            dummy_a.current_period = a_period
+            dummy_t = Title(association=dummy_a, period=title_period, title=title)
+            dummy.title = dummy_t if title else None
             dummy.name = name
             names[profile_id] = str(dummy)
-            associations[profile_id] = association_id
+            associations[profile_id] = a_id
 
         leg_qs = leg_qs.order_by()
         leg_qs = leg_qs.values_list('timetrial_id', 'duration', 'order')
@@ -489,7 +494,7 @@ class Json(View):
         for tt_id, duration, order in leg_qs:
             legs.setdefault(tt_id, []).append((order, duration))
 
-        qs = qs.order_by().values_list(
+        qs = qs.values_list(
             'id', 'start_time', 'profile_id',
             'result', 'comment', 'residue',
         )
@@ -508,7 +513,6 @@ class Json(View):
                 'durations': durations,
             }
             data.append(tt_data)
-        data.sort(key=lambda tt: tt['start_time'], reverse=True)
         response = JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
         response['Access-Control-Allow-Origin'] = '*'
         return response
