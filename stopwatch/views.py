@@ -28,6 +28,7 @@ from stopwatch.forms import (
 )
 from stopwatch.models import TimeTrial, Leg, Beverage, Image
 from kasse.views import Home
+from kasse.models import Profile
 
 logger = logging.getLogger('kasse')
 
@@ -460,24 +461,54 @@ class IndentJSONEncoder(DjangoJSONEncoder):
 class Json(View):
     def get(self, request, *args, **kwargs):
         data = []
-        qs = TimeTrial.objects.all()
+        qs = TimeTrial.raw_objects.all()
+        leg_qs = Leg.raw_objects.all()
+        profile_qs = Profile.objects.all()
         if self.kwargs.get('live'):
             now = timezone.now()
             threshold = now - datetime.timedelta(hours=1)
             qs = qs.filter(result='', start_time__gt=threshold)
-        for tt in qs:
+            leg_qs = leg_qs.filter(timetrial__in=qs)
+
+        profile_qs = profile_qs.order_by()
+        profile_qs = profile_qs.values_list(
+            'id', 'title', 'name', 'association_id')
+        names = {}
+        associations = {}
+        for profile_id, title, name, association_id in profile_qs:
+            dummy = Profile()
+            dummy.pk = profile_id
+            dummy.title = title
+            dummy.name = name
+            names[profile_id] = str(dummy)
+            associations[profile_id] = association_id
+
+        leg_qs = leg_qs.order_by()
+        leg_qs = leg_qs.values_list('timetrial_id', 'duration', 'order')
+        legs = {}
+        for tt_id, duration, order in leg_qs:
+            legs.setdefault(tt_id, []).append((order, duration))
+
+        qs = qs.order_by().values_list(
+            'id', 'start_time', 'profile_id',
+            'result', 'comment', 'residue',
+        )
+
+        for tt_id, start_time, profile_id, result, comment, residue in qs:
+            durations = [d for o, d in sorted(legs.get(tt_id, ()))]
             tt_data = {
-                'id': tt.id,
-                'start_time': str(tt.start_time),
-                'profile_id': tt.profile_id,
-                'profile': str(tt.profile),
-                'association': tt.profile.association_id,
-                'result': tt.result,
-                'comment': tt.comment,
-                'residue': tt.residue,
-                'durations': [l.duration for l in tt.leg_set.all()],
+                'id': tt_id,
+                'start_time': str(start_time),
+                'profile_id': profile_id,
+                'profile': names.get(profile_id),
+                'association': associations.get(profile_id),
+                'result': result,
+                'comment': comment,
+                'residue': residue,
+                'durations': durations,
             }
             data.append(tt_data)
+        data.sort(key=lambda tt: tt['start_time'], reverse=True)
         response = JsonResponse(data, safe=False, encoder=IndentJSONEncoder)
         response['Access-Control-Allow-Origin'] = '*'
         return response

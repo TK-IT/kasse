@@ -146,6 +146,7 @@ class TimeTrial(models.Model):
 @python_2_unicode_compatible
 class Leg(models.Model):
     objects = LegManager()
+    raw_objects = models.Manager()
 
     timetrial = models.ForeignKey(TimeTrial)
     duration = models.FloatField()
