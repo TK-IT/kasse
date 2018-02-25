@@ -184,12 +184,14 @@ class ContestForm(forms.ModelForm):
 
     def clean_tk(self):
         value = self.cleaned_data['tk']
-        parse_duration(value)
+        if value != 'DNF' and parse_duration(value) is None:
+            raise ValidationError('Must enter "DNF" or valid duration')
         return value
 
     def clean_alkymia(self):
         value = self.cleaned_data['alkymia']
-        parse_duration(value)
+        if value != 'DNF' and parse_duration(value) is None:
+            raise ValidationError('Must enter "DNF" or valid duration')
         return value
 
 
