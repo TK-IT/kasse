@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 
 from kasse.managers import ProfileManager
 from kasse.fields import APeriodField
+from kasse.log import logger
 
 
 @python_2_unicode_compatible
@@ -197,8 +198,12 @@ class Contest(models.Model):
             return parse_duration(s).total_seconds()
 
     def winner(self):
-        tk = self.parse_duration(self.tk)
-        alkymia = self.parse_duration(self.alkymia)
+        try:
+            tk = self.parse_duration(self.tk)
+            alkymia = self.parse_duration(self.alkymia)
+        except Exception:
+            logger.exception('Contest.winner() raised exception')
+            return '???'
         if tk < alkymia:
             return 'TÅGEKAMMERET'
         elif alkymia < tk:
