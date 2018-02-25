@@ -1,7 +1,7 @@
 from __future__ import absolute_import, unicode_literals, division
 
 from django.contrib import admin
-from kasse.models import Association, Title, Profile
+from kasse.models import Association, Title, Profile, Contest
 
 
 class TitleAdmin(admin.ModelAdmin):
@@ -45,3 +45,4 @@ class ProfileAdmin(admin.ModelAdmin):
 admin.site.register(Association)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Profile, ProfileAdmin)
+admin.site.register(Contest)
