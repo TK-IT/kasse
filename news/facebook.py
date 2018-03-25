@@ -31,7 +31,7 @@ class GraphAPIWithSecretProof(facebook.GraphAPI):
         super().__init__(*args, **kwargs)
         self.appsecret_proof = hmac.new(app_secret.encode('ascii'),
                                         self.access_token.encode('ascii'),
-                                        hashlib.sha256).hexdigest().decode()
+                                        hashlib.sha256).hexdigest()
 
     def request(self, path, args=None, post_args=None, **kwargs):
         if post_args is not None:
