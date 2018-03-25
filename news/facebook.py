@@ -41,9 +41,9 @@ class GraphAPIWithSecretProof(facebook.GraphAPI):
 
 def access_page():
     c = Config.objects.get()
-    graph = GraphAPIWithSecretProof(c.page_access_token,
-                                    version=FACEBOOK_API_VERSION,
-                                    app_secret=c.app_secret)
+    return GraphAPIWithSecretProof(c.page_access_token,
+                                   version=FACEBOOK_API_VERSION,
+                                   app_secret=c.app_secret)
 
 
 def new_post(text):
