@@ -71,16 +71,17 @@ class FacebookLoginCallback(View):
             seconds = 0
         expiry = timezone.now() + datetime.timedelta(seconds=seconds)
 
-        app_access_token = requests.get(
+        access_token_response = requests.get(
             "https://graph.facebook.com/oauth/access_token" +
             "?client_id=%s" % client_id +
             "&client_secret=%s" % app_secret +
-            "&grant_type=client_credentials").text
-        if not app_access_token.startswith('access_token='):
+            "&grant_type=client_credentials")
+        try:
+            app_access_token = access_token_response.json()['access_token']
+        except Exception:
             return HttpResponse(
-                "Not an access token:\n%s" % (app_access_token,),
+                "Not an access token:\n%s" % (access_token_response.text,),
                 content_type='text/plain; charset=utf8')
-        app_access_token = app_access_token[len('access_token='):]
         token_test = requests.get(
             "https://graph.facebook.com/debug_token" +
             "?input_token=%s" % user_access_token +
