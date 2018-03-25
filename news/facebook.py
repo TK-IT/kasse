@@ -1,8 +1,10 @@
 from __future__ import absolute_import, unicode_literals, division
 
 
-import facebook
+import hmac
+import hashlib
 import logging
+import facebook
 
 logger = logging.getLogger('news')
 
@@ -10,7 +12,7 @@ logger = logging.getLogger('news')
 from news.models import Config, Post, Comment
 
 
-FACEBOOK_API_VERSION = '2.5'
+FACEBOOK_API_VERSION = '2.12'
 
 
 def ensure_valid_api_version():
@@ -24,9 +26,24 @@ class ServiceUnavailable(Exception):
         super().__init__("Service temporarily unavailable")
 
 
+class GraphAPIWithSecretProof(facebook.GraphAPI):
+    def __init__(self, *args, app_secret, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.appsecret_proof = hmac.new(app_secret,
+                                        self.access_token.encode('ascii'),
+                                        hashlib.sha256).hexdigest().decode()
+
+    def request(self, path, args=None, post_args=None, **kwargs):
+        if post_args is not None:
+            post_args['appsecret_proof'] = self.appsecret_proof
+        return super().request(path, args, post_args=post_args, **kwargs)
+
+
 def access_page():
     c = Config.objects.get()
-    return facebook.GraphAPI(c.page_access_token, version=FACEBOOK_API_VERSION)
+    graph = GraphAPIWithSecretProof(c.page_access_token,
+                                    version=FACEBOOK_API_VERSION,
+                                    app_secret=c.app_secret)
 
 
 def new_post(text):
