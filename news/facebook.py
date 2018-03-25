@@ -29,11 +29,6 @@ def access_page():
     return facebook.GraphAPI(c.page_access_token, version=FACEBOOK_API_VERSION)
 
 
-def access_user():
-    c = Config.objects.get()
-    return facebook.GraphAPI(c.user_access_token, version=FACEBOOK_API_VERSION)
-
-
 def new_post(text):
     graph = access_page()
     o = graph.put_object(
