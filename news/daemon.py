@@ -15,13 +15,16 @@ if __name__ == "__main__":
 import django.db
 from stopwatch.models import TimeTrial
 from news.reporter import TryAgainShortly, get_current_events, update_report
-from news.facebook import new_post, comment_on_post, edit_post
+from news.facebook import (
+    new_post, comment_on_post, edit_post, ensure_valid_api_version,
+)
 
 
 logger = logging.getLogger('news')
 
 
 def main():
+    ensure_valid_api_version()
     qs = TimeTrial.objects.all()
     delivery = FacebookDelivery()
     events = get_current_events(qs)

@@ -10,6 +10,15 @@ logger = logging.getLogger('news')
 from news.models import Config, Post, Comment
 
 
+FACEBOOK_API_VERSION = '2.5'
+
+
+def ensure_valid_api_version():
+    if FACEBOOK_API_VERSION not in facebook.VALID_API_VERSIONS:
+        raise SystemExit('facebook-sdk %s does not support API version %s' %
+                         (facebook.__version__, FACEBOOK_API_VERSION))
+
+
 class ServiceUnavailable(Exception):
     def __init__(self):
         super().__init__("Service temporarily unavailable")
@@ -17,12 +26,12 @@ class ServiceUnavailable(Exception):
 
 def access_page():
     c = Config.objects.get()
-    return facebook.GraphAPI(c.page_access_token, version='2.5')
+    return facebook.GraphAPI(c.page_access_token, version=FACEBOOK_API_VERSION)
 
 
 def access_user():
     c = Config.objects.get()
-    return facebook.GraphAPI(c.user_access_token, version='2.5')
+    return facebook.GraphAPI(c.user_access_token, version=FACEBOOK_API_VERSION)
 
 
 def new_post(text):
