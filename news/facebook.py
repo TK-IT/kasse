@@ -29,7 +29,7 @@ class ServiceUnavailable(Exception):
 class GraphAPIWithSecretProof(facebook.GraphAPI):
     def __init__(self, *args, app_secret, **kwargs):
         super().__init__(*args, **kwargs)
-        self.appsecret_proof = hmac.new(app_secret,
+        self.appsecret_proof = hmac.new(app_secret.encode('ascii'),
                                         self.access_token.encode('ascii'),
                                         hashlib.sha256).hexdigest().decode()
 
