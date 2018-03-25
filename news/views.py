@@ -25,11 +25,14 @@ class FacebookLogin(View):
 
     def get(self, request):
         c = Config.objects.get()
+        scopes = [
+            'manage_pages', 'publish_pages', 'publish_actions', 'user_events',
+        ]
         return HttpResponseRedirect(
             "https://www.facebook.com/dialog/oauth" +
             "?client_id=%s" % c.client_id +
             "&redirect_uri=%s" % self.get_redirect_uri() +
-            "&response_type=code&scope=manage_pages,publish_pages,publish_actions,user_events")
+            "&response_type=code&scope=%s" % ','.join(scopes))
 
 
 class FacebookLoginCallback(View):
