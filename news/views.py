@@ -38,14 +38,17 @@ class FacebookLogin(View):
 
 class FacebookLoginCallback(View):
     def get(self, request):
-        if request.GET.get('error'):
-            return HttpResponse("You cancelled!")
+        if request.GET.get('error_code'):
+            return HttpResponse("Error! Did you cancel?")
 
         c = Config.objects.get()
         client_id = c.client_id
         app_secret = c.app_secret
         redirect_uri = FacebookLogin.get_redirect_uri()
-        code = request.GET['code']
+        try:
+            code = request.GET['code']
+        except KeyError:
+            return HttpResponse('No "code" in query string')
         # We have a code. We must exchange it for a user access token
         r = requests.get(
             "https://graph.facebook.com/v2.3/oauth/access_token" +
