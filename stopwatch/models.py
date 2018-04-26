@@ -56,6 +56,8 @@ class TimeTrial(models.Model):
 
     possible_laps = models.TextField(blank=True)
 
+    is_kasse_i_kass = models.BooleanField(default=False)
+
     def parse_possible_laps(self):
         if not self.possible_laps:
             return []
