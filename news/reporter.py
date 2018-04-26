@@ -90,7 +90,7 @@ def tt_kasse_i_kass(timetrial):
     k2016 = timetrial.id == 335
     k2017 = (timetrial.profile_id == 424 and
              timetrial.start_time.date() == datetime.date(2017, 5, 27))
-    return k2016 or k2017
+    return timetrial.is_kasse_i_kass or k2016 or k2017
 
 
 def profile_kass(profile):
