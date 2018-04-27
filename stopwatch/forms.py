@@ -39,6 +39,13 @@ class TimeTrialCreateForm(forms.Form):
         required=False, label='Starttidspunkt')
     start_time_unknown = forms.BooleanField(required=False, label='Ukendt')
 
+    def __init__(self, show_kasse_i_kass=False, **kwargs):
+        super().__init__(**kwargs)
+        self.show_kasse_i_kass = bool(show_kasse_i_kass)
+        if show_kasse_i_kass:
+            self.fields['kasse_i_kass'] = forms.BooleanField(
+                required=False, label='En kasse i KA$$')
+
     def clean(self):
         cleaned_data = super(TimeTrialCreateForm, self).clean()
         dnf = cleaned_data.pop('dnf')

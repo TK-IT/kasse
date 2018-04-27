@@ -16,6 +16,10 @@
     </span>
     </p>
     {{ form.profile.errors }}
+    {% if form.show_kasse_i_kass %}
+    <p>Kasse i KA$$: {{ form.kasse_i_kass }}</p>
+    {{ form.kasse_i_kass.errors }}
+    {% endif %}
     <p>
     <input type="submit" name="stopwatch" value="Åbn stopur nu!" />
     </p>

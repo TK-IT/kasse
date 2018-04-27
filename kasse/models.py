@@ -99,6 +99,14 @@ class Profile(models.Model):
 
     created_time = models.DateTimeField(auto_now_add=True)
 
+    kasse_i_kass_creator = models.BooleanField(
+        blank=True, default=False, verbose_name='Kan oprette "Kasse i KA$$"')
+
+    @property
+    def can_create_kasse_i_kass(self):
+        return (self.kasse_i_kass_creator or
+                (self.user and self.user.is_superuser))
+
     @classmethod
     def all_named(cls):
         return cls.objects.exclude(name='', title__isnull=True)
