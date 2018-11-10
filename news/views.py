@@ -1,13 +1,13 @@
-from __future__ import absolute_import, unicode_literals, division
-
 import datetime
-import requests
+import hashlib
+import hmac
 import logging
 
-from django.utils import timezone
-from django.views.generic import View
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.utils import timezone
+from django.views.generic import View
+import requests
 
 from news.models import Config
 
@@ -81,17 +81,31 @@ class FacebookLoginCallback(View):
             return HttpResponse(
                 "Not an access token:\n%s" % (access_token_response.text,),
                 content_type='text/plain; charset=utf8')
+        appsecret_proof_app = hmac.new(
+            app_secret.encode("ascii"),
+            app_access_token.encode("ascii"),
+            hashlib.sha256,
+        ).hexdigest()
+        appsecret_proof_user = hmac.new(
+            app_secret.encode("ascii"),
+            user_access_token.encode("ascii"),
+            hashlib.sha256,
+        ).hexdigest()
         token_test = requests.get(
             "https://graph.facebook.com/debug_token" +
             "?input_token=%s" % user_access_token +
+            "&appsecret_proof=%s" % appsecret_proof_app +
             "&access_token=%s" % app_access_token).json()
         if 'data' not in token_test:
+            token_test['kassenews'] = 2
             return JsonResponse(token_test)
 
         user_pages = requests.get(
             "https://graph.facebook.com/me/accounts" +
-            "?access_token=%s" % user_access_token).json()
+            "?appsecret_proof=%s" % appsecret_proof_user +
+            "&access_token=%s" % user_access_token).json()
         if 'data' not in user_pages:
+            user_pages['kassenews'] = 3
             return JsonResponse(user_pages)
         page_id = '536317743199338'
         try:
@@ -104,8 +118,10 @@ class FacebookLoginCallback(View):
         token_test = requests.get(
             "https://graph.facebook.com/debug_token" +
             "?input_token=%s" % page_access_token +
+            "&appsecret_proof=%s" % appsecret_proof_app +
             "&access_token=%s" % app_access_token).json()
         if 'data' not in token_test:
+            token_test['kassenews'] = 4
             return JsonResponse(token_test)
 
         Config.objects.all().update(
