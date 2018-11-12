@@ -36,6 +36,8 @@ class GraphAPIWithSecretProof(facebook.GraphAPI):
     def request(self, path, args=None, post_args=None, **kwargs):
         if post_args is not None:
             post_args['appsecret_proof'] = self.appsecret_proof
+        else:
+            args['appsecret_proof'] = self.appsecret_proof
         return super().request(path, args, post_args=post_args, **kwargs)
 
 
