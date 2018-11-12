@@ -27,7 +27,7 @@ class FacebookLogin(View):
         c = Config.objects.get()
         scopes = [
             'manage_pages', 'publish_pages', 'user_events',
-            'groups_access_member_info', 'publish_to_group',
+            # 'groups_access_member_info', 'publish_to_group',
         ]
         return HttpResponseRedirect(
             "https://www.facebook.com/dialog/oauth" +
