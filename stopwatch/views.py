@@ -131,16 +131,28 @@ def get_time_attack(current_timetrial, **kwargs):
         person = str(prev.profile)
     else:
         qs = TimeTrial.objects.filter(
-            profile=current_timetrial.profile,
-            result='f',
-            leg_count=current_timetrial.leg_count or 5,
-            created_time__lt=current_timetrial.created_time)
-        qs = qs.order_by('duration')
+            created_time__lt=current_timetrial.created_time,
+        )
+        if current_timetrial.is_kasse_i_kass:
+            qs = qs.filter(
+                is_kasse_i_kass=True,
+            )
+            qs = qs.order_by('-start_time')
+        else:
+            qs = qs.filter(
+                result='f',
+                profile=current_timetrial.profile,
+                leg_count=current_timetrial.leg_count or 5,
+            )
+            qs = qs.order_by('duration')
         try:
             prev = qs[0]
         except IndexError:
             prev = None
-        person = 'Personlig rekord'
+        if current_timetrial.is_kasse_i_kass:
+            person = str(prev and prev.profile)
+        else:
+            person = 'Personlig rekord'
 
     if kwargs:
         raise TypeError(', '.join(kwargs.keys()))
