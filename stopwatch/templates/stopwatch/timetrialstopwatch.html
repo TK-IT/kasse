@@ -13,6 +13,7 @@ function reverse(name, pk) {
     }
     return null;
 }
+var is_kasse_i_kass = {{ object.is_kasse_i_kass|yesno:"true,false" }};
 {% if do_post %}
 var post_pk = {{ object.pk }};
 {% else %}

@@ -58,10 +58,18 @@ function update_time() {
 function lap_element(index, duration, total, difference) {
     const o = document.createElement('div');
     o.className = 'lap';
+    let lapTotal = format_timestamp(total, 2);
+    if (is_kasse_i_kass) {
+        const time = new Date;
+        time.setTime(total + start_time);
+        const timeStr = time + "";
+        const match = /(\d+:\d+:\d+)/.exec(timeStr);
+        lapTotal = match && match[1];
+    }
     let h = (
         '<div class="lapIndex">Øl ' + index + '</div>' +
         '<div class="lapDuration">' + format_timestamp(duration, 2) + '</div>' +
-        '<div class="lapTotal">' + format_timestamp(total, 2) + '</div>'
+        '<div class="lapTotal">' + lapTotal + '</div>'
     );
     if (difference !== null) {
         const c = (difference <= 0) ? "negdiff" : "posdiff";
