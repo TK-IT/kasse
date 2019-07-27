@@ -36,6 +36,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='expence',
             name='payer',
-            field=models.ForeignKey(related_name='expence_paid_set', to='kasse.Profile'),
+            field=models.ForeignKey(related_name='expence_paid_set', to='kasse.Profile', on_delete=models.deletion.CASCADE),
         ),
     ]

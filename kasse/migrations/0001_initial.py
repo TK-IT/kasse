@@ -50,8 +50,8 @@ class Migration(migrations.Migration):
                 ('result', models.CharField(blank=True, max_length=10, choices=[('f', '\u2713'), ('dnf', 'DNF')])),
                 ('start_time', models.DateTimeField(null=True, blank=True)),
                 ('created_time', models.DateTimeField()),
-                ('creator', models.ForeignKey(related_name='timetrial_creator_set', to='kasse.Profile')),
-                ('profile', models.ForeignKey(related_name='timetrial_profile_set', to='kasse.Profile')),
+                ('creator', models.ForeignKey(related_name='timetrial_creator_set', to='kasse.Profile', on_delete=django.db.models.deletion.CASCADE)),
+                ('profile', models.ForeignKey(related_name='timetrial_profile_set', to='kasse.Profile', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['-created_time'],
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('period', models.IntegerField(null=True, blank=True)),
                 ('title', models.CharField(max_length=200)),
-                ('association', models.ForeignKey(to='kasse.Association')),
+                ('association', models.ForeignKey(to='kasse.Association', on_delete=django.db.models.deletion.CASCADE)),
             ],
         ),
         migrations.AddField(
@@ -79,6 +79,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='leg',
             name='timetrial',
-            field=models.ForeignKey(to='kasse.TimeTrial'),
+            field=models.ForeignKey(to='kasse.TimeTrial', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

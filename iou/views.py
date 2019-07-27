@@ -1,7 +1,7 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import ListView, CreateView
 
 from iou.models import Expence, ExpenceProfile

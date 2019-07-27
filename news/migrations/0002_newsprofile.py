@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             name='NewsProfile',
             fields=[
                 ('profile', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, serialize=False, to='kasse.Profile')),
-                ('ignore', models.BooleanField()),
+                ('ignore', models.BooleanField(blank=True)),
             ],
         ),
     ]

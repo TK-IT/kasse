@@ -69,8 +69,8 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField(blank=True)),
                 ('residue', models.FloatField(null=True, blank=True)),
                 ('created_time', models.DateTimeField()),
-                ('creator', models.ForeignKey(related_name='timetrial_creator_set', to='kasse.Profile')),
-                ('profile', models.ForeignKey(related_name='timetrial_profile_set', to='kasse.Profile')),
+                ('creator', models.ForeignKey(related_name='timetrial_creator_set', to='kasse.Profile', on_delete=models.deletion.CASCADE)),
+                ('profile', models.ForeignKey(related_name='timetrial_profile_set', to='kasse.Profile', on_delete=models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ['-created_time'],
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='leg',
             name='timetrial',
-            field=models.ForeignKey(to='stopwatch.TimeTrial'),
+            field=models.ForeignKey(to='stopwatch.TimeTrial', on_delete=models.deletion.CASCADE),
         ),
         migrations.RunPython(copy_data, copy_data_reverse),
     ]

@@ -21,7 +21,7 @@ import news.urls
 from stopwatch.views import TimeTrialStopwatchOffline
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^timetrial/', include(stopwatch.urls)),
     url(r'^news/', include(news.urls)),
     url(r'^iou/', include(iou.urls)),

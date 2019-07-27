@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals, division
 import json
 
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.db import models, OperationalError
 from django.db.models import Sum
@@ -39,7 +39,7 @@ class TimeTrial(models.Model):
         ('initial', 'Parat'),
     )
     profile = models.ForeignKey(
-        Profile, related_name='timetrial_profile_set')
+        Profile, related_name='timetrial_profile_set', on_delete=models.CASCADE)
     state = models.CharField(max_length=10, choices=STATES, default='initial')
     result = models.CharField(max_length=10, choices=RESULTS, blank=True)
     start_time = models.DateTimeField(blank=True, null=True)
@@ -48,7 +48,7 @@ class TimeTrial(models.Model):
     residue = models.FloatField(null=True, blank=True)
 
     creator = models.ForeignKey(
-        Profile, related_name='timetrial_creator_set')
+        Profile, related_name='timetrial_creator_set', on_delete=models.CASCADE)
     created_time = models.DateTimeField()
 
     beverage = models.ForeignKey(
@@ -150,7 +150,7 @@ class Leg(models.Model):
     objects = LegManager()
     raw_objects = models.Manager()
 
-    timetrial = models.ForeignKey(TimeTrial)
+    timetrial = models.ForeignKey(TimeTrial, on_delete=models.CASCADE)
     duration = models.FloatField()
     order = models.PositiveIntegerField(default=0)
 

@@ -11,7 +11,7 @@ from kasse.models import Profile, Association
 
 def get_profile(request):
     KEY = 'kasse_profile_id'
-    u = request.user if request.user.is_authenticated() else None
+    u = request.user if request.user.is_authenticated else None
 
     if KEY in request.session:
         try:
@@ -72,8 +72,8 @@ def filter_association(request, qs):
         raise Exception("Don't know how to handle %s" % (qs.model))
 
 
-class Middleware(object):
-    def process_request(self, request):
+def Middleware(get_response):
+    def process_request(request):
         request.profile = SimpleLazyObject(functools.partial(
             get_profile, request))
         request.get_or_create_profile = functools.partial(
@@ -85,3 +85,6 @@ class Middleware(object):
             set_association, request)
         request.filter_association = functools.partial(
             filter_association, request)
+        return get_response(request)
+
+    return process_request

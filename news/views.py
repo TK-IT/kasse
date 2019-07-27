@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import logging
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.utils import timezone
 from django.views.generic import View

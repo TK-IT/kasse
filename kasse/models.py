@@ -29,7 +29,7 @@ class Association(models.Model):
 
 @python_2_unicode_compatible
 class Title(models.Model):
-    association = models.ForeignKey(Association)
+    association = models.ForeignKey(Association, on_delete=models.CASCADE)
     period = models.IntegerField(null=True, blank=True)
     title = models.CharField(max_length=200)
 

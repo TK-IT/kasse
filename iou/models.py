@@ -40,7 +40,7 @@ class ExpenceProfile(Profile):
 class Expence(models.Model):
     objects = ExpenceManager()
 
-    payer = models.ForeignKey(Profile, related_name='expence_paid_set')
+    payer = models.ForeignKey(Profile, related_name='expence_paid_set', on_delete=models.CASCADE)
     consumers = models.ManyToManyField(
         Profile, related_name='expence_consumed_set')
     amount = models.DecimalField(max_digits=9, decimal_places=2)

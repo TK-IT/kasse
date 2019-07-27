@@ -5,7 +5,7 @@ import logging
 import datetime
 import functools
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.six.moves import urllib_parse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
@@ -20,6 +20,7 @@ from django.views.defaults import permission_denied
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.conf import settings
+from django.db.utils import NotSupportedError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 
@@ -75,7 +76,7 @@ class Home(TemplateView):
         try:
             qs_distinct = qs.distinct('profile')
             return list(qs_distinct[:limit])
-        except NotImplementedError:
+        except (NotImplementedError, NotSupportedError):
             res = {}
             for tt in qs:
                 res.setdefault(tt.profile_id, tt)
@@ -161,7 +162,7 @@ class ChangePassword(FormView):
     template_name = 'kasse/changepassword.html'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return HttpResponseRedirect(reverse('home'))
         else:
             return super(ChangePassword, self).dispatch(
