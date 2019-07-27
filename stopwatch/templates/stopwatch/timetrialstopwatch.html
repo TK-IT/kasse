@@ -37,9 +37,13 @@ var time_attack = ((initial_state === null) ?
 document.createElement( "picture" );
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+{% if user.profile.use_legacy_stopwatch %}
 {% assets "stopwatch" %}
 <script type="text/javascript" src="{{ ASSET_URL }}" async></script>
 {% endassets %}
+{% else %}
+<script type="text/javascript" src="{% static "stopwatch/stopwatch.min.js" %}" async></script>
+{% endif %}
 <style>
 #id_legs {
     width: 3em;

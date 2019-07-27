@@ -128,6 +128,7 @@ class ProfileEditForm(forms.ModelForm, PeriodFieldMixin):
     association = AssociationModelChoiceField(
         required=False, empty_label='Forening')
     period = forms.CharField(required=False, label='Periode')
+    use_legacy_stopwatch = forms.BooleanField(required=False, label="Gammelt stopur")
 
     def clean(self):
         self.did_clean_association = False
@@ -147,10 +148,12 @@ class ProfileEditForm(forms.ModelForm, PeriodFieldMixin):
         if instance.title:
             kwargs['initial']['title'] = instance.title.title
             kwargs['initial']['period'] = instance.title.period
+        kwargs['initial']['use_legacy_stopwatch'] = instance.use_legacy_stopwatch
         super(ProfileEditForm, self).__init__(*args, **kwargs)
 
     def save(self):
         instance = super(ProfileEditForm, self).save(commit=False)
+        instance.use_legacy_stopwatch = self.cleaned_data['use_legacy_stopwatch']
         instance.association = self.cleaned_data['association'] or None
         title = self.cleaned_data['title'] or ''
         period = self.cleaned_data['period'] or None

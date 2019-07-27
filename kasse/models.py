@@ -1,6 +1,8 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
+import json
+
 from django.core.exceptions import ValidationError
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils import formats, six
@@ -98,6 +100,33 @@ class Profile(models.Model):
                                       verbose_name='Yndlingsøl')
 
     created_time = models.DateTimeField(auto_now_add=True)
+
+    preferences_json = models.TextField(blank=True, null=True)
+
+    def get_preference(self, key):
+        if self.preferences_json is None:
+            return None
+        try:
+            return json.loads(self.preferences_json)[key]
+        except (KeyError, ValueError):
+            return None
+
+    def set_preference(self, key, value):
+        if self.preferences_json is None:
+            prefs = {}
+        else:
+            prefs = json.loads(self.preferences_json)
+        prefs[key] = value
+        self.preferences_json = json.dumps(prefs)
+
+    @property
+    def use_legacy_stopwatch(self):
+        return bool(self.get_preference("use_legacy_stopwatch"))
+
+    @use_legacy_stopwatch.setter
+    def use_legacy_stopwatch(self, v):
+        if self.use_legacy_stopwatch != bool(v):
+            self.set_preference("use_legacy_stopwatch", bool(v))
 
     @classmethod
     def all_named(cls):
