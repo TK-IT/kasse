@@ -1,6 +1,6 @@
 *.sqlite3
 *.swp
-*.pyc
+**/__pycache__
 /kasse/settings/__init__.py
 /stopwatch/static/stopwatch/vaeske360.jpg
 /stopwatch/static/stopwatch/vaeske640.jpg
@@ -16,3 +16,9 @@ log.txt
 static/
 tider/
 venv
+
+.git
+Dockerfile
+.dockerignore
+stopwatch/static/stopwatch/vaeske3256.jpg
+vaeske.xcf
