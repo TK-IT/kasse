@@ -1,16 +1,18 @@
 # vim: set fileencoding=utf8:
 from __future__ import absolute_import, unicode_literals, division
 
-import logging
 import datetime
 import functools
+import logging
+import sys
+import traceback
 
 from django.urls import reverse
 from django.utils.six.moves import urllib_parse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.http import (
-    HttpResponse, HttpResponseRedirect,
+    HttpResponse, HttpResponseRedirect, HttpResponseServerError,
     Http404,
 )
 from django.views.generic import (
@@ -457,3 +459,19 @@ class AssociationPeriodUpdate(FormView):
                 form.cleaned_data[key].save()
         context_data = self.get_context_data(form=form, message='Gemt!')
         return self.render_to_response(context_data)
+
+
+def internal_server_error_view(request):
+    try:
+        tb = traceback.format_exception(
+            sys.last_type, sys.last_value, sys.last_traceback
+        )
+        return HttpResponseServerError(
+            "Server Error (500)\n\n" + "".join(tb), content_type="text/plain"
+        )
+    except Exception:
+        return HttpResponseServerError(
+            "<h1>Server Error (500)</h1>\n"
+            + "Inside kasse.views.internal_server_error_view",
+            content_type="text/html",
+        )

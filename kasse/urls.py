@@ -60,6 +60,8 @@ urlpatterns = [
         name='contest_create'),
 ]
 
+handler500 = 'kasse.views.internal_server_error_view'
+
 if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
