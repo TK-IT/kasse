@@ -4,9 +4,11 @@ from __future__ import absolute_import, unicode_literals, division
 import datetime
 import functools
 import logging
+import os
 import sys
 import traceback
 
+import django
 from django.urls import reverse
 from django.utils.six.moves import urllib_parse
 from django.utils.decorators import method_decorator
@@ -463,15 +465,14 @@ class AssociationPeriodUpdate(FormView):
 
 def internal_server_error_view(request):
     try:
-        tb = traceback.format_exception(
-            sys.last_type, sys.last_value, sys.last_traceback
-        )
+        tb = traceback.format_exc()
+        tb = tb.replace(os.path.dirname(os.path.dirname(django.__file__)), "/site-packages")
+        tb = tb.replace(os.path.dirname(os.path.dirname(kasse.__file__)), "/kasse-root")
         return HttpResponseServerError(
-            "Server Error (500)\n\n" + "".join(tb), content_type="text/plain"
+            "Server Error (500)\n\n" + tb, content_type="text/plain"
         )
     except Exception:
+        tb = traceback.format_exc()
         return HttpResponseServerError(
-            "<h1>Server Error (500)</h1>\n"
-            + "Inside kasse.views.internal_server_error_view",
-            content_type="text/html",
+            "Server Error (500)\n\n" + tb, content_type="text/plain"
         )
