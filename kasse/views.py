@@ -5,6 +5,7 @@ import datetime
 import functools
 import logging
 import os
+import re
 import sys
 import traceback
 
@@ -13,6 +14,7 @@ from django.urls import reverse
 from django.utils.six.moves import urllib_parse
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from django.utils.html import format_html
 from django.http import (
     HttpResponse, HttpResponseRedirect, HttpResponseServerError,
     Http404,
@@ -27,6 +29,7 @@ from django.conf import settings
 from django.db.utils import NotSupportedError
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
+from django.template.response import SimpleTemplateResponse
 
 from kasse.forms import (
     LoginForm, ProfileCreateForm,
@@ -465,11 +468,42 @@ class AssociationPeriodUpdate(FormView):
 
 def internal_server_error_view(request):
     try:
-        tb = traceback.format_exc()
-        tb = tb.replace(os.path.dirname(os.path.dirname(django.__file__)), "/site-packages")
-        tb = tb.replace(os.path.dirname(os.path.dirname(kasse.__file__)), "/kasse-root")
-        return HttpResponseServerError(
-            "Server Error (500)\n\n" + tb, content_type="text/plain"
+        etype, value, tb = sys.exc_info()
+        output = []
+        repos = [(django, "django/django", "2.2.3"), (kasse, "TK-IT/kasse", "master")]
+        for part in traceback.TracebackException(etype, value, tb).format():
+            mo = re.match(r'^(  File "(.*)", line (\d+).*\n)(.*\n)((?:.|\n)*)', part)
+            if not mo:
+                output.append(part)
+                continue
+            line1, filename, lineno, line2, line3 = mo.groups()
+            for module, project, version in repos:
+                if not filename.startswith(os.path.dirname(module.__file__)):
+                    continue
+                repo_root = os.path.dirname(os.path.dirname(module.__file__))
+                relpath = filename.replace(repo_root, "")
+                url = "https://github.com/%s/blob/%s%s#L%s" % (
+                    project,
+                    version,
+                    relpath,
+                    lineno,
+                )
+                output.append(line1.replace(repo_root, "..."))
+                output.append(
+                    format_html(
+                        '    <a href="{}" target="_blank" rel="noopener">{}</a>\n',
+                        url,
+                        line2.strip(),
+                    )
+                )
+                break
+            else:
+                output.append(line1)
+                output.append(line2)
+            if line3:
+                output.append(line3)
+        return SimpleTemplateResponse(
+            "http500.html", context={"traceback": output}, status=500
         )
     except Exception:
         tb = traceback.format_exc()
