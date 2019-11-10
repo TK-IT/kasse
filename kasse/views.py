@@ -470,25 +470,30 @@ def internal_server_error_view(request):
     try:
         etype, value, tb = sys.exc_info()
         output = []
-        repos = [(django, "django/django", "2.2.3"), (kasse, "TK-IT/kasse", "master")]
+        django_dir = os.path.dirname(django.__file__)
+        site_packages = os.path.dirname(django_dir)
+        kasse_dir = os.path.dirname(os.path.dirname(kasse.__file__))
+        repos = [
+            (django_dir, site_packages, "django/django", "2.2.3"),
+            (kasse_dir, kasse_dir, "TK-IT/kasse", "master"),
+        ]
         for part in traceback.TracebackException(etype, value, tb).format():
             mo = re.match(r'^(  File "(.*)", line (\d+).*\n)(.*\n)((?:.|\n)*)', part)
             if not mo:
                 output.append(part)
                 continue
             line1, filename, lineno, line2, line3 = mo.groups()
-            for module, project, version in repos:
-                if not filename.startswith(os.path.dirname(module.__file__)):
+            for project_dir, strip_dir, project, version in repos:
+                if not filename.startswith(project_dir):
                     continue
-                repo_root = os.path.dirname(os.path.dirname(module.__file__))
-                relpath = filename.replace(repo_root, "")
+                relpath = filename.replace(strip_dir, "")
                 url = "https://github.com/%s/blob/%s%s#L%s" % (
                     project,
                     version,
                     relpath,
                     lineno,
                 )
-                output.append(line1.replace(repo_root, "..."))
+                output.append(line1.replace(strip_dir, "..."))
                 output.append(
                     format_html(
                         '    <a href="{}" target="_blank" rel="noopener">{}</a>\n',
