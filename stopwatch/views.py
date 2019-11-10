@@ -458,7 +458,7 @@ class TimeTrialBest(TemplateView):
         try:
             qs_distinct = qs.distinct('profile')
             return list(qs_distinct)
-        except NotImplementedError:
+        except (NotImplementedError, NotSupportedError):
             res = {}
             for tt in qs:
                 res.setdefault(tt.profile_id, tt)
