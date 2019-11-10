@@ -5,6 +5,7 @@ import json
 import logging
 import datetime
 
+from django.db.utils import NotSupportedError
 from django.core.exceptions import FieldError, ValidationError
 from django.urls import reverse
 from django.core.serializers.json import DjangoJSONEncoder
@@ -426,7 +427,7 @@ class TimeTrialAllBest(TemplateView):
         try:
             qs_distinct = qs.distinct('leg_count')
             return list(qs_distinct)
-        except (NotImplementedError, FieldError):
+        except (NotImplementedError, FieldError, NotSupportedError):
             res = {}
             for tt in qs:
                 res.setdefault(tt.leg_count, tt)
