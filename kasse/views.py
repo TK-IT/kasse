@@ -93,7 +93,7 @@ class Home(TemplateView):
 
     @staticmethod
     def get_season_start():
-        return datetime.date(2018, 10, 5)
+        return datetime.date(2019, 9, 1)
 
     def get_current_best(self, **kwargs):
         season_start = Home.get_season_start()
