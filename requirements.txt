@@ -1,4 +1,4 @@
-Django==2.2.3
+Django==2.2.8
 wheel==0.33.4
 django-ipware==2.1.0
 requests==2.22.0
