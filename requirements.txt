@@ -4,7 +4,7 @@ django-ipware==2.1.0
 requests==2.22.0
 facebook-sdk==3.1.0
 django-multiupload==0.5.2
-Pillow==6.2.0
+Pillow==8.1.1
 sorl-thumbnail==12.5.0
 django-assets==0.12
 dukpy==0.2.2
