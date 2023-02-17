@@ -290,7 +290,8 @@ def info_links(tts):
 def reconstruct_state(current_events):
     state = {}
     for tt in current_events:
-        if tt.post:
+        # TODO: Actually implement TimeTrial.post as a field
+        if getattr(tt, "post", None):
             # Ideally tt.post should contain info
             # on what state is actually reflected in the post and comments
             # so we know whether something interesting happened when
