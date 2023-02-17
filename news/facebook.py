@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals, division
 import hmac
 import hashlib
 import logging
-import facebook
+import facebook_api
 
 logger = logging.getLogger('news')
 
@@ -12,13 +12,11 @@ logger = logging.getLogger('news')
 from news.models import Config, Post, Comment
 
 
-FACEBOOK_API_VERSION = '2.12'
+FACEBOOK_API_VERSION = '16.0'
 
 
 def ensure_valid_api_version():
-    if FACEBOOK_API_VERSION not in facebook.VALID_API_VERSIONS:
-        raise SystemExit('facebook-sdk %s does not support API version %s' %
-                         (facebook.__version__, FACEBOOK_API_VERSION))
+    pass
 
 
 class ServiceUnavailable(Exception):
@@ -26,26 +24,11 @@ class ServiceUnavailable(Exception):
         super().__init__("Service temporarily unavailable")
 
 
-class GraphAPIWithSecretProof(facebook.GraphAPI):
-    def __init__(self, *args, app_secret, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.appsecret_proof = hmac.new(app_secret.encode('ascii'),
-                                        self.access_token.encode('ascii'),
-                                        hashlib.sha256).hexdigest()
-
-    def request(self, path, args=None, post_args=None, **kwargs):
-        if post_args is not None:
-            post_args['appsecret_proof'] = self.appsecret_proof
-        else:
-            args['appsecret_proof'] = self.appsecret_proof
-        return super().request(path, args, post_args=post_args, **kwargs)
-
-
-def access_page():
+def access_page() -> facebook_api.GraphAPI:
     c = Config.objects.get()
-    return GraphAPIWithSecretProof(c.page_access_token,
-                                   version=FACEBOOK_API_VERSION,
-                                   app_secret=c.app_secret)
+    return facebook_api.GraphAPI(
+        c.page_access_token, version=FACEBOOK_API_VERSION, app_secret=c.app_secret
+    )
 
 
 def new_post(text):
@@ -67,7 +50,7 @@ def comment_on_post(post, text, attachment=None):
         data['attachment_url'] = attachment
     try:
         o = graph.put_object(post.fbid, 'comments', **data)
-    except facebook.GraphAPIError as exn:
+    except facebook_api.GraphAPIError as exn:
         if str(exn) == '(#2) Service temporarily unavailable':
             raise ServiceUnavailable() from exn
         else:
