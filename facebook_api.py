@@ -38,14 +38,6 @@ except ImportError:
     from urlparse import parse_qs
     from urllib import urlencode
 
-from . import version
-
-
-__version__ = version.__version__
-
-
-VALID_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5"]
-
 
 class GraphAPI(object):
     """A client for the Facebook Graph API.
@@ -78,9 +70,6 @@ class GraphAPI(object):
     """
 
     def __init__(self, access_token=None, timeout=None, version=None, proxies=None):
-        # The default version is only used if the version kwarg does not exist.
-        default_version = "2.0"
-
         self.access_token = access_token
         self.timeout = timeout
         self.proxies = proxies
@@ -89,19 +78,14 @@ class GraphAPI(object):
             version_regex = re.compile("^\d\.\d$")
             match = version_regex.search(str(version))
             if match is not None:
-                if str(version) not in VALID_API_VERSIONS:
-                    raise GraphAPIError(
-                        "Valid API versions are " + str(VALID_API_VERSIONS).strip("[]")
-                    )
-                else:
-                    self.version = "v" + str(version)
+                self.version = "v" + str(version)
             else:
                 raise GraphAPIError(
                     "Version number should be in the"
                     " following format: #.# (e.g. 2.0)."
                 )
         else:
-            self.version = "v" + default_version
+            raise GraphAPIError("Version is required")
 
     def get_object(self, id, **args):
         """Fetches the given object from the graph."""
