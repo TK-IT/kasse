@@ -93,7 +93,7 @@ class Home(TemplateView):
 
     @staticmethod
     def get_season_start():
-        now = datetime.now()
+        now = datetime.date.today()
         season_year_start = now.year if now.month >= 9 else now.year-1
         return datetime.date(season_year_start, 9, 1)
 
