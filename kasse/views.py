@@ -93,7 +93,9 @@ class Home(TemplateView):
 
     @staticmethod
     def get_season_start():
-        return datetime.date(2022, 9, 1)
+        now = datetime.now()
+        season_year_start = now.year if now.month >= 9 else now.year-1
+        return datetime.date(season_year_start, 9, 1)
 
     def get_current_best(self, **kwargs):
         season_start = Home.get_season_start()
